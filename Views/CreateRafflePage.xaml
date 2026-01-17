@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:Natillera.ViewModels"
+             x:Class="Natillera.Views.CreateRafflePage"
+             x:DataType="viewModels:CreateRaffleViewModel"
+             xmlns:sys="clr-namespace:System;assembly=netstandard"
+             Title="{Binding Title}">
+    
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <Label
+                Text="Datos de la rifa"
+                FontAttributes="Bold"
+                FontSize="18" />
+
+            <Entry
+                Placeholder="Nombre de la lotería"
+                Text="{Binding LotteryName}" />
+
+            <Entry
+                Placeholder="Código de la semana"
+                Text="{Binding WeekCode}"
+                IsEnabled="False" />
+
+            <Label Text="🎁 ¿Qué se está rifando?"
+                   FontAttributes="Bold" />
+
+            <Entry Placeholder="Ej: $500.000 en efectivo"
+                   Text="{Binding PrizeDescription}" />
+
+            <Label Text="📅 Fecha del sorteo"
+                   FontAttributes="Bold" />
+
+            <DatePicker
+                Date="{Binding DrawDate}"
+                MinimumDate="{x:Static sys:DateTime.Today}" />
+
+            <Label Text="Precio de la boleta"
+                   FontAttributes="Bold" />
+            
+            <Entry Placeholder="Precio de la boleta"
+               Keyboard="Numeric"
+               Text="{Binding BetPrize}" />
+
+            <Label Text="💰 Premios por acierto"
+                   FontAttributes="Bold"
+                   Margin="0,10,0,0"/>
+
+            <Entry Placeholder="Premio 2 primeras cifras"
+                   Keyboard="Numeric"
+                   Text="{Binding FirstTwoPrize}" />
+
+            <Entry Placeholder="Premio 2 cifras del medio"
+                   Keyboard="Numeric"
+                   Text="{Binding MiddleTwoPrize}" />
+
+            <Entry Placeholder="Premio 2 últimas cifras"
+                   Keyboard="Numeric"
+                   Text="{Binding LastTwoPrize}" />
+
+            <Button Text="Crear rifa"
+                    Command="{Binding CreateRaffleCommand}"
+                    BackgroundColor="#2E7D32"
+                    TextColor="White"
+                    Margin="0,20,0,0"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

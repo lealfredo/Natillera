@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Natillera.Views.RaffleHistoryPage"
+             Title="{Binding Title}">
+    <CollectionView
+        x:Name="RafflesView"
+        ItemsSource="{Binding Raffles}"
+        SelectionMode="None">
+
+        <CollectionView.ItemTemplate>
+            <DataTemplate>
+                <Border Padding="12" Margin="6"
+                        Shadow="true">
+                    <VerticalStackLayout>
+
+                        <Label
+                            Text="{Binding WeekCode}"
+                            FontAttributes="Bold"
+                            FontSize="16" />
+
+                        <Label
+                            Text="{Binding DrawDate, StringFormat='Sorteo: {0:dd/MM/yyyy}'}"
+                            FontSize="13" />
+
+                        <Label
+                            Text="{Binding LotteryName}"
+                            FontSize="13"
+                            TextColor="Gray" />
+
+                        <Label
+                            Text="{Binding WinningNumber, StringFormat='Ganador: {0}'}"
+                            TextColor="Green"
+                            FontAttributes="Bold" />
+
+                        <Button
+                            Text="Ver detalles"
+                            Command="{Binding BindingContext.OpenRaffleCommand,
+                            Source={x:Reference RafflesView}}"
+                            CommandParameter="{Binding .}" />
+                    </VerticalStackLayout>
+                </Border>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+
+    </CollectionView>
+</ContentPage>

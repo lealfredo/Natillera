@@ -1,0 +1,145 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Natillera.Views.RaffleWinnersPage"
+             Title="{Binding Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <!-- ================= RIFA ================= -->
+            <VerticalStackLayout 
+                    IsVisible="{Binding Exist}">
+
+                <VerticalStackLayout IsVisible="{Binding IsOpen}" Spacing="10">
+                    <Entry Placeholder="Número ganador (0000)" Keyboard="Numeric" MaxLength="4" Text="{Binding WinningNumber}" />
+                    <Button Text="Confirmar número ganador" Command="{Binding SaveWinningNumberCommand}" />
+                </VerticalStackLayout>
+                
+                <Border Stroke="Gray" Padding="15">
+                <VerticalStackLayout Spacing="8">
+
+                    <Label Text="🎟 Información de la rifa"
+                           FontSize="18"
+                           FontAttributes="Bold" />
+
+                    <Label Text="Semana:" FontAttributes="Bold"/>
+                    <Label Text="{Binding CurrentRaffle.WeekCode}" />
+
+                    <Label Text="Fecha sorteo:" FontAttributes="Bold"/>
+                    <Label Text="{Binding CurrentRaffle.DrawDate, StringFormat='{0:dd/MM/yyyy}'}"/>
+
+                    <Label Text="Lotería:" FontAttributes="Bold"/>
+                    <Label Text="{Binding CurrentRaffle.LotteryName}"/>
+
+                    <Label Text="¿Qué se rifa?" FontAttributes="Bold"/>
+                    <Label Text="{Binding CurrentRaffle.PrizeDescription}"/>
+
+
+                    <Label Text="Precio de la boleta" FontAttributes="Bold" />
+                    <Label Text="{Binding CurrentRaffle.BetPrize, StringFormat='$ {0:N0}'}" />
+
+                    <Label Text="Premios:" FontAttributes="Bold"/>
+
+                    <Label Text="{Binding CurrentRaffle.FirstTwoPrize, StringFormat='2 primeras: $ {0:N0}'}"/>
+                    <Label Text="{Binding CurrentRaffle.MiddleTwoPrize, StringFormat='2 del medio: $ {0:N0}'}"/>
+                    <Label Text="{Binding CurrentRaffle.LastTwoPrize, StringFormat='2 últimas: $ {0:N0}'}"/>
+
+                    <Label Text="Número ganador:"
+                           FontAttributes="Bold"
+                           Margin="0,10,0,0"/>
+
+                    <Label Text="{Binding CurrentRaffle.WinningNumber}"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           TextColor="Green"/>
+                </VerticalStackLayout>
+            </Border>
+
+                <VerticalStackLayout Spacing="6"
+                    IsVisible="{Binding IsClose}">
+
+                    <Label Text="📊 Resumen económico"
+               FontAttributes="Bold"
+               FontSize="16" />
+
+                    <Label Text="{Binding TotalSold, StringFormat='Números vendidos: {0}'}" />
+
+                    <Label Text="{Binding TotalCollected, StringFormat='Recaudado: ${0:N0}'}" />
+
+                    <Label Text="{Binding TotalPrizes, StringFormat='Premios: ${0:N0}'}" />
+
+                    <Label Text="{Binding NetProfit, StringFormat='Ganancia: ${0:N0}'}"
+               FontAttributes="Bold"
+               TextColor="DarkGreen" />
+
+                    <Button
+    Text="📲 Enviar resumen por WhatsApp"
+    Command="{Binding SendSummaryCommand}" />
+
+                </VerticalStackLayout>
+
+                <!-- ================= GANADORES ================= -->
+            <Label Text="🏆 Ganadores"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                    IsVisible="{Binding IsClose}"/>
+
+            <CollectionView ItemsSource="{Binding Winners}"
+                    IsVisible="{Binding Exist}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="12" Margin="5" Stroke="LightGray">
+                            <VerticalStackLayout Spacing="6">
+
+                                <Label Text="{Binding ParticipantName}"
+                                       FontSize="16"
+                                       FontAttributes="Bold"/>
+
+                                <Label Text="{Binding Phone}"
+                                       FontSize="13"
+                                       TextColor="Gray"/>
+
+                                <HorizontalStackLayout Spacing="6">
+                                    <Label Text="Número:" FontAttributes="Bold"/>
+                                    <Label Text="{Binding Number}"/>
+                                </HorizontalStackLayout>
+
+                                <HorizontalStackLayout Spacing="6">
+                                    <Label Text="Acierto:" FontAttributes="Bold"/>
+                                    <Label Text="{Binding BetType}"
+                                           TextColor="DarkGreen"/>
+                                </HorizontalStackLayout>
+
+                                <Label Text="{Binding PrizeAmount, StringFormat='💰 Premio: $ {0:N0}'}"
+                                       FontAttributes="Bold"
+                                       TextColor="Green"/>
+
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+                <Button
+                    IsVisible="{Binding Winners.Count}"
+    Text="📲 Enviar ganadores por WhatsApp"
+    Command="{Binding BuildRaffleResultMessageCommand}" />
+                
+            </VerticalStackLayout>
+
+            <VerticalStackLayout
+               IsVisible="{Binding NoExist}">
+            <Label Text="No hay rifa creada"
+               HorizontalOptions="Center"
+               TextColor="Gray"/>
+            </VerticalStackLayout>
+
+            <!-- Sin ganadores -->
+            <!--<Label Text="No hubo ganadores en esta rifa"
+                   IsVisible="{Binding Winners.Count, Converter={StaticResource ZeroToTrueConverter}}"
+                   HorizontalOptions="Center"
+                   TextColor="Gray"/>-->
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
