@@ -238,42 +238,63 @@ namespace Natillera.Data
             return await _database.Table<RaffleWinner>().ToListAsync();
         }
 
-        public async Task<int> SaveRaffleWeekRangeAsync(List<RaffleWeek> raffleWeeks)
+        public async Task SaveRaffleWeekRangeAsync(List<RaffleWeek> raffleWeeks)
         {
-            return await _database.InsertAllAsync(raffleWeeks);
+            await _database.RunInTransactionAsync(conn =>
+            {
+                foreach (var raffle in raffleWeeks)
+                {
+                    conn.InsertOrReplace(raffle);
+                }
+            });
         }
 
-        public async Task<int> SaveParticipantRangeAsync(List<Participant> participants)
+        public async Task SaveParticipantRangeAsync(List<Participant> participants)
         {
-            return await _database.InsertAllAsync(participants);
+            await _database.RunInTransactionAsync(conn =>
+            {
+                foreach (var participant in participants)
+                {
+                    conn.InsertOrReplace(participant);
+                }
+            });
         }
 
-        public async Task<int> SaveBetRangeAsync(List<Bet> bets)
+        public async Task SaveBetRangeAsync(List<Bet> bets)
         {
-            return await _database.InsertAllAsync(bets);
+            await _database.RunInTransactionAsync(conn =>
+            {
+                foreach (var bet in bets)
+                {
+                    conn.InsertOrReplace(bet);
+                }
+            });
         }
 
-        public async Task<int> SaveRaffleWinnerRangeAsync(List<RaffleWinner> raffleWinners)
+        public async Task SaveRaffleWinnerRangeAsync(List<RaffleWinner> raffleWinners)
         {
-            return await _database.InsertAllAsync(raffleWinners);
+            await _database.RunInTransactionAsync(conn =>
+            {
+                foreach (var rafleWinner in raffleWinners)
+                {
+                    conn.InsertOrReplace(rafleWinner);
+                }
+            });
         }
 
 
         public async Task ClearAllAsync()
         {
-            await _database.Table<RaffleWinner>().DeleteAsync();
-            await _database.Table<Bet>().DeleteAsync();
-            await _database.Table<Participant>().DeleteAsync();
-            await _database.Table<RaffleWeek>().DeleteAsync();
-            await _database.Table<Setting>().DeleteAsync();
+            await _database.ExecuteAsync("DELETE FROM RaffleWinner");
+            await _database.ExecuteAsync("DELETE FROM Bet");
+            await _database.ExecuteAsync("DELETE FROM Participant");
+            await _database.ExecuteAsync("DELETE FROM RaffleWeek");
+            await _database.ExecuteAsync("DELETE FROM Setting");
         }
 
         public async Task<int> SaveSettingAsync(Setting setting)
         {
-            if (setting.Id != 0)
-                return await _database.UpdateAsync(setting);
-
-            return await _database.InsertAsync(setting);
+            return await _database.InsertOrReplaceAsync(setting);
         }
 
         public async Task<Setting> GetSettingAsync()

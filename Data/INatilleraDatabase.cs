@@ -43,13 +43,13 @@ namespace Natillera.Data
 
         Task<List<RaffleWinner>> GetAllRaffleWinner();
 
-        Task<int> SaveRaffleWeekRangeAsync(List<RaffleWeek> raffleWeeks);
+        Task SaveRaffleWeekRangeAsync(List<RaffleWeek> raffleWeeks);
 
-        Task<int> SaveParticipantRangeAsync(List<Participant> participants);
+        Task SaveParticipantRangeAsync(List<Participant> participants);
 
-        Task<int> SaveBetRangeAsync(List<Bet> bets);
+        Task SaveBetRangeAsync(List<Bet> bets);
 
-        Task<int> SaveRaffleWinnerRangeAsync(List<RaffleWinner> raffleWinners);
+        Task SaveRaffleWinnerRangeAsync(List<RaffleWinner> raffleWinners);
         Task ClearAllAsync();
 
         //Settings

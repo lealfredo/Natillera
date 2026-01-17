@@ -112,11 +112,16 @@ namespace Natillera.ViewModels
                 //Recomendado: limpiar antes
                 await _database.ClearAllAsync();
 
-                await _database.SaveRaffleWeekRangeAsync(backup.Raffles);
                 await _database.SaveParticipantRangeAsync(backup.Participants);
+                await _database.SaveRaffleWeekRangeAsync(backup.Raffles);
                 await _database.SaveBetRangeAsync(backup.Bets);
                 await _database.SaveRaffleWinnerRangeAsync(backup.Winners);
                 await _database.SaveSettingAsync(backup.Setting);
+
+                await Shell.Current.DisplayAlert(
+                    "Exito",
+                    "Backup cargado exitosamente",
+                    "OK");
             }
             catch (Exception ex)
             {
