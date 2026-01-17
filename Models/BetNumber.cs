@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Natillera.Models
+﻿namespace Natillera.Models
 {
     public class BetNumber
     {

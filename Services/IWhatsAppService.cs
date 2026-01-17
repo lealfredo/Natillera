@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Natillera.Services
+﻿namespace Natillera.Services
 {
     public interface IWhatsAppService
     {

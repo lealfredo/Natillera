@@ -62,9 +62,8 @@
 
             <Button Text="Crear rifa"
                     Command="{Binding CreateRaffleCommand}"
-                    BackgroundColor="#2E7D32"
-                    TextColor="White"
-                    Margin="0,20,0,0"/>
+                    BackgroundColor="#455A64"
+                    TextColor="White"/>
 
         </VerticalStackLayout>
     </ScrollView>

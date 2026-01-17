@@ -2,9 +2,6 @@
 using CommunityToolkit.Mvvm.Input;
 using Natillera.Data;
 using Natillera.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Natillera.ViewModels
 {

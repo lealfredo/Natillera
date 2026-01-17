@@ -13,6 +13,7 @@ namespace Natillera
             Routing.RegisterRoute("RaffleWinnersPage", typeof(RaffleWinnersPage));
             Routing.RegisterRoute("CreateRafflePage", typeof(CreateRafflePage));
             Routing.RegisterRoute("RaffleHistoryPage", typeof(RaffleHistoryPage));
+            Routing.RegisterRoute("BackupPage", typeof(BackupPage));
         }
     }
 }

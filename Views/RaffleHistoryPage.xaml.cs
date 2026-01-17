@@ -6,8 +6,8 @@ public partial class RaffleHistoryPage : ContentPage
 {
     private readonly RaffleHistoryViewModel _viewModel;
     public RaffleHistoryPage(RaffleHistoryViewModel vm)
-	{
-		InitializeComponent();
+    {
+        InitializeComponent();
         BindingContext = _viewModel = vm;
     }
 

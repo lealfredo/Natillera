@@ -1,8 +1,5 @@
 ﻿using Natillera.Entities;
 using Natillera.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Natillera.Services
 {

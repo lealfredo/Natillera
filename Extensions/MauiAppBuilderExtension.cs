@@ -2,9 +2,6 @@
 using Natillera.Services;
 using Natillera.ViewModels;
 using Natillera.Views;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Natillera.Extensions
 {
@@ -35,12 +32,14 @@ namespace Natillera.Extensions
             builder.Services.AddTransient<RaffleWinnersPage>();
             builder.Services.AddTransient<CreateRafflePage>();
             builder.Services.AddTransient<RaffleHistoryPage>();
+            builder.Services.AddTransient<BackupPage>();
 
             builder.Services.AddTransient<RaffleViewModel>();
             builder.Services.AddTransient<BetViewModel>();
             builder.Services.AddTransient<RaffleWinnerViewModel>();
             builder.Services.AddTransient<CreateRaffleViewModel>();
             builder.Services.AddTransient<RaffleHistoryViewModel>();
+            builder.Services.AddTransient<BackupViewModel>();
         }
     }
 }

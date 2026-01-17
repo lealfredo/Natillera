@@ -3,45 +3,56 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Natillera.Views.RaffleHistoryPage"
              Title="{Binding Title}">
-    <CollectionView
+
+    <ScrollView>
+        <StackLayout Spacing="10">
+            <CollectionView
         x:Name="RafflesView"
         ItemsSource="{Binding Raffles}"
         SelectionMode="None">
 
-        <CollectionView.ItemTemplate>
-            <DataTemplate>
-                <Border Padding="12" Margin="6"
-                        Shadow="true">
-                    <VerticalStackLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="12" Margin="6">
+                            <VerticalStackLayout Spacing="10">
 
-                        <Label
+                                <Label
                             Text="{Binding WeekCode}"
                             FontAttributes="Bold"
                             FontSize="16" />
 
-                        <Label
+                                <Label
                             Text="{Binding DrawDate, StringFormat='Sorteo: {0:dd/MM/yyyy}'}"
                             FontSize="13" />
 
-                        <Label
+                                <Label
                             Text="{Binding LotteryName}"
                             FontSize="13"
                             TextColor="Gray" />
 
-                        <Label
+                                <Label
                             Text="{Binding WinningNumber, StringFormat='Ganador: {0}'}"
                             TextColor="Green"
                             FontAttributes="Bold" />
 
-                        <Button
+                                <Button
                             Text="Ver detalles"
+                            BackgroundColor="#455A64"
+                            TextColor="White"
                             Command="{Binding BindingContext.OpenRaffleCommand,
                             Source={x:Reference RafflesView}}"
                             CommandParameter="{Binding .}" />
-                    </VerticalStackLayout>
-                </Border>
-            </DataTemplate>
-        </CollectionView.ItemTemplate>
-
-    </CollectionView>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <VerticalStackLayout
+                           IsVisible="{Binding NoExist}">
+                <Label Text="No hay historial"
+                           HorizontalOptions="Center"
+                           TextColor="Gray"/>
+            </VerticalStackLayout>
+        </StackLayout>
+    </ScrollView>
 </ContentPage>

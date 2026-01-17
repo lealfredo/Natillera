@@ -3,8 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using Natillera.Data;
 using Natillera.Entities;
 using Natillera.Services;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
 
@@ -16,6 +14,7 @@ namespace Natillera.ViewModels
         private readonly INatilleraDatabase _database;
         private readonly IRaffleService _raffleService;
         private readonly IWhatsAppService _whatsAppService;
+        private Setting _setting;
 
         public ObservableCollection<WinnerItem> Winners { get; } = new();
 
@@ -55,6 +54,10 @@ namespace Natillera.ViewModels
             Title = "Ganadores de la Rifa";
             _whatsAppService = whatsAppService;
         }
+        public async Task LoadSettingAsync()
+        {
+            _setting = await _database.GetSettingAsync();
+        }
 
         private async Task LoadEconomicSummaryAsync()
         {
@@ -80,7 +83,7 @@ namespace Natillera.ViewModels
             if (lastDraw == null)
             {
                 Exist = false;
-                return; 
+                return;
             }
 
             Exist = true;
@@ -155,6 +158,16 @@ namespace Natillera.ViewModels
         [RelayCommand]
         private async Task SendSummaryAsync()
         {
+            if (_setting == null)
+            {
+                await Shell.Current.DisplayAlert(
+                    "Error",
+                    "Primero debe realizar la configuración del número de WhatsApp",
+                    "OK");
+
+                return;
+            }
+
             var message = $"""
                 🎟️ RIFA SEMANAL
                 Semana: {CurrentRaffle.WeekCode}
@@ -168,12 +181,22 @@ namespace Natillera.ViewModels
                 • Ganancia neta: ${NetProfit:N0}
                 """;
 
-            await _whatsAppService.SendAsync(message, "3163236534");
+            await _whatsAppService.SendAsync(message, _setting.WhatsAppNumber);
         }
 
         [RelayCommand]
         public async Task BuildRaffleResultMessageAsync()
         {
+            if (_setting == null)
+            {
+                await Shell.Current.DisplayAlert(
+                    "Error",
+                    "Primero debe realizar la configuración del número de WhatsApp",
+                    "OK");
+
+                return;
+            }
+
             var sb = new StringBuilder();
 
             sb.AppendLine("🎉 RESULTADO RIFA 🎉\n");
@@ -198,7 +221,7 @@ namespace Natillera.ViewModels
             sb.AppendLine("¡Felicitaciones! 🎉");
 
 
-            await _whatsAppService.SendAsync(sb.ToString(), "3163236534");
+            await _whatsAppService.SendAsync(sb.ToString(), _setting.WhatsAppNumber);
         }
 
     }

@@ -8,17 +8,24 @@
 
             <!-- ================= RIFA ================= -->
             <VerticalStackLayout 
-                    IsVisible="{Binding Exist}">
+                Spacing="20"
+                IsVisible="{Binding Exist}">
 
                 <VerticalStackLayout IsVisible="{Binding IsOpen}" Spacing="10">
                     <Entry Placeholder="Número ganador (0000)" Keyboard="Numeric" MaxLength="4" Text="{Binding WinningNumber}" />
-                    <Button Text="Confirmar número ganador" Command="{Binding SaveWinningNumberCommand}" />
+                    <Button 
+                        BackgroundColor="#455A64"
+                        TextColor="White"
+                        Text="Confirmar número ganador" 
+                        Command="{Binding SaveWinningNumberCommand}" />
                 </VerticalStackLayout>
-                
-                <Border Stroke="Gray" Padding="15">
+
+                <Border 
+                    Stroke="Gray" 
+                    Padding="15">
                 <VerticalStackLayout Spacing="8">
 
-                    <Label Text="🎟 Información de la rifa"
+                    <Label Text="Información de la rifa"
                            FontSize="18"
                            FontAttributes="Bold" />
 
@@ -58,7 +65,7 @@
                 <VerticalStackLayout Spacing="6"
                     IsVisible="{Binding IsClose}">
 
-                    <Label Text="📊 Resumen económico"
+                    <Label Text="Resumen económico"
                FontAttributes="Bold"
                FontSize="16" />
 
@@ -73,13 +80,15 @@
                TextColor="DarkGreen" />
 
                     <Button
-    Text="📲 Enviar resumen por WhatsApp"
-    Command="{Binding SendSummaryCommand}" />
+                        BackgroundColor="#1976D2"
+                        TextColor="White"
+                        Text="Enviar resumen por WhatsApp"
+                        Command="{Binding SendSummaryCommand}" />
 
                 </VerticalStackLayout>
 
                 <!-- ================= GANADORES ================= -->
-            <Label Text="🏆 Ganadores"
+            <Label Text="Ganadores"
                    FontSize="18"
                    FontAttributes="Bold"
                     IsVisible="{Binding IsClose}"/>
@@ -110,7 +119,7 @@
                                            TextColor="DarkGreen"/>
                                 </HorizontalStackLayout>
 
-                                <Label Text="{Binding PrizeAmount, StringFormat='💰 Premio: $ {0:N0}'}"
+                                <Label Text="{Binding PrizeAmount, StringFormat='Premio: $ {0:N0}'}"
                                        FontAttributes="Bold"
                                        TextColor="Green"/>
 
@@ -122,8 +131,10 @@
 
                 <Button
                     IsVisible="{Binding Winners.Count}"
-    Text="📲 Enviar ganadores por WhatsApp"
-    Command="{Binding BuildRaffleResultMessageCommand}" />
+                    BackgroundColor="#455A64"
+                    TextColor="White"
+                    Text="Enviar ganadores por WhatsApp"
+                    Command="{Binding BuildRaffleResultMessageCommand}" />
                 
             </VerticalStackLayout>
 

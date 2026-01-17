@@ -1,8 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Maui.Controls;
-using System;
-
-namespace Natillera
+﻿namespace Natillera
 {
     public partial class App : Application
     {

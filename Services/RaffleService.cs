@@ -1,9 +1,6 @@
 ﻿using Natillera.Data;
 using Natillera.Entities;
 using Natillera.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Natillera.Services
 {
@@ -56,10 +53,10 @@ namespace Natillera.Services
         public async Task<RaffleEconomicSummary> GetEconomicSummaryAsync(int raffleId)
         {
             var raffle = await _database.GetRaffleByIdAsync(raffleId);
-            var bets = await _database.GetBetsByRaffleAsync(raffleId);
+            var bets = await _database.GetTotalNumbersSoldAsync(raffleId);
             var winners = await _database.GetWinnersByDrawAsync(raffleId);
 
-            var totalSold = bets.Count;
+            var totalSold = bets;
             var totalCollected = totalSold * raffle.BetPrize;
 
             decimal totalPrizes = 0;

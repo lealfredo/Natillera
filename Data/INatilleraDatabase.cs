@@ -1,8 +1,5 @@
 ﻿using Natillera.Entities;
 using Natillera.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Natillera.Data
 {
@@ -31,10 +28,32 @@ namespace Natillera.Data
         // Números apostados
         Task<List<string>> GetTakenNumbersAsync();
         Task<List<BetNumber>> GetBetNumbersAsync(int raflleId);
+        Task<int> GetTotalNumbersSoldAsync(int raffleWeekId);
 
         Task<List<Bet>> GetBetsByNumberAndTypeAsync(string number, BetType type);
         Task SaveRaffleWinnerAsync(RaffleWinner winner);
         Task<List<T>> GetTableAsync<T>() where T : new();
         Task<List<RaffleWinner>> GetWinnersByDrawAsync(int drawId);
+
+        Task<List<RaffleWeek>> GetAllRaffleWeek();
+
+        Task<List<Participant>> GetAllParticipant();
+
+        Task<List<Bet>> GetAllBet();
+
+        Task<List<RaffleWinner>> GetAllRaffleWinner();
+
+        Task<int> SaveRaffleWeekRangeAsync(List<RaffleWeek> raffleWeeks);
+
+        Task<int> SaveParticipantRangeAsync(List<Participant> participants);
+
+        Task<int> SaveBetRangeAsync(List<Bet> bets);
+
+        Task<int> SaveRaffleWinnerRangeAsync(List<RaffleWinner> raffleWinners);
+        Task ClearAllAsync();
+
+        //Settings
+        Task<int> SaveSettingAsync(Setting setting);
+        Task<Setting> GetSettingAsync();
     }
 }

@@ -4,22 +4,87 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:Natillera.Views"
-    Title="Natillera">
+    Title="Rifas"
+    FlyoutBehavior="Flyout"
+    Shell.TabBarBackgroundColor="White"
+    Shell.TabBarForegroundColor="#1976D2"
+    Shell.TabBarUnselectedColor="#9E9E9E"
+    Shell.TabBarTitleColor="#1976D2">
 
-    <FlyoutItem Title="Menu" FlyoutDisplayOptions="AsMultipleItems" Icon="settings.png">
-        <Tab Title="Rifa" Icon="trophy.png">
-            <ShellContent ContentTemplate="{DataTemplate views:RafflePage}" />
-        </Tab>
-        <Tab Title="Ganadores" Icon="trophy.png">
-            <ShellContent ContentTemplate="{DataTemplate views:RaffleWinnersPage}" />
-        </Tab>
-        <Tab Title="Historico" Icon="trophy.png">
-            <ShellContent ContentTemplate="{DataTemplate views:RaffleHistoryPage}" />
+    <Shell.Resources>
+        <Style TargetType="TabBar">
+            <Setter Property="Shell.TabBarTitleColor" Value="#1976D2"/>
+            <Setter Property="Shell.TabBarUnselectedColor" Value="#9E9E9E"/>
+            <Setter Property="Shell.TabBarBackgroundColor" Value="White"/>
+        </Style>
+    </Shell.Resources>
+
+    <Shell.FlyoutHeader>
+        <Grid Padding="30"
+          BackgroundColor="#1976D2"
+          HeightRequest="200">
+
+            <VerticalStackLayout
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Spacing="12">
+
+                <Image
+                Source="logo.png"
+                HeightRequest="200"
+                WidthRequest="200"
+                Aspect="AspectFit" />
+
+                <!--<Label
+                Text="Gestión simple de rifas"
+                FontSize="14"
+                TextColor="#E8F5E9"
+                HorizontalTextAlignment="Center" />-->
+
+            </VerticalStackLayout>
+        </Grid>
+    </Shell.FlyoutHeader>
+
+    <!-- ========================= -->
+    <!-- SECCIÓN PRINCIPAL (TABS) -->
+    <!-- ========================= -->
+    <FlyoutItem
+        Title="Inicio"
+        Icon="home">
+
+        <Tab
+            Title="Rifas"
+            Icon="ticket">
+
+            <ShellContent
+                Title="Rifa"
+                Icon="ticket"
+                ContentTemplate="{DataTemplate views:RafflePage}" />
+
+            <ShellContent
+                Title="Ganadores"
+                Icon="winner"
+                ContentTemplate="{DataTemplate views:RaffleWinnersPage}" />
+
+            <ShellContent
+                Title="Histórico"
+                Icon="history"
+                ContentTemplate="{DataTemplate views:RaffleHistoryPage}" />
+
         </Tab>
     </FlyoutItem>
 
-    <ShellContent ContentTemplate="{DataTemplate views:RafflePage}" />
-    <ShellContent ContentTemplate="{DataTemplate views:RaffleWinnersPage}" />
-    <ShellContent ContentTemplate="{DataTemplate views:RaffleHistoryPage}" />
+    <!-- ========================= -->
+    <!-- CONFIGURACIÓN -->
+    <!-- ========================= -->
+    <FlyoutItem
+        Title="Configuración"
+        Icon="settings">
+
+        <ShellContent
+            Title="Ajustes"
+            Icon="settings"
+            ContentTemplate="{DataTemplate views:BackupPage}" />
+    </FlyoutItem>
 
 </Shell>

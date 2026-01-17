@@ -6,10 +6,10 @@ public partial class RaffleWinnersPage : ContentPage
 {
     private readonly RaffleWinnerViewModel _viewModel;
     public RaffleWinnersPage(RaffleWinnerViewModel vm)
-	{
-		InitializeComponent();
+    {
+        InitializeComponent();
 
-		BindingContext = _viewModel = vm;
+        BindingContext = _viewModel = vm;
     }
 
 
@@ -18,6 +18,9 @@ public partial class RaffleWinnersPage : ContentPage
         base.OnAppearing();
 
         if (BindingContext is RaffleWinnerViewModel vm)
+        {
+            await _viewModel.LoadSettingAsync();
             await _viewModel.LoadWinnersAsync();
+        }
     }
 }

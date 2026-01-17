@@ -4,9 +4,9 @@ namespace Natillera.Views;
 
 public partial class BetPage : ContentPage
 {
-	public BetPage(BetViewModel viewModel)
-	{
-		InitializeComponent();
+    public BetPage(BetViewModel viewModel)
+    {
+        InitializeComponent();
         BindingContext = viewModel;
     }
 

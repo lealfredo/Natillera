@@ -4,10 +4,10 @@ namespace Natillera.Views;
 
 public partial class CreateRafflePage : ContentPage
 {
-	public CreateRafflePage( CreateRaffleViewModel vm)
-	{
-		InitializeComponent();
+    public CreateRafflePage(CreateRaffleViewModel vm)
+    {
+        InitializeComponent();
 
-		BindingContext = vm;
+        BindingContext = vm;
     }
 }

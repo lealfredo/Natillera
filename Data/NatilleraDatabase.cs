@@ -1,9 +1,6 @@
 ﻿using Natillera.Entities;
 using Natillera.Models;
 using SQLite;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Natillera.Data
 {
@@ -19,6 +16,7 @@ namespace Natillera.Data
             _database.CreateTableAsync<Participant>().Wait();
             _database.CreateTableAsync<Bet>().Wait();
             _database.CreateTableAsync<RaffleWinner>().Wait();
+            _database.CreateTableAsync<Setting>().Wait();
         }
 
         // ---------------- RIFA ----------------
@@ -31,7 +29,8 @@ namespace Natillera.Data
                 raffle.IsClosed = raffle.IsClosed;
 
                 return await _database.UpdateAsync(raffle);
-            }else
+            }
+            else
                 return await _database.InsertAsync(raffle);
         }
 
@@ -107,6 +106,19 @@ namespace Natillera.Data
                 .Table<Bet>()
                 .Where(b => b.RaffleWeekId == raffleWeekId)
                 .ToListAsync();
+        }
+
+        public async Task<int> GetTotalNumbersSoldAsync(int raffleWeekId)
+        {
+            var bets = await _database
+                .Table<Bet>()
+                .Where(b => b.RaffleWeekId == raffleWeekId)
+                .ToListAsync();
+
+            return bets
+                .Select(b => b.Number)
+                .Distinct()
+                .Count();
         }
 
         public async Task<List<Bet>> GetBetsByParticipantAsync(int participantId)
@@ -204,6 +216,69 @@ namespace Natillera.Data
                       .Where(r => r.IsClosed)
                       .OrderByDescending(r => r.DrawDate)
                       .ToListAsync();
+        }
+
+        public async Task<List<RaffleWeek>> GetAllRaffleWeek()
+        {
+            return await _database.Table<RaffleWeek>().ToListAsync();
+        }
+
+        public async Task<List<Participant>> GetAllParticipant()
+        {
+            return await _database.Table<Participant>().ToListAsync();
+        }
+
+        public async Task<List<Bet>> GetAllBet()
+        {
+            return await _database.Table<Bet>().ToListAsync();
+        }
+
+        public async Task<List<RaffleWinner>> GetAllRaffleWinner()
+        {
+            return await _database.Table<RaffleWinner>().ToListAsync();
+        }
+
+        public async Task<int> SaveRaffleWeekRangeAsync(List<RaffleWeek> raffleWeeks)
+        {
+            return await _database.InsertAllAsync(raffleWeeks);
+        }
+
+        public async Task<int> SaveParticipantRangeAsync(List<Participant> participants)
+        {
+            return await _database.InsertAllAsync(participants);
+        }
+
+        public async Task<int> SaveBetRangeAsync(List<Bet> bets)
+        {
+            return await _database.InsertAllAsync(bets);
+        }
+
+        public async Task<int> SaveRaffleWinnerRangeAsync(List<RaffleWinner> raffleWinners)
+        {
+            return await _database.InsertAllAsync(raffleWinners);
+        }
+
+
+        public async Task ClearAllAsync()
+        {
+            await _database.Table<RaffleWinner>().DeleteAsync();
+            await _database.Table<Bet>().DeleteAsync();
+            await _database.Table<Participant>().DeleteAsync();
+            await _database.Table<RaffleWeek>().DeleteAsync();
+            await _database.Table<Setting>().DeleteAsync();
+        }
+
+        public async Task<int> SaveSettingAsync(Setting setting)
+        {
+            if (setting.Id != 0)
+                return await _database.UpdateAsync(setting);
+
+            return await _database.InsertAsync(setting);
+        }
+
+        public async Task<Setting> GetSettingAsync()
+        {
+            return await _database.Table<Setting>().FirstOrDefaultAsync();
         }
     }
 }

@@ -64,7 +64,9 @@
 
 
                 <Button
-                    Text="📲 Enviar por WhatsApp"
+                    Text="Enviar por WhatsApp"
+                    BackgroundColor="#455A64"
+                    TextColor="White"
                     Command="{Binding BuildRafflePromotionMessageCommand}" />
 
                     </VerticalStackLayout>
@@ -72,6 +74,8 @@
 
                 <Button
                 Text="Nueva rifa semanal"
+                BackgroundColor="#455A64"
+                TextColor="White"
                 IsVisible="{Binding IsClosed}"
                 Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=Navigation.PushAsync}"
                 Clicked="OnRegisterBetClicked" />
@@ -84,20 +88,35 @@
                     FontAttributes="Bold"
                     HorizontalOptions="Center" />
                 </Border>-->
-                <CollectionView
+
+                <Button
+                    Text="Exportar numeros"
+                    BackgroundColor="#1976D2"
+                    TextColor="White"
+                    IsVisible="{Binding IsOpen}"
+                    Command="{Binding ExportNumbersCommand}" 
+                />
+
+                <VerticalStackLayout
+                    x:Name="ExportLayout"
+                    IsVisible="{Binding IsOpen}"
+                    BackgroundColor="White"
+                    Padding="10">   
+
+                    <CollectionView
                     ItemsSource="{Binding Numbers}"
                     IsVisible="{Binding IsOpen}"
                     SelectionMode="None">
 
-                    <CollectionView.ItemsLayout>
-                        <GridItemsLayout
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout
             Orientation="Vertical"
             Span="5"/>
-                    </CollectionView.ItemsLayout>
+                        </CollectionView.ItemsLayout>
 
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <Button
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Button
                                 Text="{Binding Number}"
                                 Command="{Binding BindingContext.SelectNumberCommand,
                                           Source={RelativeSource AncestorType={x:Type views:RafflePage}}}"
@@ -106,10 +125,11 @@
                                 TextColor="White"
                                 Margin="5"
                                 FontSize="18"/>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
 
-                </CollectionView>
+                    </CollectionView>
+                </VerticalStackLayout>
 
             </VerticalStackLayout>
         </ScrollView>

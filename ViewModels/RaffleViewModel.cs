@@ -4,11 +4,7 @@ using Natillera.Data;
 using Natillera.Entities;
 using Natillera.Models;
 using Natillera.Services;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Text;
 using System.Windows.Input;
 
 namespace Natillera.ViewModels
@@ -17,6 +13,7 @@ namespace Natillera.ViewModels
     {
         private readonly INatilleraDatabase _database;
         private readonly IWhatsAppService _whatsAppService;
+        private Setting _setting;
         public ICommand SelectNumberCommand { get; }
         public ObservableCollection<BetNumber> Numbers { get; } = new();
 
@@ -35,6 +32,18 @@ namespace Natillera.ViewModels
 
             SelectNumberCommand = new Command<BetNumber>(OnSelectNumber);
             _whatsAppService = whatsAppService;
+        }
+        public async Task LoadSettingAsync()
+        {
+            _setting = await _database.GetSettingAsync();
+        }
+
+        public event EventHandler? ExportNumbersRequested;
+
+        [RelayCommand]
+        public async Task ExportNumbers()
+        {
+            ExportNumbersRequested?.Invoke(this, EventArgs.Empty);
         }
 
         public async Task LoadNumbersAsync()
@@ -107,6 +116,16 @@ namespace Natillera.ViewModels
         [RelayCommand]
         public async Task BuildRafflePromotionMessageAsync()
         {
+            if (_setting == null)
+            {
+                await Shell.Current.DisplayAlert(
+                    "Error",
+                    "Primero debe realizar la configuración del número de WhatsApp",
+                    "OK");
+
+                return;
+            }
+
             var message = $"""
                 🎟️ RIFA SEMANAL
 
@@ -119,9 +138,9 @@ namespace Natillera.ViewModels
                 • 2 del medio: ${CurrentRaffle.MiddleTwoPrize:N0}
                 • 2 últimas: ${CurrentRaffle.LastTwoPrize:N0}
 
-                📞 Contacto: {"3163236534"}
+                📞 Contacto: {_setting.WhatsAppNumber}
                 """;
-            await _whatsAppService.SendAsync(message, "3163236534");
+            await _whatsAppService.SendAsync(message, _setting.WhatsAppNumber);
         }
     }
 }

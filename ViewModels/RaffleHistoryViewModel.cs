@@ -3,10 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Natillera.Entities;
 using Natillera.Services;
 using Natillera.Views;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Text;
 
 namespace Natillera.ViewModels
 {
@@ -38,6 +35,11 @@ namespace Natillera.ViewModels
             foreach (var raffle in list)
                 Raffles.Add(raffle);
 
+            if(Raffles.Count > 0)
+                Exist = true;
+            else
+                Exist = false;
+
             IsBusy = false;
         }
 
@@ -52,6 +54,16 @@ namespace Natillera.ViewModels
                 {
                 { "RaffleId", raffle.Id }
                 });
+        }
+
+
+        [ObservableProperty]
+        private bool exist;
+        public bool NoExist => !Exist;
+
+        partial void OnExistChanged(bool value)
+        {
+            OnPropertyChanged(nameof(NoExist));
         }
     }
 }

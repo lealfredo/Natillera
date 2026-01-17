@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Natillera.Views.BackupPage"
+             Title="Configuración y respaldo">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="25">
+
+            <!-- CONFIGURACIÓN -->
+            <Border
+                Padding="20"
+                Stroke="#E0E0E0">
+
+                <VerticalStackLayout Spacing="15">
+
+                    <Label
+                        Text="Configuración de WhatsApp"
+                        FontSize="18"
+                        FontAttributes="Bold" />
+
+                    <Label
+                        Text="Número de WhatsApp"
+                        FontAttributes="Bold" />
+
+                    <Entry
+                        Placeholder="Ej: 3001234567"
+                        Keyboard="Telephone"
+                        Text="{Binding Setting.WhatsAppNumber}" />
+
+                    <Label
+                        Text="Nombre de contacto"
+                        FontAttributes="Bold" />
+
+                    <Entry
+                        Placeholder="Ej: Deicy"
+                        Text="{Binding Setting.ContactName}" />
+
+                    <Button
+                        Text="Guardar configuración"
+                        Command="{Binding SaveSettingCommand}"
+                        BackgroundColor="#1976D2"
+                        TextColor="White"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- BACKUP -->
+            <Border
+                Padding="20"
+                Stroke="#E0E0E0">
+
+                <VerticalStackLayout Spacing="15">
+
+                    <Label
+                        Text="Respaldo de información"
+                        FontSize="18"
+                        FontAttributes="Bold" />
+
+                    <Button
+                        Text="Exportar datos"
+                        Command="{Binding ExportCommand}"
+                        BackgroundColor="#1976D2"
+                        TextColor="White" />
+
+                    <Button
+                        Text="Importar datos"
+                        Command="{Binding ImportCommand}"
+                        BackgroundColor="#455A64"
+                        TextColor="White" />
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

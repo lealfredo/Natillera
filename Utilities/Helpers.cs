@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Natillera.Utilities
+﻿namespace Natillera.Utilities
 {
-    public class Helpers
+    public static class Helpers
     {
         public static DateTime GetNextFriday(DateTime fromDate)
         {
@@ -14,5 +10,17 @@ namespace Natillera.Utilities
 
             return fromDate.AddDays(days);
         }
+    }
+
+    public static class CustomFileTypes
+    {
+        public static FilePickerFileType Json => new FilePickerFileType(
+            new Dictionary<DevicePlatform, IEnumerable<string>>
+            {
+            { DevicePlatform.Android, new[] { "application/json" } },
+            { DevicePlatform.iOS, new[] { "public.json" } },
+            { DevicePlatform.WinUI, new[] { ".json" } },
+            { DevicePlatform.MacCatalyst, new[] { "public.json" } }
+            });
     }
 }
