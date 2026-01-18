@@ -5,6 +5,7 @@ using Natillera.Entities;
 
 namespace Natillera.ViewModels
 {
+    [QueryProperty(nameof(Id), "id")]
     public partial class CreateRaffleViewModel : BaseViewModel
     {
         private readonly INatilleraDatabase _database;
@@ -16,64 +17,81 @@ namespace Natillera.ViewModels
             Title = "Crear Rifa Semanal";
 
             // valores por defecto
-            LotteryName = "Lotería de Medellín";
+            RaffleWeek.LotteryName = "Lotería de Medellín";
             DrawDate = GetNextFriday();
-            WeekCode = GenerateWeekCode(DrawDate);
+            RaffleWeek.WeekCode = GenerateWeekCode(DrawDate);
         }
 
         [ObservableProperty]
-        private string weekCode;
+        private int id;
 
-        [ObservableProperty]
-        private string lotteryName;
+        //[ObservableProperty]
+        //private string weekCode;
+
+        //[ObservableProperty]
+        //private string lotteryName;
 
         [ObservableProperty]
         private DateTime drawDate;
 
-        [ObservableProperty]
-        private string prizeDescription;
+        //[ObservableProperty]
+        //private string prizeDescription;
+
+        //[ObservableProperty]
+        //private decimal firstTwoPrize;
+
+        //[ObservableProperty]
+        //private decimal betPrize;
+
+        //[ObservableProperty]
+        //private decimal middleTwoPrize;
+
+        //[ObservableProperty]
+        //private decimal lastTwoPrize;
 
         [ObservableProperty]
-        private decimal firstTwoPrize;
-
-        [ObservableProperty]
-        private decimal betPrize;
-
-        [ObservableProperty]
-        private decimal middleTwoPrize;
-
-        [ObservableProperty]
-        private decimal lastTwoPrize;
+        private RaffleWeek raffleWeek = new();
 
         partial void OnDrawDateChanged(DateTime value)
         {
-            WeekCode = GenerateWeekCode(value);
+            RaffleWeek.WeekCode = GenerateWeekCode(value);
+        }
+
+        public async Task LoadRaffleAsync()
+        {
+            if (Id > 0)
+                RaffleWeek = await _database.GetRaffleByIdAsync(Id);
+            else
+                RaffleWeek = new();
         }
 
         [RelayCommand]
         private async Task CreateRaffleAsync()
         {
-            if (string.IsNullOrWhiteSpace(PrizeDescription))
+            if (string.IsNullOrWhiteSpace(RaffleWeek.PrizeDescription))
             {
                 await Shell.Current.DisplayAlert("Error", "Describe qué se está rifando", "OK");
                 return;
             }
 
-            var raffle = new RaffleWeek
-            {
-                WeekCode = WeekCode,
-                DrawDate = DrawDate,
-                PrizeDescription = PrizeDescription,
-                FirstTwoPrize = FirstTwoPrize,
-                MiddleTwoPrize = MiddleTwoPrize,
-                LastTwoPrize = LastTwoPrize,
-                IsClosed = false,
-                CreatedAt = DateTime.UtcNow,
-                LotteryName = LotteryName,
-                BetPrize = BetPrize
-            };
+            //var raffle = new RaffleWeek
+            //{
+            //    Id = id,
+            //    WeekCode = raffleWeek.WeekCode,
+            //    DrawDate = raffleWeek.DrawDate,
+            //    PrizeDescription = raffleWeek.PrizeDescription,
+            //    FirstTwoPrize = raffleWeek.FirstTwoPrize,
+            //    MiddleTwoPrize = raffleWeek.MiddleTwoPrize,
+            //    LastTwoPrize = raffleWeek.LastTwoPrize,
+            //    IsClosed = false,
+            //    CreatedAt = DateTime.UtcNow,
+            //    LotteryName = raffleWeek.LotteryName,
+            //    BetPrize = raffleWeek.BetPrize
+            //};
 
-            await _database.SaveRaffleWeekAsync(raffle);
+            RaffleWeek.DrawDate = DrawDate;
+
+            await _database.SaveRaffleWeekAsync(RaffleWeek);
 
             await Shell.Current.DisplayAlert("Éxito", "Rifa creada correctamente", "OK");
             await Shell.Current.GoToAsync("..");

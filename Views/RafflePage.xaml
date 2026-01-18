@@ -31,7 +31,7 @@
                         <!-- Qué se rifa -->
                         <Label Text="Premio:" FontAttributes="Bold" />
                         <Label Text="{Binding CurrentRaffle.PrizeDescription}" />
-                        
+
                         <Label Text="Precio de la boleta:" FontAttributes="Bold" />
                         <Label Text="{Binding CurrentRaffle.BetPrize, StringFormat='$ {0:N0}'}" />
 
@@ -58,27 +58,26 @@
                FontAttributes="Bold"
                Margin="0,10,0,0"/>
 
-                        <Label Text="{Binding CurrentRaffle.WinningNumber}"
+                        <!--<Label Text="{Binding CurrentRaffle.WinningNumber}"
                FontSize="20"
-               TextColor="Green" />
+               TextColor="Green" />-->
 
 
-                <Button
-                    Text="Enviar por WhatsApp"
-                    BackgroundColor="#455A64"
-                    TextColor="White"
-                    Command="{Binding BuildRafflePromotionMessageCommand}" />
+                        <Button
+                            Text="Enviar por WhatsApp"
+                            BackgroundColor="#1976D2"
+                            TextColor="White"
+                            Command="{Binding BuildRafflePromotionMessageCommand}" />
 
                     </VerticalStackLayout>
                 </Border>
 
                 <Button
-                Text="Nueva rifa semanal"
-                BackgroundColor="#455A64"
-                TextColor="White"
-                IsVisible="{Binding IsClosed}"
-                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=Navigation.PushAsync}"
-                Clicked="OnRegisterBetClicked" />
+                    Text="{Binding ButtonText}"
+                    BackgroundColor="#455A64"
+                    TextColor="White"
+                    Command="{Binding GoToCreateRaffleCommand}"
+                    CommandParameter="{Binding CurrentRaffle.Id}" />      
 
                 <!--<Border Stroke="Gray" Padding="10" BackgroundColor="#f0f0f0"
                     IsVisible="{Binding IsClosed}">
@@ -101,7 +100,7 @@
                     x:Name="ExportLayout"
                     IsVisible="{Binding IsOpen}"
                     BackgroundColor="White"
-                    Padding="10">   
+                    Padding="10">
 
                     <CollectionView
                     ItemsSource="{Binding Numbers}"

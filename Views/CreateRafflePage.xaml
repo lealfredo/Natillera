@@ -17,24 +17,24 @@
 
             <Entry
                 Placeholder="Nombre de la lotería"
-                Text="{Binding LotteryName}" />
+                Text="{Binding RaffleWeek.LotteryName}" />
 
             <Entry
                 Placeholder="Código de la semana"
-                Text="{Binding WeekCode}"
+                Text="{Binding RaffleWeek.WeekCode}"
                 IsEnabled="False" />
 
             <Label Text="🎁 ¿Qué se está rifando?"
                    FontAttributes="Bold" />
 
             <Entry Placeholder="Ej: $500.000 en efectivo"
-                   Text="{Binding PrizeDescription}" />
+                   Text="{Binding RaffleWeek.PrizeDescription}" />
 
             <Label Text="📅 Fecha del sorteo"
                    FontAttributes="Bold" />
 
             <DatePicker
-                Date="{Binding DrawDate}"
+                Date="{Binding RaffleWeek.DrawDate}"
                 MinimumDate="{x:Static sys:DateTime.Today}" />
 
             <Label Text="Precio de la boleta"
@@ -42,7 +42,7 @@
             
             <Entry Placeholder="Precio de la boleta"
                Keyboard="Numeric"
-               Text="{Binding BetPrize}" />
+               Text="{Binding RaffleWeek.BetPrize}" />
 
             <Label Text="💰 Premios por acierto"
                    FontAttributes="Bold"
@@ -50,17 +50,17 @@
 
             <Entry Placeholder="Premio 2 primeras cifras"
                    Keyboard="Numeric"
-                   Text="{Binding FirstTwoPrize}" />
+                   Text="{Binding RaffleWeek.FirstTwoPrize}" />
 
             <Entry Placeholder="Premio 2 cifras del medio"
                    Keyboard="Numeric"
-                   Text="{Binding MiddleTwoPrize}" />
+                   Text="{Binding RaffleWeek.MiddleTwoPrize}" />
 
             <Entry Placeholder="Premio 2 últimas cifras"
                    Keyboard="Numeric"
-                   Text="{Binding LastTwoPrize}" />
+                   Text="{Binding RaffleWeek.LastTwoPrize}" />
 
-            <Button Text="Crear rifa"
+            <Button Text="Guardar"
                     Command="{Binding CreateRaffleCommand}"
                     BackgroundColor="#455A64"
                     TextColor="White"/>

@@ -23,6 +23,9 @@ namespace Natillera.ViewModels
         [ObservableProperty]
         private bool isClosed;
 
+        [ObservableProperty]
+        private string buttonText;
+
         public bool IsOpen => !IsClosed;
 
         public RaffleViewModel(INatilleraDatabase database, IWhatsAppService whatsAppService)
@@ -90,6 +93,13 @@ namespace Natillera.ViewModels
                 $"{nameof(Views.BetPage)}?number={bet.Number}");
         }
 
+        [RelayCommand]
+        public async Task GoToCreateRaffleAsync(int raffleWeekId)
+        {
+            await Shell.Current.GoToAsync(
+                $"{nameof(Views.CreateRafflePage)}?id={raffleWeekId}");
+        }
+
 
         [RelayCommand]
         public async Task LoadCurrentRaffleAsync()
@@ -100,9 +110,13 @@ namespace Natillera.ViewModels
             CurrentRaffle = await _database.GetCurrentRaffleAsync();
 
             if (CurrentRaffle == null)
+            { 
                 IsClosed = true;
+                ButtonText = "Nueva rifa semanal";
+            }
             else
             {
+                ButtonText = "Editar rifa semanal";
                 IsClosed = CurrentRaffle.IsClosed;
                 if (!CurrentRaffle.IsClosed)
                 {
