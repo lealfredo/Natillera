@@ -116,11 +116,16 @@ namespace Natillera.ViewModels
             }
             else
             {
-                ButtonText = "Editar rifa semanal";
                 IsClosed = CurrentRaffle.IsClosed;
                 if (!CurrentRaffle.IsClosed)
                 {
-                    await LoadNumbersAsync();
+                    ButtonText = "Editar rifa semanal";
+                    await LoadNumbersAsync(); 
+                }
+                else
+                {
+                    ButtonText = "Nueva rifa semanal";
+                    CurrentRaffle = new RaffleWeek(); 
                 }
             }
 

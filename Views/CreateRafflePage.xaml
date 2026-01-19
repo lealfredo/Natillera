@@ -21,7 +21,7 @@
 
             <Entry
                 Placeholder="Código de la semana"
-                Text="{Binding RaffleWeek.WeekCode}"
+                Text="{Binding WeekCode}"
                 IsEnabled="False" />
 
             <Label Text="🎁 ¿Qué se está rifando?"
@@ -34,7 +34,7 @@
                    FontAttributes="Bold" />
 
             <DatePicker
-                Date="{Binding RaffleWeek.DrawDate}"
+                Date="{Binding DrawDate}"
                 MinimumDate="{x:Static sys:DateTime.Today}" />
 
             <Label Text="Precio de la boleta"
