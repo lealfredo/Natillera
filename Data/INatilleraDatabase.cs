@@ -20,7 +20,7 @@ namespace Natillera.Data
         Task<int> SaveBetAsync(Bet bet);
         Task<List<Bet>> GetBetsByRaffleAsync(int raffleWeekId);
         Task<List<Bet>> GetBetsByParticipantAsync(int participantId);
-        Task<bool> ExistsBetForNumberAsync(string number);
+        Task<bool> ExistsBetForNumberAsync(string number, int id);
         Task<int> DeleteBetAsync(int participantId, int raffleWeekId, string number);
         Task<Bet?> GetBetByNumberAsync(string number);
         Task<List<RaffleWeek>> GetClosedRafflesAsync();
@@ -30,7 +30,7 @@ namespace Natillera.Data
         Task<List<BetNumber>> GetBetNumbersAsync(int raflleId);
         Task<int> GetTotalNumbersSoldAsync(int raffleWeekId);
 
-        Task<List<Bet>> GetBetsByNumberAndTypeAsync(string number, BetType type);
+        Task<List<Bet>> GetBetsByNumberAndTypeAsync(string number, BetType type, int id);
         Task SaveRaffleWinnerAsync(RaffleWinner winner);
         Task<List<T>> GetTableAsync<T>() where T : new();
         Task<List<RaffleWinner>> GetWinnersByDrawAsync(int drawId);

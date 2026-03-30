@@ -47,11 +47,11 @@ namespace Natillera.Data
             return await _database.FindAsync<RaffleWeek>(id);
         }
 
-        public async Task<bool> ExistsBetForNumberAsync(string number)
+        public async Task<bool> ExistsBetForNumberAsync(string number, int id)
         {
             var count = await _database
                 .Table<Bet>()
-                .Where(b => b.Number == number)
+                .Where(b => b.Number == number && b.RaffleWeekId == id)
                 .CountAsync();
 
             return count > 0;
@@ -189,10 +189,10 @@ namespace Natillera.Data
             return numbers;
         }
 
-        public Task<List<Bet>> GetBetsByNumberAndTypeAsync(string number, BetType type)
+        public Task<List<Bet>> GetBetsByNumberAndTypeAsync(string number, BetType type, int id)
         {
             return _database.Table<Bet>()
-                .Where(b => b.Number == number && b.Type == type)
+                .Where(b => b.Number == number && b.Type == type && b.RaffleWeekId == id)
                 .ToListAsync();
         }
 

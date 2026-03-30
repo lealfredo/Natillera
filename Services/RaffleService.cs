@@ -31,7 +31,7 @@ namespace Natillera.Services
             string number,
             BetType type)
         {
-            var bets = await _database.GetBetsByNumberAndTypeAsync(number, type);
+            var bets = await _database.GetBetsByNumberAndTypeAsync(number, type, draw.Id);
 
             foreach (var bet in bets)
             {

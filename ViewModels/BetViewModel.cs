@@ -47,16 +47,6 @@ namespace Natillera.ViewModels
 
             IsBusy = true;
 
-            var exists = await _database.ExistsBetForNumberAsync(SelectedNumber);
-            if (exists)
-            {
-                await Shell.Current.DisplayAlert(
-                    "Número ocupado",
-                    "Este número ya fue tomado",
-                    "OK");
-                return;
-            }
-
             var participant = await _database.GetParticipantByPhoneAsync(ParticipantPhone);
 
             if (participant == null)
@@ -73,6 +63,13 @@ namespace Natillera.ViewModels
             var raffle = await _database.GetCurrentRaffleAsync();
             if (raffle == null)
                 return;
+
+            var exists = await _database.ExistsBetForNumberAsync(SelectedNumber, raffle.Id);
+            if (exists)
+            {
+                await Shell.Current.DisplayAlert("Número ocupado", "Este número ya fue tomado", "OK");
+                return;
+            }
 
             var betTypes = new[] { BetType.Start, BetType.Middle, BetType.End };
 

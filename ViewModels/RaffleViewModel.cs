@@ -113,6 +113,7 @@ namespace Natillera.ViewModels
             { 
                 IsClosed = true;
                 ButtonText = "Nueva rifa semanal";
+                CurrentRaffle = new();
             }
             else
             {
