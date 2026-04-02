@@ -8,7 +8,7 @@
 
     <ContentPage.Content>
         <ScrollView>
-            <VerticalStackLayout Padding="20" Spacing="15">
+            <VerticalStackLayout x:Name="MainLayout" Padding="20" Spacing="15">
 
                 <Label
                 Text="Rifa Semanal"
@@ -102,15 +102,15 @@
                     BackgroundColor="White"
                     Padding="10">
 
-                    <CollectionView
+                    <!--<CollectionView
                     ItemsSource="{Binding Numbers}"
                     IsVisible="{Binding IsOpen}"
                     SelectionMode="None">
 
                         <CollectionView.ItemsLayout>
                             <GridItemsLayout
-            Orientation="Vertical"
-            Span="5"/>
+            Orientation="Horizontal"
+            Span="10"/>
                         </CollectionView.ItemsLayout>
 
                         <CollectionView.ItemTemplate>
@@ -127,7 +127,14 @@
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
 
-                    </CollectionView>
+                    </CollectionView>-->
+                    <ScrollView
+                        Orientation="Horizontal"
+                        >
+                        <Grid
+                            x:Name="NumbersGrid">      
+                        </Grid>
+                    </ScrollView>
                 </VerticalStackLayout>
 
             </VerticalStackLayout>

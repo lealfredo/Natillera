@@ -9,6 +9,7 @@ namespace Natillera
             InitializeComponent();
 
             Routing.RegisterRoute("BetPage", typeof(BetPage));
+            Routing.RegisterRoute("RafflesPage", typeof(RafflesPage));
             Routing.RegisterRoute("RafflePage", typeof(RafflePage));
             Routing.RegisterRoute("RaffleWinnersPage", typeof(RaffleWinnersPage));
             Routing.RegisterRoute("CreateRafflePage", typeof(CreateRafflePage));

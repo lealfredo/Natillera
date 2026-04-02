@@ -57,14 +57,19 @@
             Icon="ticket">
 
             <ShellContent
+                Title="Rifas"
+                Icon="ticket"
+                ContentTemplate="{DataTemplate views:RafflesPage}" />
+
+            <!--<ShellContent
                 Title="Rifa"
                 Icon="ticket"
-                ContentTemplate="{DataTemplate views:RafflePage}" />
+                ContentTemplate="{DataTemplate views:RafflePage}" />-->
 
-            <ShellContent
+            <!--<ShellContent
                 Title="Ganadores"
                 Icon="winner"
-                ContentTemplate="{DataTemplate views:RaffleWinnersPage}" />
+                ContentTemplate="{DataTemplate views:RaffleWinnersPage}" />-->
 
             <ShellContent
                 Title="Histórico"

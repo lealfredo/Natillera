@@ -1,6 +1,7 @@
 ﻿using Natillera.Entities;
 using Natillera.Models;
 using SQLite;
+using SQLitePCL;
 
 namespace Natillera.Data
 {
@@ -218,6 +219,14 @@ namespace Natillera.Data
                       .ToListAsync();
         }
 
+        public Task<List<RaffleWeek>> GetOpenRafflesAsync()
+        {
+            return _database.Table<RaffleWeek>()
+                      .Where(r => !r.IsClosed)
+                      .OrderBy(r => r.DrawDate)
+                      .ToListAsync();
+        }
+
         public async Task<List<RaffleWeek>> GetAllRaffleWeek()
         {
             return await _database.Table<RaffleWeek>().ToListAsync();
@@ -247,6 +256,13 @@ namespace Natillera.Data
                     conn.InsertOrReplace(raffle);
                 }
             });
+        }
+
+        public async Task<int> DeleteRaffleAsync(int id)
+        {
+            return await _database.Table<RaffleWeek>()
+                .Where(r => r.Id == id)
+                .DeleteAsync();
         }
 
         public async Task SaveParticipantRangeAsync(List<Participant> participants)

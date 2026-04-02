@@ -28,6 +28,7 @@ namespace Natillera.Extensions
             builder.Services.AddSingleton<AppShell>();
 
             builder.Services.AddTransient<RafflePage>();
+            builder.Services.AddTransient<RafflesPage>();
             builder.Services.AddTransient<BetPage>();
             builder.Services.AddTransient<RaffleWinnersPage>();
             builder.Services.AddTransient<CreateRafflePage>();
@@ -35,6 +36,7 @@ namespace Natillera.Extensions
             builder.Services.AddTransient<BackupPage>();
 
             builder.Services.AddTransient<RaffleViewModel>();
+            builder.Services.AddTransient<RafflesViewModel>();
             builder.Services.AddTransient<BetViewModel>();
             builder.Services.AddTransient<RaffleWinnerViewModel>();
             builder.Services.AddTransient<CreateRaffleViewModel>();

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Natillera.Views.RafflesPage"
+             Title="{Binding Title}">
+
+
+    <ContentPage.Content>
+        <ScrollView>
+            <VerticalStackLayout Padding="20" Spacing="15">
+
+                <Button
+                    Text="{Binding ButtonText}"
+                    BackgroundColor="#1976D2"
+                    TextColor="White"
+                    Command="{Binding GoToCreateRaffleCommand}"/>
+                <StackLayout Spacing="10">
+                    <CollectionView 
+    x:Name="RafflesView"
+    ItemsSource="{Binding Raffles}"
+    SelectionMode="None">
+
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+
+                                <Border Padding="12" Margin="6">
+
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                        Command="{Binding BindingContext.ShowOptionsCommand, Source={x:Reference RafflesView}}"
+                        CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+
+                                    <VerticalStackLayout Spacing="10">
+
+                                        <Label
+                        Text="{Binding DrawDate, StringFormat='Sorteo: {0:dd/MM/yyyy}'}"
+                        FontSize="13" />
+
+                                        <Label
+                        Text="{Binding LotteryName}"
+                        FontSize="13"
+                        TextColor="Gray" />
+
+                                    </VerticalStackLayout>
+                                </Border>
+
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    
+                    <VerticalStackLayout
+                           IsVisible="{Binding NoExist}">
+                        <Label Text="No hay rifas abiertas"
+                           HorizontalOptions="Center"
+                           TextColor="Gray"/>
+                    </VerticalStackLayout>
+                </StackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

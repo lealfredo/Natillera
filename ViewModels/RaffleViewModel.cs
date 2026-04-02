@@ -9,11 +9,15 @@ using System.Windows.Input;
 
 namespace Natillera.ViewModels
 {
+    [QueryProperty(nameof(RaffleId), "RaffleId")]
     public partial class RaffleViewModel : BaseViewModel
     {
         private readonly INatilleraDatabase _database;
         private readonly IWhatsAppService _whatsAppService;
         private Setting _setting;
+
+        [ObservableProperty]
+        private int raffleId;
         public ICommand SelectNumberCommand { get; }
         public ObservableCollection<BetNumber> Numbers { get; } = new();
 
@@ -104,16 +108,18 @@ namespace Natillera.ViewModels
         [RelayCommand]
         public async Task LoadCurrentRaffleAsync()
         {
+            if (RaffleId == 0) return;
+
             if (IsBusy) return;
             IsBusy = true;
 
-            CurrentRaffle = await _database.GetCurrentRaffleAsync();
+            CurrentRaffle = await _database.GetRaffleByIdAsync(RaffleId);
 
             if (CurrentRaffle == null)
             { 
-                IsClosed = true;
-                ButtonText = "Nueva rifa semanal";
-                CurrentRaffle = new();
+                //IsClosed = true;
+                //ButtonText = "Nueva rifa semanal";
+                //CurrentRaffle = new();
             }
             else
             {
@@ -125,8 +131,8 @@ namespace Natillera.ViewModels
                 }
                 else
                 {
-                    ButtonText = "Nueva rifa semanal";
-                    CurrentRaffle = new RaffleWeek(); 
+                    //ButtonText = "Nueva rifa semanal";
+                    //CurrentRaffle = new RaffleWeek(); 
                 }
             }
 

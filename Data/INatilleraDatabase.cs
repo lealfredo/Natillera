@@ -24,6 +24,8 @@ namespace Natillera.Data
         Task<int> DeleteBetAsync(int participantId, int raffleWeekId, string number);
         Task<Bet?> GetBetByNumberAsync(string number);
         Task<List<RaffleWeek>> GetClosedRafflesAsync();
+        Task<List<RaffleWeek>> GetOpenRafflesAsync();
+        Task<int> DeleteRaffleAsync(int id);
 
         // Números apostados
         Task<List<string>> GetTakenNumbersAsync();

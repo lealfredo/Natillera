@@ -17,11 +17,6 @@
                             <VerticalStackLayout Spacing="10">
 
                                 <Label
-                            Text="{Binding WeekCode}"
-                            FontAttributes="Bold"
-                            FontSize="16" />
-
-                                <Label
                             Text="{Binding DrawDate, StringFormat='Sorteo: {0:dd/MM/yyyy}'}"
                             FontSize="13" />
 

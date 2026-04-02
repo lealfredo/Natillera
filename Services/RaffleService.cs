@@ -50,6 +50,16 @@ namespace Natillera.Services
             return await _database.GetClosedRafflesAsync();
         }
 
+        public async Task<List<RaffleWeek>> GetOpenRafflesAsync()
+        {
+            return await _database.GetOpenRafflesAsync();
+        }
+
+        public async Task<int> DeleteRaffleWeek(int id)
+        {
+            return await _database.DeleteRaffleAsync(id);
+        }
+
         public async Task<RaffleEconomicSummary> GetEconomicSummaryAsync(int raffleId)
         {
             var raffle = await _database.GetRaffleByIdAsync(raffleId);

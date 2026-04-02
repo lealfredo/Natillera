@@ -1,3 +1,5 @@
 <Solution>
-  <Project Path="Natillera.csproj" />
+  <Project Path="Rifa.csproj">
+    <Deploy Solution="Release|*" />
+  </Project>
 </Solution>

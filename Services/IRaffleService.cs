@@ -8,5 +8,7 @@ namespace Natillera.Services
         Task ProcessDrawAsync(RaffleWeek raffleWeek);
         Task<RaffleEconomicSummary> GetEconomicSummaryAsync(int raffleId);
         Task<List<RaffleWeek>> GetClosedRafflesAsync();
+        Task<List<RaffleWeek>> GetOpenRafflesAsync();
+        Task<int> DeleteRaffleWeek(int id);
     }
 }
