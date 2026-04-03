@@ -107,7 +107,7 @@ public partial class RafflePage : ContentPage
             {
                 BackgroundColor = Colors.White,
                 WidthRequest = screenWidth,
-                HeightRequest = screenHeight
+                HeightRequest = screenHeight / 2
             };
 
             // Grid interno
@@ -129,9 +129,9 @@ public partial class RafflePage : ContentPage
 
                 var border = new Border
                 {
-                    Stroke = Colors.Black, // borde
+                    Stroke = Colors.White, // borde
                     StrokeThickness = 0.5,
-                    BackgroundColor = item.IsTaken ? Colors.Red : Color.FromArgb("#E8F5E9"),
+                    BackgroundColor = item.IsTaken ? Colors.Red : Colors.Green,
                     Padding = 2
                 };
 
@@ -140,8 +140,9 @@ public partial class RafflePage : ContentPage
                     Text = item.Number,
                     HorizontalTextAlignment = TextAlignment.Center,
                     VerticalTextAlignment = TextAlignment.Center,
-                    FontSize = 10,
-                    TextColor = item.IsTaken ? Colors.White : Colors.Black
+                    FontSize = 14,
+                    TextColor = Colors.White,
+                    FontAttributes = FontAttributes.Bold,
                 };
 
                 border.Content = label;
