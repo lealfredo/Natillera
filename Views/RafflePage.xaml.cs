@@ -13,6 +13,17 @@ public partial class RafflePage : ContentPage
         viewModel.ExportNumbersRequested += OnExportNumbersRequested;
 
         BindingContext = _viewModel = viewModel;
+
+        viewModel.ShowOptionsAction = async (bet) =>
+        {
+            return await Shell.Current.DisplayActionSheet(
+                $"Número {bet.Number}\n{bet.ParticipantName}",
+                "Cancelar",
+                null,
+                "Marcar como pagado",
+                "Eliminar apuesta"
+            );
+        };
     }
 
     protected override async void OnAppearing()
@@ -68,12 +79,48 @@ public partial class RafflePage : ContentPage
                 FontSize = 12,
                 Margin = 2,
                 TextColor = Colors.White,
-                BackgroundColor = item.IsTaken ? Colors.Red : Colors.Green,
                 Command = new Command(() =>
                 {
                     (BindingContext as RaffleViewModel)?.SelectNumberCommand.Execute(item);
-                })
+                }),
+                Style = null,
+                Visual = VisualMarker.Default,
+                BindingContext = item
             };
+
+            btn.SetBinding(Button.BackgroundColorProperty, nameof(item.BackgroundColor));
+
+            //var border = new Border
+            //{
+            //    Stroke = Colors.Black,
+            //    StrokeThickness = 1,
+            //    WidthRequest = itemSize,
+            //    HeightRequest = itemSize,
+            //    Padding = 0,
+            //    BindingContext = item
+            //};
+
+            //border.SetBinding(Border.BackgroundColorProperty, nameof(item.BackgroundColor));
+
+            //var label = new Label
+            //{
+            //    Text = item.Number.ToString(),
+            //    HorizontalOptions = LayoutOptions.Center,
+            //    VerticalOptions = LayoutOptions.Center,
+            //    TextColor = Colors.White,
+            //    FontSize = 12
+            //};
+
+            //border.Content = label;
+
+            //// TAP
+            //var tap = new TapGestureRecognizer();
+            //tap.Tapped += (s, e) =>
+            //{
+            //    (BindingContext as RaffleViewModel)?.SelectNumberCommand.Execute(item);
+            //};
+
+            //border.GestureRecognizers.Add(tap);
 
             Grid.SetRow(btn, row);
             Grid.SetColumn(btn, col);

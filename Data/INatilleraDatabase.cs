@@ -1,5 +1,7 @@
 ﻿using Natillera.Entities;
 using Natillera.Models;
+using Rifa.Entities;
+using SQLite;
 
 namespace Natillera.Data
 {
@@ -15,6 +17,7 @@ namespace Natillera.Data
         Task<int> SaveParticipantAsync(Participant participant);
         Task<Participant> GetParticipantByPhoneAsync(string phoneNumber);
         Task<Participant> GetParticipantByIdAsync(int id);
+        Task<int> DeleteParticipantAsync(int participantId);
 
         // Apuestas
         Task<int> SaveBetAsync(Bet bet);
@@ -26,11 +29,13 @@ namespace Natillera.Data
         Task<List<RaffleWeek>> GetClosedRafflesAsync();
         Task<List<RaffleWeek>> GetOpenRafflesAsync();
         Task<int> DeleteRaffleAsync(int id);
+        Task<List<RaffleWeek>> GetAllNoPersonalRaffleWeek();
 
         // Números apostados
         Task<List<string>> GetTakenNumbersAsync();
         Task<List<BetNumber>> GetBetNumbersAsync(int raflleId);
         Task<int> GetTotalNumbersSoldAsync(int raffleWeekId);
+        Task<int> MarkNumberAsPaidAsync(int raffleWeekId, string number);
 
         Task<List<Bet>> GetBetsByNumberAndTypeAsync(string number, BetType type, int id);
         Task SaveRaffleWinnerAsync(RaffleWinner winner);
@@ -57,5 +62,23 @@ namespace Natillera.Data
         //Settings
         Task<int> SaveSettingAsync(Setting setting);
         Task<Setting> GetSettingAsync();
+
+        // CONTRIBUTION
+        Task<List<Contribution>> GetAllContributionsAsync();
+        Task<int> AddContributionAsync(Contribution contribution);
+        Task<int> DeleteContributionAsync(Contribution contribution);
+
+        //--------------LOAN-----------
+        Task<List<Loan>> GetLoansAsync();
+        Task<List<LoanPayment>> GetPaymentsAsync(int loanId);
+        Task<int> AddLoanAsync(Loan loan);
+        Task<int> AddPaymentAsync(LoanPayment payment);
+        Task<int> UpdateLoanAsync(Loan loan);
+
+        //----------- Settlement -----------
+        Task<int> AddSettlementAsync(Settlement s);
+        Task<int> AddDetailAsync(SettlementDetail d);
+
+        SQLiteAsyncConnection GetConnection();
     }
 }

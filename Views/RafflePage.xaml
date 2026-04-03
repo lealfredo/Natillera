@@ -101,33 +101,6 @@
                     IsVisible="{Binding IsOpen}"
                     BackgroundColor="White"
                     Padding="10">
-
-                    <!--<CollectionView
-                    ItemsSource="{Binding Numbers}"
-                    IsVisible="{Binding IsOpen}"
-                    SelectionMode="None">
-
-                        <CollectionView.ItemsLayout>
-                            <GridItemsLayout
-            Orientation="Horizontal"
-            Span="10"/>
-                        </CollectionView.ItemsLayout>
-
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Button
-                                Text="{Binding Number}"
-                                Command="{Binding BindingContext.SelectNumberCommand,
-                                          Source={RelativeSource AncestorType={x:Type views:RafflePage}}}"
-                                CommandParameter="{Binding .}"
-                                BackgroundColor="{Binding IsTaken, Converter={StaticResource TakenColorConverter}}"
-                                TextColor="White"
-                                Margin="5"
-                                FontSize="18"/>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-
-                    </CollectionView>-->
                     <ScrollView
                         Orientation="Horizontal"
                         >

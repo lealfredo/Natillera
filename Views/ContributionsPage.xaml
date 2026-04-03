@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Natillera.Views.ContributionsPage"
+             x:Name="Page"
+            Title="Aportes">
+
+    <VerticalStackLayout Padding="15" Spacing="10">
+
+        <!-- Picker -->
+        <Picker Title="Seleccionar participante"
+                ItemsSource="{Binding Participants}"
+                ItemDisplayBinding="{Binding Name}"
+                SelectedItem="{Binding SelectedParticipant}" />
+
+        <!-- Monto -->
+        <Entry Placeholder="Monto"
+               Keyboard="Numeric"
+               Text="{Binding Amount}" />
+
+        <!-- Botón -->
+        <Button Text="Registrar aporte"
+                Command="{Binding AddCommand}" />
+
+        <!-- Lista -->
+        <CollectionView ItemsSource="{Binding Contributions}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+
+                    <SwipeView>
+
+                        <SwipeView.RightItems>
+                            <SwipeItems>
+                                <SwipeItem Text="Eliminar"
+                                           BackgroundColor="Red"
+                                           Command="{Binding BindingContext.DeleteCommand, Source={x:Reference Page}}"
+                                           CommandParameter="{Binding .}" />
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+
+                        <Grid Padding="10" ColumnDefinitions="*,Auto">
+
+                            <VerticalStackLayout>
+                                <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                                <Label Text="{Binding DateFormatted}" FontSize="12"/>
+                            </VerticalStackLayout>
+
+                            <Label Grid.Column="1"
+                                   Text="{Binding Amount, StringFormat='$ {0:N0}'}"
+                                   VerticalOptions="Center"
+                                   FontAttributes="Bold"/>
+
+                        </Grid>
+
+                    </SwipeView>
+
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </VerticalStackLayout>
+</ContentPage>

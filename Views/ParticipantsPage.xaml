@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Natillera.Views.ParticipantsPage"
+             x:Name="Page"
+             Title="Participantes">
+
+    <VerticalStackLayout Padding="15" Spacing="10">
+
+        <!-- Formulario -->
+        <Entry Placeholder="Nombre"
+               Text="{Binding Name}" />
+
+        <Entry Placeholder="Teléfono"
+               Keyboard="Telephone"
+               Text="{Binding Phone}" />
+
+        <Button Text="Agregar"
+                Command="{Binding AddCommand}" />
+
+        <!-- Lista -->
+        <CollectionView ItemsSource="{Binding Participants}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Padding="10"
+          ColumnDefinitions="*,Auto"
+          VerticalOptions="Center">
+
+                        <!-- INFO -->
+                        <VerticalStackLayout Grid.Column="0"
+                             Spacing="2">
+                            <Label Text="{Binding Name}" 
+                   FontAttributes="Bold"/>
+                            <Label Text="{Binding Phone}" 
+                   FontSize="12"/>
+                        </VerticalStackLayout>
+
+                        <!-- BOTÓN -->
+                        <!--<Button Grid.Column="1"
+                Text="Eliminar"
+                BackgroundColor="Red"
+                TextColor="White"
+                Padding="8,4"
+                FontSize="12"
+                HeightRequest="35"
+                Command="{Binding BindingContext.DeleteCommand, Source={x:Reference Page}}"
+                CommandParameter="{Binding .}" />-->
+
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </VerticalStackLayout>
+</ContentPage>

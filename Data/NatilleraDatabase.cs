@@ -1,5 +1,6 @@
 ﻿using Natillera.Entities;
 using Natillera.Models;
+using Rifa.Entities;
 using SQLite;
 using SQLitePCL;
 
@@ -18,6 +19,11 @@ namespace Natillera.Data
             _database.CreateTableAsync<Bet>().Wait();
             _database.CreateTableAsync<RaffleWinner>().Wait();
             _database.CreateTableAsync<Setting>().Wait();
+            _database.CreateTableAsync<Contribution>().Wait();
+            _database.CreateTableAsync<Loan>().Wait();
+            _database.CreateTableAsync<LoanPayment>().Wait();
+            _database.CreateTableAsync<Settlement>().Wait();
+            _database.CreateTableAsync<SettlementDetail>().Wait();
         }
 
         // ---------------- RIFA ----------------
@@ -91,6 +97,13 @@ namespace Natillera.Data
                 .FirstAsync();
         }
 
+        public Task<int> DeleteParticipantAsync(int participantId)
+        {
+            return _database.Table<Participant>()
+                .Where(b => b.Id == participantId)
+                .DeleteAsync();
+        }
+
         // ---------------- APUESTAS ----------------
 
         public async Task<int> SaveBetAsync(Bet bet)
@@ -154,6 +167,20 @@ namespace Natillera.Data
                 .ToList();
         }
 
+        public async Task<int> MarkNumberAsPaidAsync(int raffleWeekId, string number)
+        {
+            var bets = await _database.Table<Bet>()
+                .Where(x => x.RaffleWeekId == raffleWeekId && x.Number == number)
+                .ToListAsync();
+
+            foreach (var bet in bets)
+            {
+                bet.IsTaken = true;
+            }
+
+            return await _database.UpdateAllAsync(bets);
+        }
+
         public async Task<List<BetNumber>> GetBetNumbersAsync(int raflleId)
         {
             var bets = await _database.Table<Bet>()
@@ -173,6 +200,7 @@ namespace Natillera.Data
 
                 numbers.Add(new BetNumber
                 {
+                    IsPay = bet == null ? false : bet.IsTaken,
                     Number = number,
                     IsTaken = bet != null,
                     ParticipantName = bet == null
@@ -225,6 +253,11 @@ namespace Natillera.Data
                       .Where(r => !r.IsClosed)
                       .OrderBy(r => r.DrawDate)
                       .ToListAsync();
+        }
+
+        public async Task<List<RaffleWeek>> GetAllNoPersonalRaffleWeek()
+        {
+            return await _database.Table<RaffleWeek>().Where(r => !r.IsPersonal).ToListAsync();
         }
 
         public async Task<List<RaffleWeek>> GetAllRaffleWeek()
@@ -317,5 +350,44 @@ namespace Natillera.Data
         {
             return await _database.Table<Setting>().FirstOrDefaultAsync();
         }
+
+        // CONTRIBUTION
+        public Task<List<Contribution>> GetAllContributionsAsync()
+        => _database.Table<Contribution>()
+              .OrderByDescending(x => x.Date)
+              .ToListAsync();
+
+        public Task<int> AddContributionAsync(Contribution contribution)
+            => _database.InsertAsync(contribution);
+
+        public Task<int> DeleteContributionAsync(Contribution contribution)
+            => _database.DeleteAsync(contribution);
+
+        //--------------LOAN-----------
+        public Task<List<Loan>> GetLoansAsync()
+        => _database.Table<Loan>().OrderByDescending(x => x.StartDate).ToListAsync();
+
+        public Task<List<LoanPayment>> GetPaymentsAsync(int loanId)
+            => _database.Table<LoanPayment>().Where(x => x.LoanId == loanId).ToListAsync();
+
+        public Task<int> AddLoanAsync(Loan loan)
+            => _database.InsertAsync(loan);
+
+        public Task<int> AddPaymentAsync(LoanPayment payment)
+            => _database.InsertAsync(payment);
+
+        public Task<int> UpdateLoanAsync(Loan loan)
+            => _database.UpdateAsync(loan);
+
+
+
+        //----------- Settlement -----------
+        public Task<int> AddSettlementAsync(Settlement s)
+            => _database.InsertAsync(s);
+
+        public Task<int> AddDetailAsync(SettlementDetail d)
+            => _database.InsertAsync(d);
+
+        public SQLiteAsyncConnection GetConnection() => _database;
     }
 }

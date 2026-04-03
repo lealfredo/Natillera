@@ -42,6 +42,8 @@
                         FontSize="13"
                         TextColor="Gray" />
 
+                                <Label Text="{Binding IsPersonal, Converter={StaticResource BoolToTextConverter}}" />
+
                                     </VerticalStackLayout>
                                 </Border>
 

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Natillera.Views.LoansPage"
+             x:Name="Page"
+            Title="Préstamos">
+
+    <VerticalStackLayout Padding="15" Spacing="10">
+
+        <Picker Title="Participante (opcional)"
+                ItemsSource="{Binding Participants}"
+                ItemDisplayBinding="{Binding Name}"
+                SelectedItem="{Binding SelectedParticipant}" />
+
+        <Entry Placeholder="Nombre (si es externo)"
+               Text="{Binding BorrowerName}" />
+
+        <Entry Placeholder="Monto"
+               Keyboard="Numeric"
+               Text="{Binding Amount}" />
+
+        <Entry Placeholder="Interés (ej: 0.1 = 10%)"
+               Keyboard="Numeric"
+               Text="{Binding InterestRate}" />
+
+        <Button Text="Crear préstamo"
+                Command="{Binding AddLoanCommand}" />
+
+        <CollectionView ItemsSource="{Binding Loans}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+
+                    <SwipeView>
+
+                        <SwipeView.RightItems>
+                            <SwipeItems>
+                                <SwipeItem Text="Abonar"
+                                           BackgroundColor="Green"
+                                           Command="{Binding BindingContext.AddPaymentCommand, Source={x:Reference Page}}"
+                                           CommandParameter="{Binding .}" />
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+
+                        <Grid Padding="10">
+
+                            <VerticalStackLayout>
+                                <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                                <Label Text="{Binding Amount, StringFormat='Préstamo: $ {0:N0}'}"/>
+                                <Label Text="{Binding TotalToPay, StringFormat='Total: $ {0:N0}'}"/>
+                                <Label Text="{Binding Status}" TextColor="Red"/>
+                            </VerticalStackLayout>
+
+                        </Grid>
+
+                    </SwipeView>
+
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </VerticalStackLayout>
+</ContentPage>

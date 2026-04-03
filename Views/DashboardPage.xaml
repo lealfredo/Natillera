@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Natillera.Views.DashboardPage"
+             Title="Dashboard">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="15" Spacing="15">
+
+            <!-- APORTES -->
+            <Frame CornerRadius="12" Padding="15" BackgroundColor="#E3F2FD">
+                <VerticalStackLayout>
+                    <Label Text="Aportes"
+                           FontAttributes="Bold"
+                           FontSize="16"/>
+                    <Label Text="{Binding TotalContributions, StringFormat='$ {0:N0}'}"
+                           FontSize="22"
+                           FontAttributes="Bold"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- PRESTADO -->
+            <Frame CornerRadius="12" Padding="15" BackgroundColor="#FFF3E0">
+                <VerticalStackLayout>
+                    <Label Text="Prestado"
+                           FontAttributes="Bold"/>
+                    <Label Text="{Binding TotalLoaned, StringFormat='$ {0:N0}'}"
+                           FontSize="20"
+                           FontAttributes="Bold"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- RECUPERADO -->
+            <Frame CornerRadius="12" Padding="15" BackgroundColor="#E8F5E9">
+                <VerticalStackLayout>
+                    <Label Text="Capital recuperado"
+                           FontAttributes="Bold"/>
+                    <Label Text="{Binding TotalRecovered, StringFormat='$ {0:N0}'}"
+                           FontSize="20"
+                           FontAttributes="Bold"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- INTERESES -->
+            <Frame CornerRadius="12" Padding="15" BackgroundColor="#F3E5F5">
+                <VerticalStackLayout>
+                    <Label Text="Intereses ganados"
+                           FontAttributes="Bold"/>
+                    <Label Text="{Binding TotalInterest, StringFormat='$ {0:N0}'}"
+                           FontSize="20"
+                           FontAttributes="Bold"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame CornerRadius="12" Padding="15" BackgroundColor="#FFFDE7">
+                <VerticalStackLayout>
+                    <Label Text="Rifas"
+               FontAttributes="Bold"
+               FontSize="16"/>
+
+                    <Label Text="{Binding TotalRaffles, StringFormat='Total rifas: {0}'}"/>
+
+                    <Label Text="{Binding TotalRaffleCollected, StringFormat='Recaudado: $ {0:N0}'}"/>
+
+                    <Label Text="{Binding TotalRafflePrizes, StringFormat='Premios: $ {0:N0}'}"/>
+
+                    <Label Text="{Binding RaffleProfit, StringFormat='Ganancia: $ {0:N0}'}"
+               FontAttributes="Bold"
+               TextColor="Green"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- DISPONIBLE -->
+            <Frame CornerRadius="12" 
+                   Padding="20"
+                   BackgroundColor="#263238">
+
+                <VerticalStackLayout>
+                    <Label Text="Disponible"
+                           TextColor="White"
+                           FontSize="18"
+                           FontAttributes="Bold"/>
+
+                    <Label Text="{Binding AvailableMoney, StringFormat='$ {0:N0}'}"
+                           TextColor="White"
+                           FontSize="26"
+                           FontAttributes="Bold"/>
+                </VerticalStackLayout>
+
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

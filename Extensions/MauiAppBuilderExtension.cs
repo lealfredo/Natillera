@@ -2,6 +2,7 @@
 using Natillera.Services;
 using Natillera.ViewModels;
 using Natillera.Views;
+using Rifa.ViewModels;
 
 namespace Natillera.Extensions
 {
@@ -34,6 +35,12 @@ namespace Natillera.Extensions
             builder.Services.AddTransient<CreateRafflePage>();
             builder.Services.AddTransient<RaffleHistoryPage>();
             builder.Services.AddTransient<BackupPage>();
+            builder.Services.AddTransient<ParticipantsPage>();
+            builder.Services.AddTransient<ContributionsPage>();
+            builder.Services.AddTransient<LoansPage>();
+            builder.Services.AddTransient<DashboardPage>();
+            builder.Services.AddTransient<SettlementPage>();
+            builder.Services.AddTransient<SettlementResultPage>();
 
             builder.Services.AddTransient<RaffleViewModel>();
             builder.Services.AddTransient<RafflesViewModel>();
@@ -42,6 +49,12 @@ namespace Natillera.Extensions
             builder.Services.AddTransient<CreateRaffleViewModel>();
             builder.Services.AddTransient<RaffleHistoryViewModel>();
             builder.Services.AddTransient<BackupViewModel>();
+            builder.Services.AddTransient<ParticipantsViewModel>();
+            builder.Services.AddTransient<ContributionsViewModel>();
+            builder.Services.AddTransient<LoansViewModel>();
+            builder.Services.AddTransient<DashboardViewModel>();
+            builder.Services.AddTransient<SettlementViewModel>();
+            builder.Services.AddTransient<SettlementResultViewModel>();
         }
     }
 }

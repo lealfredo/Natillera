@@ -60,6 +60,10 @@
                    Keyboard="Numeric"
                    Text="{Binding RaffleWeek.LastTwoPrize}" />
 
+
+            <Label Text="Rifa personal:" FontAttributes="Bold" VerticalOptions="Center"/>
+            <CheckBox IsChecked="{Binding RaffleWeek.IsPersonal}" />
+
             <Button Text="Guardar"
                     Command="{Binding CreateRaffleCommand}"
                     BackgroundColor="#455A64"

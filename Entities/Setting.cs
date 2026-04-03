@@ -8,5 +8,8 @@ namespace Natillera.Entities
         public int Id { get; set; }
         public string WhatsAppNumber { get; set; }
         public string ContactName { get; set; }
+        public decimal MaxReturnPercentage { get; set; } = 0.25m;
+
+        public decimal MinimumContribution { get; set; }
     }
 }

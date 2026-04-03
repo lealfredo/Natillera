@@ -40,7 +40,8 @@ namespace Natillera.ViewModels
             if (Id > 0)
             {
                 Title = "Modificar Rifa Semanal";
-                RaffleWeek = await _database.GetRaffleByIdAsync(Id); 
+                RaffleWeek = await _database.GetRaffleByIdAsync(Id);
+                DrawDate = RaffleWeek.DrawDate;
             }
             else
             { 
@@ -71,8 +72,8 @@ namespace Natillera.ViewModels
 
         private static string GenerateWeekCode(DateTime date)
         {
-            var week = System.Globalization.ISOWeek.GetWeekOfYear(Utilities.Helpers.GetNextFriday(DateTime.Today));
-            return $"{DateTime.Today.Year}-S{week}";
+            var week = System.Globalization.ISOWeek.GetWeekOfYear(Utilities.Helpers.GetNextFriday(date));
+            return $"{date.Year}-S{week}";
         }
 
         private static DateTime GetNextFriday()

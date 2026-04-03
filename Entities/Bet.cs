@@ -22,6 +22,7 @@ namespace Natillera.Entities
 
         // Se marca cuando se cierra la rifa
         public bool IsWinner { get; set; }
+        public bool IsTaken { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }

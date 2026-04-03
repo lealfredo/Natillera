@@ -32,6 +32,8 @@ namespace Natillera.ViewModels
 
         public bool IsOpen => !IsClosed;
 
+        public ICommand MarkAsPaidCommand { get; }
+
         public RaffleViewModel(INatilleraDatabase database, IWhatsAppService whatsAppService)
         {
             _database = database;
@@ -39,7 +41,29 @@ namespace Natillera.ViewModels
 
             SelectNumberCommand = new Command<BetNumber>(OnSelectNumber);
             _whatsAppService = whatsAppService;
+            MarkAsPaidCommand = new Command<BetNumber>(async (bet) => await MarkAsPaid(bet));
         }
+
+        private async Task MarkAsPaid(BetNumber bet)
+        {
+            if (bet == null) return;
+
+            if (bet.IsPay)
+                return;
+
+            var confirm = await Shell.Current.DisplayAlert(
+                "Confirmar",
+                $"¿Marcar TODAS las apuestas del número {bet.Number} como pagadas?",
+                "Sí",
+                "No");
+
+            if (!confirm) return;
+
+            await _database.MarkNumberAsPaidAsync(bet.RaflleWeekId, bet.Number);
+
+            await LoadNumbersAsync();
+        }
+
         public async Task LoadSettingAsync()
         {
             _setting = await _database.GetSettingAsync();
@@ -69,25 +93,33 @@ namespace Natillera.ViewModels
             OnPropertyChanged(nameof(IsOpen));
         }
 
+        public Func<BetNumber, Task<string>> ShowOptionsAction { get; set; }
+
         private async void OnSelectNumber(BetNumber bet)
         {
             if (bet == null)
                 return;
 
+            if (bet.IsPay) return;
+
             if (bet.IsTaken)
             {
-                var delete = await Shell.Current.DisplayAlert(
-                "Número ocupado",
-                $"Este número pertenece a:\n\n{bet.ParticipantName}\n\n¿Deseas eliminar esta apuesta?",
-                "Eliminar",
-                "Cancelar");
+                if (ShowOptionsAction == null)
+                    return;
 
-                if (delete)
+                var action = await ShowOptionsAction.Invoke(bet);
+
+                switch (action)
                 {
-                    await _database.DeleteBetAsync(bet.ParticipantId, bet.RaflleWeekId, bet.Number);
+                    case "Marcar como pagado":
+                        await MarkAsPaid(bet);
+                        bet.IsPay = true;
+                        break;
 
-                    // Refrescar números bloqueados
-                    await LoadNumbersAsync();
+                    case "Eliminar apuesta":
+                        await DeleteBetGroup(bet);
+                        bet.IsTaken = false;
+                        break;
                 }
 
                 return;
@@ -95,6 +127,16 @@ namespace Natillera.ViewModels
 
             await Shell.Current.GoToAsync(
                 $"{nameof(Views.BetPage)}?number={bet.Number}");
+        }
+
+        private async Task DeleteBetGroup(BetNumber bet)
+        {
+            await _database.DeleteBetAsync(
+                bet.ParticipantId,
+                bet.RaflleWeekId,
+                bet.Number);
+
+            await LoadNumbersAsync();
         }
 
         [RelayCommand]

@@ -46,11 +46,71 @@
     </Shell.FlyoutHeader>
 
     <!-- ========================= -->
-    <!-- SECCIÓN PRINCIPAL (TABS) -->
+    <!-- SECCIÓN DASHBOARD -->
     <!-- ========================= -->
     <FlyoutItem
         Title="Inicio"
         Icon="home">
+
+        <ShellContent
+            Title="Dashboard"
+            Icon="home"
+            ContentTemplate="{DataTemplate views:DashboardPage}" />
+    </FlyoutItem>
+
+    <!-- ========================= -->
+    <!-- SECCIÓN NATILLERA (TABS) -->
+    <!-- ========================= -->
+    <FlyoutItem
+        Title="Natillera"
+        Icon="winner">
+
+        <Tab
+        Title="Natillera"
+        Icon="winner">
+
+            <ShellContent
+                Title="Personas"
+                Icon="winner.png"
+                ContentTemplate="{DataTemplate views:ParticipantsPage}" />
+            
+            <ShellContent
+                Title="Aportes"
+                Icon="winner.png"
+                ContentTemplate="{DataTemplate views:ContributionsPage}" />
+
+            <ShellContent
+                Title="Prestamos"
+                Icon="winner.png"
+                ContentTemplate="{DataTemplate views:LoansPage}" />
+        </Tab>
+    </FlyoutItem>
+    
+    <FlyoutItem
+        Title="Liquidación"
+        Icon="history">
+
+        <Tab
+        Title="Liquidación"
+        Icon="history">
+            <ShellContent
+                Title="Liquidación"
+                Icon="settings"
+                ContentTemplate="{DataTemplate views:SettlementPage}" />
+
+            <ShellContent
+                Title="Resultados"
+                Icon="settings"
+                ContentTemplate="{DataTemplate views:SettlementResultPage}" />
+        </Tab>
+    </FlyoutItem>
+
+    <!-- ========================= -->
+    <!-- SECCIÓN RIFAS (TABS) -->
+    <!-- ========================= -->
+    <FlyoutItem
+        Title="Rifa"
+        Icon="ticket">
 
         <Tab
             Title="Rifas"
