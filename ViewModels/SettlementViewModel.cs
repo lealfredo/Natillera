@@ -84,7 +84,7 @@ namespace Natillera.ViewModels
 
             await _database.AddSettlementAsync(settlement);
 
-            // 🔥 REPARTO POR PERSONA
+            // REPARTO POR PERSONA
             foreach (var p in participants)
             {
                 var totalContributed = contributions

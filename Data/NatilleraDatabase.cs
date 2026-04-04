@@ -331,6 +331,60 @@ namespace Natillera.Data
             });
         }
 
+        public async Task SaveContributionRangeAsync(List<Contribution> contributions)
+        {
+            await _database.RunInTransactionAsync(conn =>
+            {
+                foreach (var contribution in contributions)
+                {
+                    conn.InsertOrReplace(contribution);
+                }
+            });
+        }
+
+        public async Task SaveLoanRangeAsync(List<Loan> loans)
+        {
+            await _database.RunInTransactionAsync(conn =>
+            {
+                foreach (var loan in loans)
+                {
+                    conn.InsertOrReplace(loan);
+                }
+            });
+        }
+
+        public async Task SaveLoanPaymentRangeAsync(List<LoanPayment> loanPayments)
+        {
+            await _database.RunInTransactionAsync(conn =>
+            {
+                foreach (var loanPayment in loanPayments)
+                {
+                    conn.InsertOrReplace(loanPayment);
+                }
+            });
+        }
+
+        public async Task SaveSettlementRangeAsync(List<Settlement> settlements)
+        {
+            await _database.RunInTransactionAsync(conn =>
+            {
+                foreach (var settlement in settlements)
+                {
+                    conn.InsertOrReplace(settlement);
+                }
+            });
+        }
+
+        public async Task SaveSettlementDetailRangeAsync(List<SettlementDetail> settlementDetails)
+        {
+            await _database.RunInTransactionAsync(conn =>
+            {
+                foreach (var settlementDetail in settlementDetails)
+                {
+                    conn.InsertOrReplace(settlementDetail);
+                }
+            });
+        }
 
         public async Task ClearAllAsync()
         {
@@ -339,12 +393,15 @@ namespace Natillera.Data
             await _database.ExecuteAsync("DELETE FROM Participant");
             await _database.ExecuteAsync("DELETE FROM RaffleWeek");
             await _database.ExecuteAsync("DELETE FROM Setting");
+            await _database.ExecuteAsync("DELETE FROM Contribution");
+            await _database.ExecuteAsync("DELETE FROM Loan");
+            await _database.ExecuteAsync("DELETE FROM LoanPayment");
+            await _database.ExecuteAsync("DELETE FROM Settlement");
+            await _database.ExecuteAsync("DELETE FROM SettlementDetail");
         }
 
-        public async Task<int> SaveSettingAsync(Setting setting)
-        {
-            return await _database.InsertOrReplaceAsync(setting);
-        }
+        public async Task<int> SaveSettingAsync(Setting setting) => 
+            await _database.InsertOrReplaceAsync(setting);
 
         public async Task<Setting> GetSettingAsync()
         {
@@ -357,11 +414,20 @@ namespace Natillera.Data
               .OrderByDescending(x => x.Date)
               .ToListAsync();
 
+        public Task<List<Contribution>> GetContributionsByParticipant(int participantId)
+        => _database.Table<Contribution>()
+                .Where(p => p.PersonId == participantId)
+              .OrderByDescending(x => x.Date)
+              .ToListAsync();
+
         public Task<int> AddContributionAsync(Contribution contribution)
             => _database.InsertAsync(contribution);
 
         public Task<int> DeleteContributionAsync(Contribution contribution)
             => _database.DeleteAsync(contribution);
+
+        public async Task<bool> ExistsContribution(int participantId, int year, int month)
+             => await _database.Table<Contribution>().CountAsync(c => c.PersonId == participantId && c.Year == year && c.Month == month) > 0;
 
         //--------------LOAN-----------
         public Task<List<Loan>> GetLoansAsync()
@@ -369,6 +435,9 @@ namespace Natillera.Data
 
         public Task<List<LoanPayment>> GetPaymentsAsync(int loanId)
             => _database.Table<LoanPayment>().Where(x => x.LoanId == loanId).ToListAsync();
+
+        public Task<List<LoanPayment>> GetAllPaymentsAsync()
+            => _database.Table<LoanPayment>().ToListAsync();
 
         public Task<int> AddLoanAsync(Loan loan)
             => _database.InsertAsync(loan);
@@ -379,11 +448,15 @@ namespace Natillera.Data
         public Task<int> UpdateLoanAsync(Loan loan)
             => _database.UpdateAsync(loan);
 
-
-
         //----------- Settlement -----------
+        public async Task<List<Settlement>> GetSettlementAsync() 
+            => await _database.Table<Settlement>().ToListAsync();
+
         public Task<int> AddSettlementAsync(Settlement s)
             => _database.InsertAsync(s);
+
+        public async Task<List<SettlementDetail>> GetSettlementDetailAsync()
+            => await _database.Table<SettlementDetail>().ToListAsync();
 
         public Task<int> AddDetailAsync(SettlementDetail d)
             => _database.InsertAsync(d);

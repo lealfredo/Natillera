@@ -57,6 +57,11 @@ namespace Natillera.Data
         Task SaveBetRangeAsync(List<Bet> bets);
 
         Task SaveRaffleWinnerRangeAsync(List<RaffleWinner> raffleWinners);
+        Task SaveContributionRangeAsync(List<Contribution> contributions);
+        Task SaveLoanRangeAsync(List<Loan> loans);
+        Task SaveLoanPaymentRangeAsync(List<LoanPayment> loanPayments);
+        Task SaveSettlementRangeAsync(List<Settlement> settlements);
+        Task SaveSettlementDetailRangeAsync(List<SettlementDetail> settlementDetails);
         Task ClearAllAsync();
 
         //Settings
@@ -65,18 +70,23 @@ namespace Natillera.Data
 
         // CONTRIBUTION
         Task<List<Contribution>> GetAllContributionsAsync();
+        Task<List<Contribution>> GetContributionsByParticipant(int participantId);
         Task<int> AddContributionAsync(Contribution contribution);
         Task<int> DeleteContributionAsync(Contribution contribution);
+        Task<bool> ExistsContribution(int participantId, int year, int month);
 
         //--------------LOAN-----------
         Task<List<Loan>> GetLoansAsync();
         Task<List<LoanPayment>> GetPaymentsAsync(int loanId);
+        Task<List<LoanPayment>> GetAllPaymentsAsync();
         Task<int> AddLoanAsync(Loan loan);
         Task<int> AddPaymentAsync(LoanPayment payment);
         Task<int> UpdateLoanAsync(Loan loan);
 
         //----------- Settlement -----------
+        Task<List<Settlement>> GetSettlementAsync();
         Task<int> AddSettlementAsync(Settlement s);
+        Task<List<SettlementDetail>> GetSettlementDetailAsync();
         Task<int> AddDetailAsync(SettlementDetail d);
 
         SQLiteAsyncConnection GetConnection();

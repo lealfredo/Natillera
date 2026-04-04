@@ -5,6 +5,8 @@
              x:Name="Page"
             Title="Aportes">
 
+    <ScrollView>
+
     <VerticalStackLayout Padding="15" Spacing="10">
 
         <!-- Picker -->
@@ -18,6 +20,64 @@
                Keyboard="Numeric"
                Text="{Binding Amount}" />
 
+            <CollectionView ItemsSource="{Binding Months}"
+                ItemSizingStrategy="MeasureAllItems">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="3"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Padding="10"
+               Margin="5"
+               CornerRadius="10"
+               HasShadow="False"
+               BorderColor="#E0E0E0">
+
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer 
+                    Command="{Binding BindingContext.ToggleMonthCommand, Source={x:Reference Page}}"
+                    CommandParameter="{Binding .}" />
+                            </Frame.GestureRecognizers>
+
+                            <Label Text="{Binding Name}"
+       HorizontalOptions="Center"
+       VerticalOptions="Center"
+       FontAttributes="Bold">
+
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label"
+                     Binding="{Binding IsSelected}"
+                     Value="True">
+                                        <Setter Property="TextColor" Value="White"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+
+                            <Frame.Triggers>
+
+                                <!-- PAGADO -->
+                                <DataTrigger TargetType="Frame"
+                 Binding="{Binding IsPaid}"
+                 Value="True">
+                                    <Setter Property="BackgroundColor" Value="#9E9E9E"/>
+                                    <Setter Property="BorderColor" Value="#9E9E9E"/>
+                                </DataTrigger>
+
+                                <!-- SELECCIONADO -->
+                                <DataTrigger TargetType="Frame"
+                 Binding="{Binding IsSelected}"
+                 Value="True">
+                                    <Setter Property="BackgroundColor" Value="#4CAF50"/>
+                                    <Setter Property="BorderColor" Value="#4CAF50"/>
+                                </DataTrigger>
+
+                            </Frame.Triggers>
+
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
         <!-- Botón -->
         <Button Text="Registrar aporte"
                 Command="{Binding AddCommand}" />
@@ -25,38 +85,69 @@
         <!-- Lista -->
         <CollectionView ItemsSource="{Binding Contributions}">
             <CollectionView.ItemTemplate>
-                <DataTemplate>
+                    <DataTemplate>
 
-                    <SwipeView>
+                        <SwipeView>
 
-                        <SwipeView.RightItems>
-                            <SwipeItems>
-                                <SwipeItem Text="Eliminar"
-                                           BackgroundColor="Red"
-                                           Command="{Binding BindingContext.DeleteCommand, Source={x:Reference Page}}"
-                                           CommandParameter="{Binding .}" />
-                            </SwipeItems>
-                        </SwipeView.RightItems>
+                            <!-- ELIMINAR -->
+                            <SwipeView.RightItems>
+                                <SwipeItems Mode="Reveal">
+                                    <SwipeItem Text="Eliminar"
+                           BackgroundColor="#E53935"
+                           Command="{Binding BindingContext.DeleteCommand, Source={x:Reference Page}}"
+                           CommandParameter="{Binding .}" />
+                                </SwipeItems>
+                            </SwipeView.RightItems>
 
-                        <Grid Padding="10" ColumnDefinitions="*,Auto">
+                            <!-- CONTENIDO -->
+                            <Frame Margin="8"
+               Padding="12"
+               CornerRadius="12"
+               HasShadow="True"
+               BackgroundColor="White"
+               BorderColor="#E0E0E0">
 
-                            <VerticalStackLayout>
-                                <Label Text="{Binding Name}" FontAttributes="Bold"/>
-                                <Label Text="{Binding DateFormatted}" FontSize="12"/>
-                            </VerticalStackLayout>
+                                <Grid ColumnDefinitions="*,Auto"
+                  RowDefinitions="Auto,Auto,Auto">
 
-                            <Label Grid.Column="1"
-                                   Text="{Binding Amount, StringFormat='$ {0:N0}'}"
-                                   VerticalOptions="Center"
-                                   FontAttributes="Bold"/>
+                                    <!-- MES (DESTACADO) -->
+                                    <Label Text="{Binding MonthName}"
+                       FontSize="14"
+                       FontAttributes="Bold"
+                       TextColor="#4CAF50"
+                       Grid.ColumnSpan="2"/>
 
-                        </Grid>
+                                    <!-- NOMBRE -->
+                                    <Label Text="{Binding Name}"
+                       Grid.Row="1"
+                       FontAttributes="Bold"
+                       FontSize="13"/>
 
-                    </SwipeView>
+                                    <!-- MONTO -->
+                                    <Label Text="{Binding Amount, StringFormat='$ {0:N0}'}"
+                       Grid.Row="1"
+                       Grid.Column="1"
+                       HorizontalOptions="End"
+                       FontAttributes="Bold"
+                       FontSize="14"
+                       TextColor="#2E7D32"/>
 
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
+                                    <!-- FECHA -->
+                                    <Label Text="{Binding DateFormatted}"
+                       Grid.Row="2"
+                       FontSize="11"
+                       TextColor="Gray"/>
+
+                                </Grid>
+
+                            </Frame>
+
+                        </SwipeView>
+
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
         </CollectionView>
 
     </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

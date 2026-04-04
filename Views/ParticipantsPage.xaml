@@ -7,16 +7,28 @@
 
     <VerticalStackLayout Padding="15" Spacing="10">
 
-        <!-- Formulario -->
-        <Entry Placeholder="Nombre"
-               Text="{Binding Name}" />
-
         <Entry Placeholder="Teléfono"
                Keyboard="Telephone"
                Text="{Binding Phone}" />
 
-        <Button Text="Agregar"
-                Command="{Binding AddCommand}" />
+        <!-- Formulario -->
+        <Entry Placeholder="Nombre"
+               Text="{Binding Name}" />
+
+        <!-- Monto -->
+        <Entry Placeholder="Aporte mensual"
+               Keyboard="Numeric"
+               Text="{Binding MonthlyContribution}" />
+
+        <Button 
+            Text="{Binding IsEditing, Converter={StaticResource BoolToTextButtonConverter}}"
+            Command="{Binding AddCommand}" />
+        <Button 
+            Text="Cancelar edición"
+            BackgroundColor="Gray"
+            TextColor="White"
+            IsVisible="{Binding IsEditing}"
+            Command="{Binding CancelEditCommand}" />
 
         <!-- Lista -->
         <CollectionView ItemsSource="{Binding Participants}">
@@ -25,14 +37,25 @@
                     <Grid Padding="10"
           ColumnDefinitions="*,Auto"
           VerticalOptions="Center">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer 
+        Command="{Binding BindingContext.SelectParticipantCommand, Source={x:Reference Page}}"
+        CommandParameter="{Binding .}" />
+                        </Grid.GestureRecognizers>
+
+                        <Grid.Triggers>
+                            <DataTrigger TargetType="Grid"
+                     Binding="{Binding IsSelected}"
+                     Value="True">
+                                <Setter Property="BackgroundColor" Value="#D0E8FF"/>
+                            </DataTrigger>
+                        </Grid.Triggers>
 
                         <!-- INFO -->
                         <VerticalStackLayout Grid.Column="0"
                              Spacing="2">
-                            <Label Text="{Binding Name}" 
-                   FontAttributes="Bold"/>
-                            <Label Text="{Binding Phone}" 
-                   FontSize="12"/>
+                            <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                            <Label Text="{Binding Phone}" FontSize="12"/>
                         </VerticalStackLayout>
 
                         <!-- BOTÓN -->
