@@ -16,8 +16,7 @@
                 FontAttributes="Bold"
                 HorizontalOptions="Center" />
 
-                <Border Stroke="Gray" Padding="15"
-                    IsVisible="{Binding IsOpen}">
+                <Border Stroke="Gray" Padding="15">
                     <VerticalStackLayout Spacing="8">
 
                         <!-- Semana -->
@@ -92,13 +91,11 @@
                     Text="Exportar numeros"
                     BackgroundColor="#1976D2"
                     TextColor="White"
-                    IsVisible="{Binding IsOpen}"
                     Command="{Binding ExportNumbersCommand}" 
                 />
 
                 <VerticalStackLayout
                     x:Name="ExportLayout"
-                    IsVisible="{Binding IsOpen}"
                     BackgroundColor="White"
                     Padding="10">
                     <ScrollView

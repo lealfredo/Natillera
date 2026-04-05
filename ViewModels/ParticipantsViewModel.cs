@@ -204,6 +204,25 @@ namespace Natillera.ViewModels
 
             if (!confirm) return;
 
+            var bets = await _database.GetBetsByParticipantAsync(participant.Id);
+
+            foreach (var bet in bets)
+            {
+                bet.ParticipantId = null;
+                bet.Bettor = participant.Name;
+            }
+
+            await _database.SaveBetRangeAsync(bets);
+
+            var winners = await _database.GetAllRaffleWinnerByParticipantAsync(participant.Id);
+            foreach (var winner in winners)
+            {
+                winner.ParticipantId = null;
+                winner.Bettor = participant.Name;
+            }
+
+            await _database.SaveRaffleWinnerRangeAsync(winners);
+
             await _database.DeleteParticipantAsync(participant.Id);
             Participants.Remove(participant);
         }

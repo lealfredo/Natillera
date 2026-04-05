@@ -56,6 +56,19 @@ namespace Natillera.ViewModels
                 });
         }
 
+        [RelayCommand]
+        private async Task EditRaffleAsync(RaffleWeek raffle)
+        {
+            if (raffle == null) return;
+
+            await Shell.Current.GoToAsync(
+                nameof(RafflePage),
+                new Dictionary<string, object>
+                {
+                { "RaffleId", raffle.Id }
+                });
+        }
+
 
         [ObservableProperty]
         private bool exist;

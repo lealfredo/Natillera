@@ -19,18 +19,26 @@
                     FontAttributes="Bold"/>
             </Border>
 
+            <Picker Title="Participante (opcional)"
+                ItemsSource="{Binding Participants}"
+                ItemDisplayBinding="{Binding Name}"
+                SelectedItem="{Binding SelectedParticipant}" />
+
+            <Entry Placeholder="Nombre (si es externo)"
+                Text="{Binding Bettor}" />
+
             <!-- Teléfono -->
-            <Entry
+            <!--<Entry
                 Placeholder="Teléfono"
                 Keyboard="Telephone"
                 Text="{Binding ParticipantPhone}"
-                Unfocused="OnPhoneUnfocused"/>
+                Unfocused="OnPhoneUnfocused"/>-->
 
             <!-- Nombre -->
-            <Entry
+            <!--<Entry
                 Placeholder="Nombre del participante"
                 Text="{Binding ParticipantName}"
-                IsEnabled="{Binding IsNewParticipant}" />
+                IsEnabled="{Binding IsNewParticipant}" />-->
 
             <Button
                 Text="Guardar apuesta"

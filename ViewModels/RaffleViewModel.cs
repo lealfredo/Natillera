@@ -126,7 +126,7 @@ namespace Natillera.ViewModels
             }
 
             await Shell.Current.GoToAsync(
-                $"{nameof(Views.BetPage)}?number={bet.Number}");
+                $"{nameof(Views.BetPage)}?number={bet.Number}&raffleId={RaffleId}");
         }
 
         private async Task DeleteBetGroup(BetNumber bet)
@@ -165,17 +165,11 @@ namespace Natillera.ViewModels
             }
             else
             {
+
+                ButtonText = "Editar rifa semanal";
+                await LoadNumbersAsync();
+
                 IsClosed = CurrentRaffle.IsClosed;
-                if (!CurrentRaffle.IsClosed)
-                {
-                    ButtonText = "Editar rifa semanal";
-                    await LoadNumbersAsync(); 
-                }
-                else
-                {
-                    //ButtonText = "Nueva rifa semanal";
-                    //CurrentRaffle = new RaffleWeek(); 
-                }
             }
 
             IsBusy = false;

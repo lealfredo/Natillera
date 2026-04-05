@@ -4,6 +4,7 @@
              x:Class="Natillera.Views.ParticipantsPage"
              x:Name="Page"
              Title="Participantes">
+    <ScrollView>
 
     <VerticalStackLayout Padding="15" Spacing="10">
 
@@ -56,23 +57,26 @@
                              Spacing="2">
                             <Label Text="{Binding Name}" FontAttributes="Bold"/>
                             <Label Text="{Binding Phone}" FontSize="12"/>
+                            <Label Text="{Binding MonthlyContribution}" FontSize="12"/>
                         </VerticalStackLayout>
 
                         <!-- BOTÓN -->
-                        <!--<Button Grid.Column="1"
-                Text="Eliminar"
-                BackgroundColor="Red"
-                TextColor="White"
-                Padding="8,4"
-                FontSize="12"
-                HeightRequest="35"
-                Command="{Binding BindingContext.DeleteCommand, Source={x:Reference Page}}"
-                CommandParameter="{Binding .}" />-->
+                        <Button Grid.Column="1"
+                            Text="Eliminar"
+                            BackgroundColor="Red"
+                            TextColor="White"
+                            Padding="8,4"
+                            FontSize="12"
+                            HeightRequest="35"
+                            Command="{Binding BindingContext.DeleteCommand, Source={x:Reference Page}}"
+                            CommandParameter="{Binding .}" />   
 
                     </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-    </VerticalStackLayout>
+        </VerticalStackLayout>
+
+    </ScrollView>
 </ContentPage>

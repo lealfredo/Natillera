@@ -13,6 +13,15 @@ public partial class BetPage : ContentPage
     private async void OnPhoneUnfocused(object sender, FocusEventArgs e)
     {
         if (BindingContext is BetViewModel vm)
-            await vm.CheckParticipantByPhoneAsync();
+        { 
+            //await vm.CheckParticipantByPhoneAsync();
+            await vm.Load();
+        }
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        (BindingContext as BetViewModel)?.LoadCommand.Execute(null);
     }
 }

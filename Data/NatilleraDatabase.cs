@@ -204,10 +204,10 @@ namespace Natillera.Data
                     Number = number,
                     IsTaken = bet != null,
                     ParticipantName = bet == null
-                        ? null
+                        ? null : bet.ParticipantId == null ? bet.Bettor
                         : participants.First(p => p.Id == bet.ParticipantId).Name,
                     ParticipantId = bet == null
-                        ? 0
+                        ? 0 : bet.ParticipantId == null ? 0
                         : participants.First(p => p.Id == bet.ParticipantId).Id,
                     RaflleWeekId = bet == null
                         ? 0
@@ -278,6 +278,11 @@ namespace Natillera.Data
         public async Task<List<RaffleWinner>> GetAllRaffleWinner()
         {
             return await _database.Table<RaffleWinner>().ToListAsync();
+        }
+
+        public async Task<List<RaffleWinner>> GetAllRaffleWinnerByParticipantAsync(int participantId)
+        {
+            return await _database.Table<RaffleWinner>().Where(p => p.ParticipantId == participantId).ToListAsync();
         }
 
         public async Task SaveRaffleWeekRangeAsync(List<RaffleWeek> raffleWeeks)

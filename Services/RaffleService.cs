@@ -38,7 +38,8 @@ namespace Natillera.Services
                 await _database.SaveRaffleWinnerAsync(new RaffleWinner
                 {
                     RaffleDrawId = draw.Id,
-                    ParticipantId = bet.ParticipantId,
+                    ParticipantId = bet.ParticipantId == null ? null : (int)bet.ParticipantId,
+                    Bettor = bet.ParticipantId == null ? bet.Bettor : "",
                     BetNumber = number,
                     BetType = type,
                 });

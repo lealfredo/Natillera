@@ -41,6 +41,7 @@ namespace Natillera.Data
         Task SaveRaffleWinnerAsync(RaffleWinner winner);
         Task<List<T>> GetTableAsync<T>() where T : new();
         Task<List<RaffleWinner>> GetWinnersByDrawAsync(int drawId);
+        Task<List<RaffleWinner>> GetAllRaffleWinnerByParticipantAsync(int participantId);
 
         Task<List<RaffleWeek>> GetAllRaffleWeek();
 

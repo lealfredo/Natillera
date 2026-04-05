@@ -9,7 +9,9 @@ namespace Natillera.Entities
 
         public int RaffleDrawId { get; set; }
 
-        public int ParticipantId { get; set; }
+        [Indexed]
+        public int? ParticipantId { get; set; }
+        public string Bettor { get; set; }
 
         public string BetNumber { get; set; } // 2 dígitos apostados
 
