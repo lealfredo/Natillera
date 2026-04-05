@@ -113,6 +113,7 @@ namespace Rifa.ViewModels
 
         private async Task LoadPaidMonths(int participantId)
         {
+            Contributions.Clear();
             var contributions = await _database.GetContributionsByParticipant(participantId);
             var participant = Participants.FirstOrDefault(x => x.Id == participantId);
 
@@ -194,7 +195,7 @@ namespace Rifa.ViewModels
                 await _database.AddContributionAsync(contribution);
             }
 
-            Amount = string.Empty;
+            Amount = null;
             SelectedParticipant = null;
             foreach (var item in Months)
                 item.IsSelected = false;
