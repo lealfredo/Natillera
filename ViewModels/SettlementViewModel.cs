@@ -44,17 +44,21 @@ namespace Natillera.ViewModels
 
             var setting = await _database.GetSettingAsync();
 
-            // CAPITAL INICIAL
+            // CAPITAL INICIAL (aportes)
             var initialCapital = contributions.Sum(x => x.Amount);
 
-            // INTERESES
-            var totalInterest = allPayments.Sum(x => x.InterestPaid);
+            // INTERESES GANADOS
+            var totalInterest = allPayments
+                .Where(x => x.IsInterest)
+                .Sum(x => x.Amount);
 
-            // PRESTADO
-            var totalLoaned = loans.Sum(x => x.Amount);
+            // TOTAL PRESTADO
+            var totalLoaned = loans.Sum(x => x.PrincipalAmount);
 
-            // RECUPERADO
-            var totalRecovered = allPayments.Sum(x => x.PrincipalPaid);
+            // CAPITAL RECUPERADO
+            var totalRecovered = allPayments
+                .Where(x => !x.IsInterest)
+                .Sum(x => x.Amount);
 
             // CAPITAL FINAL
             var finalCapital =
@@ -65,10 +69,13 @@ namespace Natillera.ViewModels
             // UTILIDAD
             var profit = finalCapital - initialCapital;
 
-            // TOPE CONFIGURADO%
+            // TOPE CONFIGURADO
             var participantShare = initialCapital * setting.MaxReturnPercentage;
 
-            //var participantShare = Math.Min(profit, maxForParticipants);
+            // VALIDACIÓN (IMPORTANTE)
+            if (participantShare > profit)
+                participantShare = profit;
+
             var adminShare = profit - participantShare;
 
             // GUARDAR LIQUIDACIÓN

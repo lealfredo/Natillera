@@ -13,6 +13,8 @@ namespace Natillera.Models
         public decimal Amount { get; set; }
         public decimal InterestRate { get; set; }
 
+        public DateTime StartDate { get; set; }
+
         // NUEVO
         public decimal MonthlyInterest { get; set; }
 
@@ -28,6 +30,8 @@ namespace Natillera.Models
         // TOTALES
         public decimal TotalPaid { get; set; }
         public decimal Balance { get; set; }
+
+        public decimal Pending { get; set; }
 
         public bool IsPaid { get; set; }
 

@@ -41,6 +41,8 @@ namespace Natillera.Extensions
             builder.Services.AddTransient<DashboardPage>();
             builder.Services.AddTransient<SettlementPage>();
             builder.Services.AddTransient<SettlementResultPage>();
+            builder.Services.AddTransient<LoanPaymentPage>();
+            builder.Services.AddTransient<ParticipantStatementPage>();
 
             builder.Services.AddTransient<RaffleViewModel>();
             builder.Services.AddTransient<RafflesViewModel>();
@@ -53,8 +55,10 @@ namespace Natillera.Extensions
             builder.Services.AddTransient<ContributionsViewModel>();
             builder.Services.AddTransient<LoansViewModel>();
             builder.Services.AddTransient<DashboardViewModel>();
+            builder.Services.AddTransient<ParticipantStatementViewModel>();
             builder.Services.AddTransient<SettlementViewModel>();
             builder.Services.AddTransient<SettlementResultViewModel>();
+            builder.Services.AddTransient<LoanPaymentViewModel>();
         }
     }
 }

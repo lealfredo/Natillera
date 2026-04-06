@@ -3,6 +3,7 @@ using Natillera.Data;
 using Natillera.Entities;
 using Natillera.Models;
 using Natillera.ViewModels;
+using Natillera.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -79,6 +80,7 @@ namespace Natillera.ViewModels
         public ICommand DeleteCommand { get; }
         public ICommand SelectParticipantCommand { get; }
         public ICommand CancelEditCommand { get; }
+        public ICommand ViewStatementCommand { get; }
 
         public ParticipantsViewModel(INatilleraDatabase database)
         {
@@ -102,6 +104,19 @@ namespace Natillera.ViewModels
                 MonthlyContribution = p.MonthlyContribution;
 
                 IsEditing = true;
+            });
+
+            ViewStatementCommand = new Command<ParticipantItem>(async (p) =>
+            {
+                if (p == null) return;
+
+                // aquí navegas a tu página de estado de cuenta
+                await Shell.Current.GoToAsync(
+                    nameof(ParticipantStatementPage),
+                    new Dictionary<string, object>
+                    {
+                    { "ParticipantId", p.Id }
+                    });
             });
         }
 

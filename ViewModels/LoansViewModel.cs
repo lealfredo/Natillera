@@ -1,6 +1,7 @@
 ﻿using Natillera.Data;
 using Natillera.Entities;
 using Natillera.Models;
+using Natillera.Views;
 using Rifa.Entities;
 using System;
 using System.Collections.Generic;
@@ -13,26 +14,51 @@ namespace Natillera.ViewModels
     public partial class LoansViewModel : BaseViewModel
     {
         private readonly INatilleraDatabase _database;
-
         public ObservableCollection<LoanItem> Loans { get; set; } = new();
         public ObservableCollection<Participant> Participants { get; set; } = new();
 
         public Participant SelectedParticipant { get; set; }
         public string BorrowerName { get; set; }
+        public DateTime StartDate { get; set; }
         public string Amount { get; set; }
         public string InterestRate { get; set; }
 
         public ICommand LoadCommand { get; }
         public ICommand AddLoanCommand { get; }
-        public ICommand AddPaymentCommand { get; }
+        //public ICommand AddPaymentCommand { get; }
+        public ICommand OpenPaymentCommand { get; }
 
         public LoansViewModel(INatilleraDatabase database)
         {
             _database = database;
+            StartDate = DateTime.Now;
 
             LoadCommand = new Command(async () => await Load());
             AddLoanCommand = new Command(async () => await AddLoan());
-            AddPaymentCommand = new Command<LoanItem>(async (l) => await AddPayment(l));
+            //AddPaymentCommand = new Command<LoanItem>(async (l) => await AddPayment(l));
+            OpenPaymentCommand = new Command<LoanItem>(async (l) => await OpenPayment(l));
+        }
+
+        private async Task OpenPayment(LoanItem item)
+        {
+            if (item == null) return;
+
+            var vm = new LoanPaymentViewModel(_database);
+            await vm.Load(item.Id);
+
+            if (vm.PendingPrincipal <= 0 && !vm.Months.Any(x => !x.IsPaid))
+            {
+                await Shell.Current.DisplayAlert(
+                    "Información",
+                    "No hay pagos pendientes para este préstamo",
+                    "OK");
+
+                return;
+            }
+
+            var page = new LoanPaymentPage(vm);
+
+            await Shell.Current.Navigation.PushModalAsync(page);
         }
 
         private async Task Load()
@@ -50,51 +76,45 @@ namespace Natillera.ViewModels
             {
                 var payments = await _database.GetPaymentsAsync(loan.Id);
 
-                // 1. Interés mensual
-                var monthlyInterest = loan.Amount * loan.InterestRate;
+                // Interés mensual (%)
+                var monthlyInterest = loan.PrincipalAmount * (loan.InterestRate / 100);
 
-                // 2. Meses transcurridos
-                //var months = ((DateTime.Now.Year - loan.StartDate.Year) * 12)
-                //           + DateTime.Now.Month - loan.StartDate.Month;
+                // Meses transcurridos
+                var months =
+                            (DateTime.Now.Year - loan.StartDate.Year) * 12 +
+                            (DateTime.Now.Month - loan.StartDate.Month) + 1;
 
-                var days = (DateTime.Now - loan.StartDate).TotalDays;
-
-                // convierte a meses (aprox)
-                var months = (int)Math.Ceiling(days / 30.0);
-
-                // mínimo 1 mes
                 if (months < 1)
                     months = 1;
 
-                // 3. Interés total generado
+                // Interés total generado
                 var totalInterestGenerated = monthlyInterest * months;
 
-                // 4. Interés pagado
-                var interestPaid = payments.Sum(x => x.InterestPaid);
+                // Interés pagado
+                var interestPaid = payments
+                    .Where(x => x.IsInterest)
+                    .Sum(x => x.Amount);
 
-                // 5. Interés pendiente
                 var pendingInterest = totalInterestGenerated - interestPaid;
                 if (pendingInterest < 0) pendingInterest = 0;
 
-                // 6. Capital pagado
-                var principalPaid = payments.Sum(x => x.PrincipalPaid);
+                // Capital pagado
+                var principalPaid = payments
+                    .Where(x => !x.IsInterest)
+                    .Sum(x => x.Amount);
 
-                // 7. Capital pendiente
-                var pendingPrincipal = loan.Amount - principalPaid;
+                var pendingPrincipal = loan.PrincipalAmount - principalPaid;
                 if (pendingPrincipal < 0) pendingPrincipal = 0;
 
-                // 8. Total pagado (informativo)
                 var totalPaid = interestPaid + principalPaid;
-
-                // 9. Balance real
                 var totalBalance = pendingInterest + pendingPrincipal;
 
                 Loans.Add(new LoanItem
                 {
                     Id = loan.Id,
-                    Name = loan.BorrowerName,
+                    Name = Participants.FirstOrDefault(x => x.Id == loan.PersonId)?.Name ?? loan.BorrowerName,
 
-                    Amount = loan.Amount,
+                    Amount = loan.PrincipalAmount,
                     InterestRate = loan.InterestRate,
 
                     MonthlyInterest = monthlyInterest,
@@ -109,7 +129,8 @@ namespace Natillera.ViewModels
                     TotalPaid = totalPaid,
                     Balance = totalBalance,
 
-                    IsPaid = loan.IsPaid
+                    IsPaid = pendingPrincipal <= 0,
+                    StartDate = loan.StartDate
                 });
             }
         }
@@ -119,93 +140,28 @@ namespace Natillera.ViewModels
             if (!decimal.TryParse(Amount, out var amount)) return;
             if (!decimal.TryParse(InterestRate, out var rate)) return;
 
+            var (availableInterest, availableContributions) =
+                await _database.GetAvailableMoney();
+
+            var fromInterest = Math.Min(amount, availableInterest);
+            var fromContributions = amount - fromInterest;
+
             var loan = new Loan
             {
                 PersonId = SelectedParticipant?.Id,
                 BorrowerName = SelectedParticipant?.Name ?? BorrowerName,
-                Amount = amount,
+                PrincipalAmount = amount,
+                PrincipalFromInterest = fromInterest,
+                PrincipalFromContributions = fromContributions,
                 InterestRate = rate,
-                StartDate = DateTime.Now,
-                DueDate = DateTime.Now.AddMonths(1),
-                IsPaid = false
+                StartDate = StartDate
             };
 
             await _database.AddLoanAsync(loan);
 
             Amount = string.Empty;
             InterestRate = string.Empty;
-            BorrowerName = string.Empty;
             SelectedParticipant = null;
-
-            await Load();
-        }
-
-        private async Task AddPayment(LoanItem item)
-        {
-            if (item == null || item.IsPaid) return;
-
-            string result = await App.Current.MainPage.DisplayPromptAsync(
-                "Abono",
-                "Ingrese el valor:");
-
-            if (!decimal.TryParse(result, out var value) || value <= 0)
-                return;
-
-            // Obtener préstamo real
-            var loans = await _database.GetLoansAsync();
-            var loan = loans.First(x => x.Id == item.Id);
-
-            var payments = await _database.GetPaymentsAsync(loan.Id);
-
-            // Recalcular interés actual (igual que en Load)
-            var monthlyInterest = loan.Amount * loan.InterestRate;
-
-            var days = (DateTime.Now - loan.StartDate).TotalDays;
-
-            // convierte a meses (aprox)
-            var months = (int)Math.Ceiling(days / 30.0);
-
-            // mínimo 1 mes
-            if (months < 1)
-                months = 1;
-
-            var totalInterestGenerated = monthlyInterest * months;
-
-            var interestPaid = payments.Sum(x => x.InterestPaid);
-            var pendingInterest = totalInterestGenerated - interestPaid;
-            if (pendingInterest < 0) pendingInterest = 0;
-
-            var principalPaid = payments.Sum(x => x.PrincipalPaid);
-            var pendingPrincipal = loan.Amount - principalPaid;
-            if (pendingPrincipal < 0) pendingPrincipal = 0;
-
-            // DISTRIBUCIÓN DEL PAGO
-            decimal payment = value;
-
-            // Primero paga interés
-            decimal interestToPay = Math.Min(payment, pendingInterest);
-            payment -= interestToPay;
-
-            // Luego capital
-            decimal principalToPay = Math.Min(payment, pendingPrincipal);
-            payment -= principalToPay;
-
-            // Guardar pago
-            await _database.AddPaymentAsync(new LoanPayment
-            {
-                LoanId = loan.Id,
-                Amount = value,
-                InterestPaid = interestToPay,
-                PrincipalPaid = principalToPay,
-                Date = DateTime.Now
-            });
-
-            // Actualizar estado del préstamo
-            if ((principalPaid + principalToPay) >= loan.Amount)
-            {
-                loan.IsPaid = true;
-                await _database.UpdateLoanAsync(loan);
-            }
 
             await Load();
         }

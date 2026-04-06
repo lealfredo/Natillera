@@ -13,10 +13,13 @@ namespace Rifa.Entities
         [Indexed]
         public int LoanId { get; set; }
 
+        public int Year { get; set; }
+        public int Month { get; set; }
+
         public decimal Amount { get; set; }
 
-        public decimal InterestPaid { get; set; }
-        public decimal PrincipalPaid { get; set; }
+        public bool IsInterest { get; set; } // separa interés vs capital
+
         public DateTime Date { get; set; }
     }
 }

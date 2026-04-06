@@ -35,33 +35,48 @@
         <CollectionView ItemsSource="{Binding Participants}">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Grid Padding="10"
+                        <SwipeView>
+                            <SwipeView.RightItems>
+                                <SwipeItems Mode="Reveal">
+
+                                    <SwipeItem Text="Estado de cuenta"
+                       BackgroundColor="#1976D2"
+                       Command="{Binding BindingContext.ViewStatementCommand, Source={x:Reference Page}}"
+                       CommandParameter="{Binding .}" />
+                                    <SwipeItem Text="Borrar"
+                                                BackgroundColor="Red"
+                                                Command="{Binding BindingContext.DeleteCommand, Source={x:Reference Page}}"
+                                                CommandParameter="{Binding .}" />
+
+                                </SwipeItems>
+                            </SwipeView.RightItems>
+                            <Grid Padding="10"
           ColumnDefinitions="*,Auto"
           VerticalOptions="Center">
-                        <Grid.GestureRecognizers>
-                            <TapGestureRecognizer 
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer 
         Command="{Binding BindingContext.SelectParticipantCommand, Source={x:Reference Page}}"
         CommandParameter="{Binding .}" />
-                        </Grid.GestureRecognizers>
+                                </Grid.GestureRecognizers>
 
-                        <Grid.Triggers>
-                            <DataTrigger TargetType="Grid"
+                                <Grid.Triggers>
+                                    <DataTrigger TargetType="Grid"
                      Binding="{Binding IsSelected}"
                      Value="True">
-                                <Setter Property="BackgroundColor" Value="#D0E8FF"/>
-                            </DataTrigger>
-                        </Grid.Triggers>
+                                        <Setter Property="BackgroundColor" Value="#D0E8FF"/>
+                                    </DataTrigger>
+                                </Grid.Triggers>
 
-                        <!-- INFO -->
-                        <VerticalStackLayout Grid.Column="0"
+                                <!-- INFO -->
+                                <VerticalStackLayout Grid.Column="0"
                              Spacing="2">
-                            <Label Text="{Binding Name}" FontAttributes="Bold"/>
-                            <Label Text="{Binding Phone}" FontSize="12"/>
-                            <Label Text="{Binding MonthlyContribution}" FontSize="12"/>
-                        </VerticalStackLayout>
+                                    <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                                    <Label Text="{Binding Phone}" FontSize="12"/>
+                                    <Label Text="{Binding MonthlyContribution}" FontSize="12"/>
+                                </VerticalStackLayout>
 
-                        <!-- BOTÓN -->
-                        <Button Grid.Column="1"
+                                <!-- BOTÓN -->
+                                <!--<Button Grid.Column="1"
                             Text="Eliminar"
                             BackgroundColor="Red"
                             TextColor="White"
@@ -69,10 +84,11 @@
                             FontSize="12"
                             HeightRequest="35"
                             Command="{Binding BindingContext.DeleteCommand, Source={x:Reference Page}}"
-                            CommandParameter="{Binding .}" />   
+                            CommandParameter="{Binding .}" />-->
 
-                    </Grid>
-                </DataTemplate>
+                            </Grid>
+                        </SwipeView>
+                    </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 

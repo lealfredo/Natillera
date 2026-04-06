@@ -14,13 +14,14 @@ namespace Rifa.Entities
         public int? PersonId { get; set; } // null = externo
         public string BorrowerName { get; set; }
 
-        public decimal Amount { get; set; }
-        public decimal InterestRate { get; set; }
-        public decimal PrincipalPaid { get; set; } // cuánto capital ya pagó
+        public decimal PrincipalAmount { get; set; } // monto prestado
+        public decimal PrincipalFromContributions { get; set; }
+        public decimal PrincipalFromInterest { get; set; }
+        public decimal InterestRate { get; set; } // % mensual (ej: 5)
+        public bool IsPaid { get; set; }
+
+        public int TotalMonths { get; set; }
 
         public DateTime StartDate { get; set; }
-        public DateTime DueDate { get; set; }
-
-        public bool IsPaid { get; set; }
     }
 }

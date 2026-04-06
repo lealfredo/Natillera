@@ -21,6 +21,7 @@ namespace Natillera
             Routing.RegisterRoute("DashboardPage", typeof(DashboardPage));
             Routing.RegisterRoute("SettlementPage", typeof(SettlementPage));
             Routing.RegisterRoute("SettlementResultPage", typeof(SettlementResultPage));
+            Routing.RegisterRoute("ParticipantStatementPage", typeof(ParticipantStatementPage));
         }
     }
 }

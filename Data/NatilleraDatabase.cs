@@ -453,6 +453,67 @@ namespace Natillera.Data
         public Task<int> UpdateLoanAsync(Loan loan)
             => _database.UpdateAsync(loan);
 
+        public async Task<(decimal availableFromInterest, decimal availableFromContributions)> GetAvailableMoney()
+        {
+            // 1. DATOS BASE
+            var contributions = await GetAllContributionsAsync();
+            var loans = await GetLoansAsync();
+
+            var allPayments = new List<LoanPayment>();
+
+            foreach (var loan in loans)
+            {
+                var payments = await GetPaymentsAsync(loan.Id);
+                allPayments.AddRange(payments);
+            }
+
+            // 2. TOTALES
+            var totalContributions = contributions.Sum(x => x.Amount);
+
+            var totalInterest = allPayments
+                .Where(x => x.IsInterest)
+                .Sum(x => x.Amount);
+
+            // 3. RECUPERACIÓN PROPORCIONAL
+            decimal recoveredFromInterest = 0;
+            decimal recoveredFromContributions = 0;
+
+            foreach (var loan in loans)
+            {
+                var payments = allPayments
+                    .Where(x => x.LoanId == loan.Id && !x.IsInterest);
+
+                var totalPrincipal = loan.PrincipalAmount;
+                if (totalPrincipal == 0) continue;
+
+                var ratioInterest = loan.PrincipalFromInterest / totalPrincipal;
+                var ratioContributions = loan.PrincipalFromContributions / totalPrincipal;
+
+                var totalPaid = payments.Sum(x => x.Amount);
+
+                recoveredFromInterest += totalPaid * ratioInterest;
+                recoveredFromContributions += totalPaid * ratioContributions;
+            }
+
+            // 4. DISPONIBLE REAL
+
+            var availableFromInterest =
+                totalInterest
+                - loans.Sum(x => x.PrincipalFromInterest)
+                + recoveredFromInterest;
+
+            var availableFromContributions =
+                totalContributions
+                - loans.Sum(x => x.PrincipalFromContributions)
+                + recoveredFromContributions;
+
+            // 5. SEGURIDAD (evitar negativos)
+            if (availableFromInterest < 0) availableFromInterest = 0;
+            if (availableFromContributions < 0) availableFromContributions = 0;
+
+            return (availableFromInterest, availableFromContributions);
+        }
+
         //----------- Settlement -----------
         public async Task<List<Settlement>> GetSettlementAsync() 
             => await _database.Table<Settlement>().ToListAsync();

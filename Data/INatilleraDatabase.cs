@@ -83,6 +83,7 @@ namespace Natillera.Data
         Task<int> AddLoanAsync(Loan loan);
         Task<int> AddPaymentAsync(LoanPayment payment);
         Task<int> UpdateLoanAsync(Loan loan);
+        Task<(decimal availableFromInterest, decimal availableFromContributions)> GetAvailableMoney();
 
         //----------- Settlement -----------
         Task<List<Settlement>> GetSettlementAsync();
