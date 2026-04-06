@@ -16,6 +16,7 @@ namespace Natillera.Data
         Task<List<Participant>> GetParticipantsAsync();
         Task<int> SaveParticipantAsync(Participant participant);
         Task<Participant> GetParticipantByPhoneAsync(string phoneNumber);
+        Task<List<Participant>> GetParticipantsPaged(int page, int pageSize);
         Task<Participant> GetParticipantByIdAsync(int id);
         Task<int> DeleteParticipantAsync(int participantId);
 
@@ -61,6 +62,7 @@ namespace Natillera.Data
         Task SaveContributionRangeAsync(List<Contribution> contributions);
         Task SaveLoanRangeAsync(List<Loan> loans);
         Task SaveLoanPaymentRangeAsync(List<LoanPayment> loanPayments);
+        Task<int> DeleteLoanAsync(int id);
         Task SaveSettlementRangeAsync(List<Settlement> settlements);
         Task SaveSettlementDetailRangeAsync(List<SettlementDetail> settlementDetails);
         Task ClearAllAsync();

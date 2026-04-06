@@ -19,6 +19,7 @@
         </Style>
     </Shell.Resources>
 
+
     <Shell.FlyoutHeader>
         <Grid Padding="30"
           BackgroundColor="#1976D2"
@@ -61,31 +62,18 @@
     <!-- ========================= -->
     <!-- SECCIÓN NATILLERA (TABS) -->
     <!-- ========================= -->
-    <FlyoutItem
-        Title="Natillera"
-        Icon="winner">
-
-        <Tab
-        Title="Natillera"
-        Icon="winner">
-
-            <ShellContent
-                Title="Personas"
-                Icon="winner.png"
-                ContentTemplate="{DataTemplate views:ParticipantsPage}" />
-            
-            <ShellContent
-                Title="Aportes"
-                Icon="winner.png"
-                ContentTemplate="{DataTemplate views:ContributionsPage}" />
-
-            <ShellContent
-                Title="Prestamos"
-                Icon="winner.png"
-                ContentTemplate="{DataTemplate views:LoansPage}" />
-        </Tab>
+    <FlyoutItem Title="Personas" Icon="winner.png">
+        <ShellContent ContentTemplate="{DataTemplate views:ParticipantsPage}" />
     </FlyoutItem>
-    
+
+    <FlyoutItem Title="Aportes" Icon="winner.png">
+        <ShellContent ContentTemplate="{DataTemplate views:ContributionsPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Prestamos" Icon="winner.png">
+        <ShellContent ContentTemplate="{DataTemplate views:LoansPage}" />
+    </FlyoutItem>
+
     <FlyoutItem
         Title="Liquidación"
         Icon="history">

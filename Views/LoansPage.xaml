@@ -29,82 +29,171 @@
 
         <Button Text="Crear préstamo"
                 Command="{Binding AddLoanCommand}" />
+        
+            <HorizontalStackLayout>
+                <Label Text="Mostrar pagados"/>
+                <Switch IsToggled="{Binding ShowPaid}" />
+            </HorizontalStackLayout>
 
-        <CollectionView ItemsSource="{Binding Loans}">
+            <CollectionView ItemsSource="{Binding Loans}">
             <CollectionView.ItemTemplate>
-                <DataTemplate>
+                    <DataTemplate>
 
-                    <SwipeView>
+                        <SwipeView>
 
-                        <!-- ACCIÓN -->
-                        <SwipeView.RightItems>
-                            <SwipeItems>
-                                    <SwipeItem Text="Abonar"
-                                               BackgroundColor="Green"
-                                               Command="{Binding BindingContext.OpenPaymentCommand, Source={x:Reference Page}}"
-                                               CommandParameter="{Binding .}"/>
+                            <!-- ACCIONES -->
+                            <SwipeView.RightItems>
+                                <SwipeItems Mode="Reveal">
+
+                                    <!-- PAGAR -->
+                                    <SwipeItem BackgroundColor="#2E7D32"
+                           Command="{Binding BindingContext.OpenPaymentCommand, Source={x:Reference Page}}"
+                           CommandParameter="{Binding .}">
+                                        <SwipeItem.IconImageSource>
+                                            <FontImageSource Glyph="💰" Color="White"/>
+                                        </SwipeItem.IconImageSource>
+                                    </SwipeItem>
+
+                                    <!-- ELIMINAR -->
+                                    <SwipeItem BackgroundColor="#C62828"
+                           Command="{Binding BindingContext.DeleteLoanCommand, Source={x:Reference Page}}"
+                           CommandParameter="{Binding .}">
+                                        <SwipeItem.IconImageSource>
+                                            <FontImageSource Glyph="🗑️" Color="White"/>
+                                        </SwipeItem.IconImageSource>
+                                    </SwipeItem>
+
                                 </SwipeItems>
-                        </SwipeView.RightItems>
+                            </SwipeView.RightItems>
 
-                        <!-- CARD -->
-                        <Frame Margin="8"
-                       Padding="12"
-                       CornerRadius="12"
-                       HasShadow="True"
-                       BackgroundColor="White"
-                       BorderColor="#E0E0E0">
+                            <!-- CARD -->
+                            <Frame Margin="8"
+               Padding="12"
+               CornerRadius="14"
+               HasShadow="True"
+               BackgroundColor="White"
+               BorderColor="#E0E0E0">
 
-                            <VerticalStackLayout Spacing="6">
+                                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                  ColumnDefinitions="*,Auto"
+                  RowSpacing="6">
 
-                                <!-- NOMBRE -->
-                                <Label Text="{Binding Name}"
-                               FontAttributes="Bold"
-                               FontSize="16"/>
+                                    <!-- BADGE PAGADO -->
+                                    <Frame Grid.ColumnSpan="2"
+                       Padding="4"
+                       CornerRadius="8"
+                       BackgroundColor="#C8E6C9"
+                       HorizontalOptions="Start"
+                       IsVisible="{Binding IsPaid}">
 
-                                <Label Text="{Binding StartDate, StringFormat='{0:dd MMMM yyyy}'}"
-                               FontSize="14"/>
+                                        <Label Text="✔ PAGADO"
+                           FontSize="10"
+                           TextColor="#2E7D32"/>
+                                    </Frame>
 
-                                <!-- PRÉSTAMO -->
-                                <Label Text="{Binding Amount, StringFormat='Préstamo: $ {0:N0}'}"
-                               FontSize="13"/>
+                                    <!-- NOMBRE -->
+                                    <Label Grid.Row="1"
+                       Text="{Binding Name}"
+                       FontAttributes="Bold"
+                       FontSize="16"/>
 
-                                <!-- INTERÉS MENSUAL -->
-                                <Label Text="{Binding MonthlyInterest, StringFormat='Interés mensual: $ {0:N0}'}"
-                               FontSize="13"
-                               TextColor="#FF9800"/>
+                                    <!-- FECHA -->
+                                    <Label Grid.Row="1"
+                       Grid.Column="1"
+                       Text="{Binding StartDate, StringFormat='{0:dd/MM/yyyy}'}"
+                       FontSize="12"
+                       HorizontalOptions="End"
+                       TextColor="Gray"/>
 
-                                <!-- INTERÉS -->
-                                <Label Text="{Binding InterestPaid, StringFormat='Interés pagado: $ {0:N0}'}"
-                               FontSize="12"
-                               TextColor="Gray"/>
+                                    <!-- MONTO -->
+                                    <Label Grid.Row="2"
+                       Text="{Binding Amount, StringFormat='Préstamo: $ {0:N0}'}"
+                       FontSize="13"/>
 
-                                <Label Text="{Binding PendingInterest, StringFormat='Interés pendiente: $ {0:N0}'}"
-                               FontSize="12"
-                               TextColor="Red"/>
+                                    <!-- INTERÉS -->
+                                    <Label Grid.Row="2"
+                       Grid.Column="1"
+                       Text="{Binding MonthlyInterest, StringFormat='$ {0:N0}/mes'}"
+                       FontSize="13"
+                       TextColor="#FB8C00"
+                       HorizontalOptions="End"/>
 
-                                <!-- CAPITAL -->
-                                <Label Text="{Binding PrincipalPaid, StringFormat='Capital pagado: $ {0:N0}'}"
-                               FontSize="12"
-                               TextColor="Gray"/>
+                                    <!-- INTERÉS PAGADO -->
+                                    <Label Grid.Row="3"
+                       Text="{Binding InterestPaid, StringFormat='Int. pagado: $ {0:N0}'}"
+                       FontSize="12"
+                       TextColor="Gray"/>
 
-                                <Label Text="{Binding PendingPrincipal, StringFormat='Capital pendiente: $ {0:N0}'}"
-                               FontSize="12"
-                               TextColor="Red"/>
+                                    <!-- INTERÉS PENDIENTE -->
+                                    <Label Grid.Row="3"
+                       Grid.Column="1"
+                       Text="{Binding PendingInterest, StringFormat='Pendiente: $ {0:N0}'}"
+                       FontSize="12"
+                       HorizontalOptions="End">
 
-                                <!--  BALANCE TOTAL -->
-                                <Label Text="{Binding Balance, StringFormat='Total pendiente: $ {0:N0}'}"
-                               FontSize="14"
-                               FontAttributes="Bold"
-                               TextColor="#2E7D32"/>
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label"
+                                     Binding="{Binding PendingInterest}"
+                                     Value="0">
+                                                <Setter Property="TextColor" Value="Green"/>
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Label"
+                                     Binding="{Binding PendingInterest}"
+                                     Value="0.0">
+                                                <Setter Property="TextColor" Value="Green"/>
+                                            </DataTrigger>
+                                        </Label.Triggers>
 
-                            </VerticalStackLayout>
+                                    </Label>
 
-                        </Frame>
+                                    <!-- CAPITAL -->
+                                    <Label Grid.Row="4"
+                       Text="{Binding PrincipalPaid, StringFormat='Capital pagado: $ {0:N0}'}"
+                       FontSize="12"
+                       TextColor="Gray"/>
 
-                    </SwipeView>
+                                    <Label Grid.Row="4"
+                       Grid.Column="1"
+                       Text="{Binding PendingPrincipal, StringFormat='Pendiente: $ {0:N0}'}"
+                       FontSize="12"
+                       TextColor="Red"
+                       HorizontalOptions="End"/>
 
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
+                                    <BoxView Grid.Row="5"
+                                            Grid.ColumnSpan="2"
+                                            HeightRequest="1"
+                                            BackgroundColor="#E0E0E0"
+                                            Margin="0,5"/>
+
+                                    <!-- TOTAL -->
+                                    <Label Grid.Row="6"
+                                           Grid.ColumnSpan="2"
+                                           Text="{Binding Balance, StringFormat='Total pendiente: $ {0:N0}'}"
+                                           FontSize="15"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="End"/>
+
+                                </Grid>
+
+                                <!--  TRIGGERS VISUALES -->
+                                <Frame.Triggers>
+
+                                    <!-- CUANDO ESTÁ PAGADO -->
+                                    <DataTrigger TargetType="Frame"
+                             Binding="{Binding IsPaid}"
+                             Value="True">
+                                        <Setter Property="Opacity" Value="0.6"/>
+                                        <Setter Property="BackgroundColor" Value="#F5F5F5"/>
+                                    </DataTrigger>
+
+                                </Frame.Triggers>
+
+                            </Frame>
+
+                        </SwipeView>
+
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
         </CollectionView>
 
     </VerticalStackLayout>

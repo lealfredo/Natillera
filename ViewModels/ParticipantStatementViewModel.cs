@@ -164,45 +164,61 @@ namespace Natillera.ViewModels
 
             Raffles.Clear();
 
+            var rafflesDict = raffles.ToDictionary(r => r.Id);
+
+            // agrupar winners UNA sola vez
+            var winnersLookup = winners
+                .Where(w => w.ParticipantId == ParticipantId)
+                .GroupBy(w => new { w.RaffleDrawId, w.BetNumber })
+                .ToDictionary(
+                    g => (g.Key.RaffleDrawId, g.Key.BetNumber),
+                    g => g.ToList()
+                );
+
+
             foreach (var group in groupedBets)
             {
-                var raffle = raffles.FirstOrDefault(r => r.Id == group.Key.RaffleWeekId);
+                // acceso rápido (sin recorrer lista)
+                if (!rafflesDict.TryGetValue(group.Key.RaffleWeekId, out var raffle))
+                    continue;
 
-                var wins = winners
-                    .Where(w =>
-                        w.ParticipantId == ParticipantId &&
-                        w.RaffleDrawId == group.Key.RaffleWeekId &&
-                        w.BetNumber == group.Key.Number)
-                    .ToList();
+                // lookup directo (sin Where)
+                winnersLookup.TryGetValue(
+                    (group.Key.RaffleWeekId, group.Key.Number),
+                    out var wins
+                );
 
                 var totalWonPerNumber = 0m;
 
-                foreach (var w in wins)
+                if (wins != null)
                 {
-                    switch (w.BetType)
+                    foreach (var w in wins)
                     {
-                        case BetType.Start:
-                            totalWonPerNumber += raffle.FirstTwoPrize;
-                            break;
-                        case BetType.Middle:
-                            totalWonPerNumber += raffle.MiddleTwoPrize;
-                            break;
-                        case BetType.End:
-                            totalWonPerNumber += raffle.LastTwoPrize;
-                            break;
+                        switch (w.BetType)
+                        {
+                            case BetType.Start:
+                                totalWonPerNumber += raffle.FirstTwoPrize;
+                                break;
+
+                            case BetType.Middle:
+                                totalWonPerNumber += raffle.MiddleTwoPrize;
+                                break;
+
+                            case BetType.End:
+                                totalWonPerNumber += raffle.LastTwoPrize;
+                                break;
+                        }
                     }
                 }
 
                 Raffles.Add(new RaffleItem
                 {
                     Description = totalWonPerNumber > 0
-                        ? $"🏆 {raffle?.WeekCode} - {group.Key.Number}"
-                        : $"{raffle?.WeekCode} - {group.Key.Number}",
+                        ? $"🏆 {raffle.WeekCode} - {group.Key.Number}"
+                        : $"{raffle.WeekCode} - {group.Key.Number}",
 
-                    Amount = raffle?.BetPrize ?? 0,
-
-                    // si quieres agregar esto al modelo
-                     Won = totalWonPerNumber
+                    Amount = raffle.BetPrize,
+                    Won = totalWonPerNumber
                 });
             }
 

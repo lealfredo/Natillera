@@ -27,6 +27,11 @@ namespace Natillera.ViewModels
             }
         }
 
+        private int _page = 0;
+        private const int PageSize = 20;
+        private bool _isLoading;
+        private bool _hasMore = true;
+
         private string _name;
         public string Name
         {
@@ -81,6 +86,7 @@ namespace Natillera.ViewModels
         public ICommand SelectParticipantCommand { get; }
         public ICommand CancelEditCommand { get; }
         public ICommand ViewStatementCommand { get; }
+        public ICommand LoadMoreCommand => new Command(async () => await LoadMore());
 
         public ParticipantsViewModel(INatilleraDatabase database)
         {
@@ -141,14 +147,61 @@ namespace Natillera.ViewModels
         private async Task Load()
         {
             Participants.Clear();
+            _page = 0;
+            _hasMore = true;
 
-            var data = await _database.GetParticipantsAsync();
+            await LoadMore();
+        }
 
-            Participants = new ObservableCollection<ParticipantItem>(
-                data.Select(x => new ParticipantItem
+        public async Task LoadMore()
+        {
+            if (_isLoading || !_hasMore) return;
+
+            _isLoading = true;
+
+            var data = await _database.GetParticipantsPaged(_page, PageSize);
+
+            if (data.Count < PageSize)
+                _hasMore = false;
+
+            foreach (var x in data)
+            {
+                var contributions = await _database.GetContributionsByParticipant(x.Id);
+
+                var currentYear = DateTime.Now.Year;
+                var currentMonth = DateTime.Now.Month;
+
+                var monthly = x.MonthlyContribution;
+
+                var lastMonths = Enumerable.Range(0, 3)
+                    .Select(i => DateTime.Now.AddMonths(-i))
+                    .ToList();
+
+                var payments = contributions
+                    .Where(c => lastMonths.Any(m => m.Month == c.Month && m.Year == c.Year))
+                    .ToList();
+
+                var totalPaid = payments.Sum(x => x.Amount);
+                var expected = monthly * lastMonths.Count;
+
+                string status;
+
+                if (totalPaid == 0)
+                    status = "Pending";
+                else if (totalPaid < expected)
+                    status = "Partial";
+                else
+                    status = "Paid";
+
+                Participants.Add(new ParticipantItem
                 {
-                    Model = x
-                }));
+                    Model = x,
+                    Status = status
+                });
+            }
+
+            _page++;
+            _isLoading = false;
         }
 
         private async Task Add()

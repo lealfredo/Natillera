@@ -90,6 +90,14 @@ namespace Natillera.Data
             return await _database.InsertAsync(participant);
         }
 
+        public async Task<List<Participant>> GetParticipantsPaged(int page, int pageSize)
+        {
+            return await _database.Table<Participant>()
+                .Skip(page * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
+
         public Task<Participant> GetParticipantByIdAsync(int id)
         {
             return _database.Table<Participant>()
@@ -367,6 +375,13 @@ namespace Natillera.Data
                     conn.InsertOrReplace(loanPayment);
                 }
             });
+        }
+
+        public Task<int> DeleteLoanAsync(int id)
+        {
+            return _database.Table<Loan>()
+                .Where(b => b.Id == id)
+                .DeleteAsync();
         }
 
         public async Task SaveSettlementRangeAsync(List<Settlement> settlements)

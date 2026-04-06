@@ -17,15 +17,68 @@ namespace Natillera.ViewModels
         public ObservableCollection<LoanItem> Loans { get; set; } = new();
         public ObservableCollection<Participant> Participants { get; set; } = new();
 
-        public Participant SelectedParticipant { get; set; }
-        public string BorrowerName { get; set; }
         public DateTime StartDate { get; set; }
-        public string Amount { get; set; }
-        public string InterestRate { get; set; }
+        private Participant _selectedParticipant;
+        public Participant SelectedParticipant
+        {
+            get => _selectedParticipant;
+            set
+            {
+                _selectedParticipant = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _borrowerName;
+        public string BorrowerName
+        {
+            get => _borrowerName;
+            set
+            {
+                _borrowerName = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _amount;
+        public string Amount
+        {
+            get => _amount;
+            set
+            {
+                _amount = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _interestRate;
+        public string InterestRate
+        {
+            get => _interestRate;
+            set
+            {
+                _interestRate = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private List<LoanItem> _allLoans = new();
+
+        private bool _showPaid;
+        public bool ShowPaid
+        {
+            get => _showPaid;
+            set
+            {
+                _showPaid = value;
+                OnPropertyChanged();
+                ApplyFilter();
+            }
+        }
 
         public ICommand LoadCommand { get; }
         public ICommand AddLoanCommand { get; }
-        //public ICommand AddPaymentCommand { get; }
+        public ICommand DeleteLoanCommand => new Command<LoanItem>(async (l) => await DeleteLoan(l));
         public ICommand OpenPaymentCommand { get; }
 
         public LoansViewModel(INatilleraDatabase database)
@@ -37,6 +90,46 @@ namespace Natillera.ViewModels
             AddLoanCommand = new Command(async () => await AddLoan());
             //AddPaymentCommand = new Command<LoanItem>(async (l) => await AddPayment(l));
             OpenPaymentCommand = new Command<LoanItem>(async (l) => await OpenPayment(l));
+        }
+
+        private void ApplyFilter()
+        {
+            var filtered = ShowPaid
+                ? _allLoans.OrderBy(x => x.IsPaid).ToList()
+                : _allLoans.Where(x => !x.IsPaid).ToList();
+
+            Loans.Clear();
+
+            foreach (var l in filtered)
+                Loans.Add(l);
+        }
+
+        private async Task DeleteLoan(LoanItem item)
+        {
+            if (item == null) return;
+
+            bool confirm = await Shell.Current.DisplayAlert(
+                "Eliminar",
+                "¿Seguro que deseas eliminar este préstamo?",
+                "Sí",
+                "No");
+
+            if (!confirm) return;
+
+            var payments = await _database.GetPaymentsAsync(item.Id);
+
+            if (payments.Any())
+            {
+                await Shell.Current.DisplayAlert(
+                    "Error",
+                    "No puedes eliminar un préstamo con pagos registrados",
+                    "OK");
+                return;
+            }
+
+            await _database.DeleteLoanAsync(item.Id);
+
+            await Load();
         }
 
         private async Task OpenPayment(LoanItem item)
@@ -65,6 +158,7 @@ namespace Natillera.ViewModels
         {
             Loans.Clear();
             Participants.Clear();
+            _allLoans.Clear();
 
             var participants = await _database.GetParticipantsAsync();
             foreach (var p in participants)
@@ -109,7 +203,7 @@ namespace Natillera.ViewModels
                 var totalPaid = interestPaid + principalPaid;
                 var totalBalance = pendingInterest + pendingPrincipal;
 
-                Loans.Add(new LoanItem
+                _allLoans.Add(new LoanItem
                 {
                     Id = loan.Id,
                     Name = Participants.FirstOrDefault(x => x.Id == loan.PersonId)?.Name ?? loan.BorrowerName,
@@ -133,15 +227,41 @@ namespace Natillera.ViewModels
                     StartDate = loan.StartDate
                 });
             }
+
+            ApplyFilter();
         }
 
         private async Task AddLoan()
         {
-            if (!decimal.TryParse(Amount, out var amount)) return;
-            if (!decimal.TryParse(InterestRate, out var rate)) return;
+            if (SelectedParticipant == null && string.IsNullOrWhiteSpace(BorrowerName))
+            {
+                await Shell.Current.DisplayAlert("Error", "Seleccione participante o ingrese nombre", "OK");
+                return;
+            }
+
+            if (!decimal.TryParse(Amount, out var amount) || amount <= 0)
+            {
+                await Shell.Current.DisplayAlert("Error", "Monto inválido", "OK");
+                return;
+            }
+
+            if (!decimal.TryParse(InterestRate, out var rate) || rate <= 0)
+            {
+                await Shell.Current.DisplayAlert("Error", "Interés inválido", "OK");
+                return;
+            }
 
             var (availableInterest, availableContributions) =
                 await _database.GetAvailableMoney();
+
+            var totalAvailable = availableInterest + availableContributions;
+
+            if (amount > totalAvailable)
+            {
+                await Shell.Current.DisplayAlert("Error", "No hay suficiente dinero disponible", "OK");
+                return;
+            }
+
 
             var fromInterest = Math.Min(amount, availableInterest);
             var fromContributions = amount - fromInterest;
@@ -159,9 +279,12 @@ namespace Natillera.ViewModels
 
             await _database.AddLoanAsync(loan);
 
+            // LIMPIAR FORMULARIO
             Amount = string.Empty;
             InterestRate = string.Empty;
+            BorrowerName = string.Empty;
             SelectedParticipant = null;
+            StartDate = DateTime.Now;
 
             await Load();
         }

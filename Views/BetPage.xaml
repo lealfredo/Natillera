@@ -44,6 +44,8 @@
                 Text="Guardar apuesta"
                 Command="{Binding SaveBetCommand}" />
 
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                   IsVisible="{Binding IsBusy}" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

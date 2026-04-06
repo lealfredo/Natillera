@@ -8,6 +8,7 @@
             <local:InverseBoolConverter x:Key="InverseBoolConverter"/>
             <local:TakenColorConverter x:Key="TakenColorConverter"/>
             <local:BoolToTextConverter x:Key="BoolToTextConverter"/>
+            <local:GreaterThanZeroConverter x:Key="GreaterThanZeroConverter"/>
             <local:BoolToTextButtonConverter x:Key="BoolToTextButtonConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
