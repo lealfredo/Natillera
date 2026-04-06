@@ -27,10 +27,23 @@ namespace Rifa.ViewModels
             set
             {
                 _selectedParticipant = value;
-                OnPropertyChanged();
+                OnPropertyChanged(nameof(SelectedParticipant));
+
+                IsParticipantSelected = _selectedParticipant != null;
 
                 if (value != null)
                     _ = LoadPaidMonths(value.Id); // aquí ocurre la magia
+            }
+        }
+
+        private bool isParticipantSelected;
+        public bool IsParticipantSelected
+        {
+            get => isParticipantSelected;
+            set
+            {
+                isParticipantSelected = value;
+                OnPropertyChanged(nameof(IsParticipantSelected));
             }
         }
 
@@ -55,25 +68,30 @@ namespace Rifa.ViewModels
             DeleteCommand = new Command<ContributionItem>(async (c) => await Delete(c));
             ToggleMonthCommand = new Command<MonthItem>(m =>
             {
-                if (m.IsPaid) return;
+                // Si ya está completo, no hace nada
+                if (!m.IsEnabled)
+                {
+                    Application.Current.MainPage.DisplayAlert("Info", "Mes ya completado", "OK");
+                    return; 
+                }
 
                 m.IsSelected = !m.IsSelected;
             });
 
             Months = new ObservableCollection<MonthItem>
             {
-                new () { Month = 1, Name = "Enero", IsPaid = false, IsSelected = false },
-                new () { Month = 2, Name = "Febrero", IsPaid = false, IsSelected = false },
-                new() {Month = 3, Name = "Marzo", IsPaid = false, IsSelected = false},
-                new() {Month = 4, Name = "Abril", IsPaid = false, IsSelected = false},
-                new() {Month = 5, Name = "Mayo", IsPaid = false, IsSelected = false},
-                new() {Month = 6, Name = "Junio", IsPaid = false, IsSelected = false},
-                new() {Month = 7, Name = "Julio", IsPaid = false, IsSelected = false},
-                new() {Month = 8, Name = "Agosto", IsPaid = false, IsSelected = false},
-                new() {Month = 9, Name = "Septiembre", IsPaid = false, IsSelected = false},
-                new() {Month = 10, Name = "Octubre", IsPaid = false, IsSelected = false},
-                new() {Month = 11, Name = "Noviembre", IsPaid = false, IsSelected = false},
-                new() {Month = 12, Name = "Diciembre", IsPaid = false, IsSelected = false},
+                new () { MonthNumber = 1, Name = "Enero",   IsSelected = false, IsEnabled = true },
+                new () { MonthNumber = 2, Name = "Febrero", IsSelected = false, IsEnabled = true },
+                new () { MonthNumber = 3, Name = "Marzo",   IsSelected = false, IsEnabled = true },
+                new () { MonthNumber = 4, Name = "Abril",   IsSelected = false, IsEnabled = true },
+                new () { MonthNumber = 5, Name = "Mayo",    IsSelected = false, IsEnabled = true },
+                new () { MonthNumber = 6, Name = "Junio",   IsSelected = false, IsEnabled = true },
+                new () { MonthNumber = 7, Name = "Julio",   IsSelected = false, IsEnabled = true },
+                new () { MonthNumber = 8, Name = "Agosto",  IsSelected = false, IsEnabled = true },
+                new () { MonthNumber = 9, Name = "Septiembre", IsSelected = false, IsEnabled = true },
+                new () { MonthNumber = 10, Name = "Octubre", IsSelected = false, IsEnabled = true },
+                new () { MonthNumber = 11, Name = "Noviembre", IsSelected = false, IsEnabled = true },
+                new () { MonthNumber = 12, Name = "Diciembre", IsSelected = false, IsEnabled = true },
             };
         }
 
@@ -82,7 +100,6 @@ namespace Rifa.ViewModels
             foreach (var m in Months)
             {
                 m.IsSelected = false;
-                m.IsPaid = false;
             }
 
             Contributions.Clear();
@@ -114,12 +131,15 @@ namespace Rifa.ViewModels
         private async Task LoadPaidMonths(int participantId)
         {
             Contributions.Clear();
+
             var contributions = await _database.GetContributionsByParticipant(participantId);
             var participant = Participants.FirstOrDefault(x => x.Id == participantId);
 
+            decimal cuota = participant?.MonthlyContribution ?? 0;
+
+            // Llenas lista de movimientos
             foreach (var item in contributions)
             {
-
                 Contributions.Add(new ContributionItem
                 {
                     Id = item.Id,
@@ -132,18 +152,48 @@ namespace Rifa.ViewModels
                 });
             }
 
+            // Lógica clave por mes
             foreach (var month in Months)
             {
-                month.IsPaid = contributions.Any(c => c.Month == month.Month);
+                // Filtrar por el mes actual del loop
+                var pagosPorMes = contributions
+                    .GroupBy(x => new { x.Year, x.Month })
+                    .ToDictionary(g => g.Key, g => g.Sum(x => x.Amount));
 
-                // marcar visualmente
-                month.IsSelected = month.IsPaid;
+                var key = new { Year = month.Year, Month = month.MonthNumber };
+
+                decimal totalPagadoMes = pagosPorMes.ContainsKey(key)
+                    ? pagosPorMes[key]
+                    : 0;
+
+                string state;
+
+                if (totalPagadoMes == 0)
+                    state = "Pending";
+                else if (totalPagadoMes < cuota)
+                    state = "Partial";
+                else
+                    state = "Paid";
+
+                month.State = state;
+
+                // Solo marcar seleccionado si tiene algo pago
+                month.IsSelected = totalPagadoMes > 0;
+
+                // NUEVO: control del botón
+                month.IsEnabled = totalPagadoMes < cuota;
+
+                // BONUS: progreso (muy útil para UI)
+                month.Progress = cuota == 0 ? 0 : (double)(totalPagadoMes / cuota);
+                month.PaidAmount = totalPagadoMes;
             }
         }
 
         private async Task Add()
         {
-            var selectedMonths = Months.Where(x => x.IsSelected).ToList();
+            var selectedMonths = Months
+                .Where(x => x.IsSelected && x.IsEnabled)
+                .ToList();
 
             if (!selectedMonths.Any())
             {
@@ -157,50 +207,84 @@ namespace Rifa.ViewModels
                 return;
             }
 
-            if (Amount == null && SelectedParticipant.MonthlyContribution == 0)
-                return;
+            decimal cuota = SelectedParticipant?.MonthlyContribution ?? 0;
 
-            Amount = Amount == null ? SelectedParticipant.MonthlyContribution.ToString() : Amount;
-
-            if (!decimal.TryParse(Amount, out decimal value))
-                return;
-
-            var setting = await _database.GetSettingAsync();
-
-            if (setting == null) return;
-
-            if (setting.MinimumContribution > value)
+            if (cuota <= 0)
             {
-                await Shell.Current.DisplayAlert("Error", $"El monto debe ser mayo que {setting.MinimumContribution.ToString("C0")}", "OK");
+                await Shell.Current.DisplayAlert("Error", "El participante no tiene cuota definida", "OK");
                 return;
             }
 
+            // Intentar leer monto
+            decimal montoIngresado = 0;
+            decimal.TryParse(Amount, out montoIngresado);
 
-            foreach (var m in selectedMonths)
+            var year = DateTime.Now.Year;
+
+            // CASO 1: SIN MONTO → pagar completo cada mes
+            if (montoIngresado == 0)
             {
-                var exists = await _database.ExistsContribution(SelectedParticipant.Id, DateTime.Now.Year, m.Month);
-
-                if (exists)
-                    continue;
-
-                var contribution = new Contribution
+                foreach (var m in selectedMonths)
                 {
-                    PersonId = SelectedParticipant.Id,
-                    Month = m.Month,
-                    Year = DateTime.Now.Year,
-                    Amount = value,
-                    Date = DateTime.Now
-                };
+                    var restante = cuota - m.PaidAmount;
 
-                await _database.AddContributionAsync(contribution);
+                    if (restante <= 0)
+                        continue;
+
+                    await _database.AddContributionAsync(new Contribution
+                    {
+                        PersonId = SelectedParticipant.Id,
+                        Month = m.MonthNumber,
+                        Year = year,
+                        Amount = restante,
+                        Date = DateTime.Now
+                    });
+                }
+            }
+            else
+            {
+                // CASO 2: CON MONTO → distribuir
+                decimal montoRestante = montoIngresado;
+
+                foreach (var m in selectedMonths)
+                {
+                    if (montoRestante <= 0)
+                        break;
+
+                    var restanteMes = cuota - m.PaidAmount;
+
+                    if (restanteMes <= 0)
+                        continue;
+
+                    if(restanteMes < montoRestante)
+                    {
+                        await Shell.Current.DisplayAlert("Error", $"Esta pagando mas de lo que debe para el mes {m.Name}", "OK");
+                        return;
+                    }
+
+                    var pago = Math.Min(montoRestante, restanteMes);
+
+                    await _database.AddContributionAsync(new Contribution
+                    {
+                        PersonId = SelectedParticipant.Id,
+                        Month = m.MonthNumber,
+                        Year = year,
+                        Amount = pago,
+                        Date = DateTime.Now
+                    });
+
+                    montoRestante -= pago;
+                }
             }
 
+            // refrescar antes de limpiar
+            await LoadPaidMonths(SelectedParticipant.Id);
+
+            // limpiar UI
             Amount = null;
-            SelectedParticipant = null;
+
             foreach (var item in Months)
                 item.IsSelected = false;
-
-            await Load();
         }
 
         private async Task Delete(ContributionItem item)

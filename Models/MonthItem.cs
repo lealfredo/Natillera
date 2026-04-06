@@ -9,6 +9,10 @@ namespace Natillera.Models
     {
         public event PropertyChangedEventHandler PropertyChanged;
         public int Month { get; set; }
+        public int MonthNumber { get; set; } // 1 = Enero, etc
+        public int Year { get; set; } = DateTime.Now.Year;
+
+        public bool IsEnabled { get; set; }
         public string Name { get; set; }
 
         private bool _isSelected;
@@ -21,14 +25,36 @@ namespace Natillera.Models
                 OnPropertyChanged(nameof(IsSelected));
             }
         }
-        private bool _isPaid;
-        public bool IsPaid
+        private string _state;
+        public string State
         {
-            get => _isPaid;
+            get => _state;
             set
             {
-                _isPaid = value;
-                OnPropertyChanged(nameof(IsPaid));
+                _state = value;
+                OnPropertyChanged(nameof(State));
+            }
+        }
+
+        private decimal paidAmount;
+        public decimal PaidAmount
+        {
+            get => paidAmount;
+            set
+            {
+                paidAmount = value;
+                OnPropertyChanged(nameof(PaidAmount));
+            }
+        }
+
+        private double progress;
+        public double Progress
+        {
+            get => progress;
+            set
+            {
+                progress = value;
+                OnPropertyChanged(nameof(Progress));
             }
         }
 
