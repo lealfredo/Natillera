@@ -2,6 +2,7 @@
 using Natillera.Data;
 using Natillera.Entities;
 using Natillera.Models;
+using Rifa.Entities;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -65,33 +66,46 @@ namespace Natillera.ViewModels
                 });
             }
 
-            // PRÉSTAMOS
             var loans = (await _database.GetLoansAsync())
-                .Where(x => x.PersonId == ParticipantId);
+    .Where(x => x.PersonId == ParticipantId)
+    .ToList();
 
             foreach (var loan in loans)
             {
-                var payments = await _database.GetPaymentsAsync(loan.Id);
-
-                var interestPaid = payments
-                    .Where(x => x.IsInterest)
-                    .Sum(x => x.Amount);
-
-                var principalPaid = payments
-                    .Where(x => !x.IsInterest)
-                    .Sum(x => x.Amount);
-
-                var pending = loan.PrincipalAmount - principalPaid;
-
-                TotalLoaned += loan.PrincipalAmount;
-                TotalInterestPaid += interestPaid;
-
-                Loans.Add(new LoanItem
+                try
                 {
-                    Amount = loan.PrincipalAmount,
-                    Pending = pending,
-                    StartDate = loan.StartDate
-                });
+                    var payments = await _database.GetPaymentsAsync(loan.Id) ?? new List<LoanPayment>();
+
+                    var interestPaid = payments
+                        .Where(x => x.IsInterest)
+                        .Sum(x => x.Amount);
+
+                    var principalPaid = payments
+                        .Where(x => !x.IsInterest)
+                        .Sum(x => x.Amount);
+
+                    var pending = (loan?.PrincipalAmount ?? 0) - principalPaid;
+
+                    TotalLoaned += loan?.PrincipalAmount ?? 0;
+                    TotalInterestPaid += interestPaid;
+
+                    var item = new LoanItem
+                    {
+                        Amount = loan?.PrincipalAmount ?? 0,
+                        Pending = pending,
+                        StartDate = loan.StartDate
+                    };
+
+                    // 🔥 SIEMPRE EN UI THREAD
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        Loans.Add(item);
+                    });
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"ERROR LOAN: {ex.Message}");
+                }
             }
 
             // RIFAS

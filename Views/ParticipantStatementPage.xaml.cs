@@ -11,9 +11,18 @@ public partial class ParticipantStatementPage : ContentPage
     }
 
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        (BindingContext as ParticipantStatementViewModel)?.Load();
+
+        try
+        {
+            if (BindingContext is ParticipantStatementViewModel vm)
+                await vm.Load();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"ERROR OnAppearing: {ex.Message}");
+        }
     }
 }
