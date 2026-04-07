@@ -21,7 +21,7 @@
                     <Label Text="{Binding TotalContributions, StringFormat='Aportes: $ {0:N0}'}"/>
                     <Label Text="{Binding TotalLoaned, StringFormat='Préstamos: $ {0:N0}'}"/>
                     <Label Text="{Binding TotalInterestPaid, StringFormat='Intereses pagados: $ {0:N0}'}"/>
-                    <Label Text="{Binding TotalRaffleSpent, StringFormat='Rifas jugadas: $ {0:N0}'}"/>
+                    <Label Text="{Binding TotalRaffleSpent, StringFormat='Boletas compradas: $ {0:N0}'}"/>
                     <Label Text="{Binding TotalRaffleWon, StringFormat='Ganado en rifas: $ {0:N0}'}"/>
 
                     <Label Text="{Binding Balance, StringFormat='Balance: $ {0:N0}'}"
@@ -39,7 +39,7 @@
                     <DataTemplate>
                         <Frame Padding="10" Margin="5" CornerRadius="10">
                             <Grid ColumnDefinitions="*,Auto">
-                                <Label Text="{Binding Name}" />
+                                <Label Text="{Binding MonthName}" />
                                 <Label Text="{Binding Amount, StringFormat='$ {0:N0}'}"
                                        Grid.Column="1"/>
                             </Grid>

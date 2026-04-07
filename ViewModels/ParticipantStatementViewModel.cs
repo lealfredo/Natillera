@@ -63,7 +63,9 @@ namespace Natillera.ViewModels
                 Contributions.Add(new ContributionItem
                 {
                     Amount = c.Amount,
-                    Name = $"{c.Month}/{c.Year}"
+                    Name = $"{c.Month}/{c.Year}",
+                    Month = c.Month,
+                    Year = c.Year,
                 });
             }
 

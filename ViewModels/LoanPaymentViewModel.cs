@@ -59,8 +59,8 @@ namespace Natillera.ViewModels
 
             int totalMonths = ((end.Year - start.Year) * 12) + end.Month - start.Month;
 
-            //if (totalMonths < 1)
-                //totalMonths = 1;
+            if (totalMonths < 1)
+                totalMonths = 1;
 
             for (int i = 0; i < totalMonths; i++)
             {

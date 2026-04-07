@@ -144,10 +144,16 @@ namespace Natillera.ViewModels
         private void ApplyFilter()
         {
             var filtered = ShowPaid
-                            ? _allLoans.OrderBy(x => x.IsPaid).ThenBy(l => l.StartDate).ToList()
-                            : _allLoans.Where(x => !x.IsPaid)
-                        .OrderBy(l => l.StartDate)
-                        .ToList();
+                ? _allLoans
+                    .OrderBy(x => x.IsPaid)
+                    .ThenBy(x => x.Name)        // ordenar por participante
+                    .ThenBy(l => l.StartDate)
+                    .ToList()
+                : _allLoans
+                    .Where(x => !x.IsPaid)
+                    .OrderBy(x => x.Name)       // ordenar por participante
+                    .ThenBy(l => l.StartDate)
+                    .ToList();
 
             Loans.Clear();
 
@@ -229,8 +235,8 @@ namespace Natillera.ViewModels
                             (DateTime.Now.Year - loan.StartDate.Year) * 12 +
                             (DateTime.Now.Month - loan.StartDate.Month);
 
-                //if (months < 1)
-                    //months = 1;
+                if (months < 1)
+                    months = 1;
 
                 // Interés total generado
                 var totalInterestGenerated = monthlyInterest * months;
