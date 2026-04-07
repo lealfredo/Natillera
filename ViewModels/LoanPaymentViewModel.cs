@@ -20,6 +20,7 @@ namespace Natillera.ViewModels
 
         public bool PayFullCapital { get; set; }
         public string CapitalAmount { get; set; }
+        public bool IsPersonalLoan { get; set; }
 
         public ICommand ToggleMonthCommand { get; }
         public ICommand ConfirmCommand { get; }
@@ -46,6 +47,7 @@ namespace Natillera.ViewModels
 
             var loan = (await _database.GetLoansAsync()).First(x => x.Id == loanId);
             var payments = await _database.GetPaymentsAsync(loanId);
+            IsPersonalLoan = loan.IsPersonal;
 
             var monthlyInterest = loan.PrincipalAmount * (loan.InterestRate / 100);
 
@@ -55,11 +57,14 @@ namespace Natillera.ViewModels
             var start = new DateTime(loan.StartDate.Year, loan.StartDate.Month, 1);
             var end = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
 
-            int totalMonths = ((end.Year - start.Year) * 12) + end.Month - start.Month + 1;
+            int totalMonths = ((end.Year - start.Year) * 12) + end.Month - start.Month;
+
+            //if (totalMonths < 1)
+                //totalMonths = 1;
 
             for (int i = 0; i < totalMonths; i++)
             {
-                var date = start.AddMonths(i);
+                var date = start.AddMonths(i + 1);
 
                 var paid = payments.Any(x =>
                     x.IsInterest &&
@@ -105,7 +110,8 @@ namespace Natillera.ViewModels
                     IsInterest = true,
                     Month = m.Month,
                     Year = m.Year,
-                    Date = DateTime.Now
+                    Date = DateTime.Now,
+                    IsFromPersonalLoan = loan.IsPersonal
                 });
             }
 

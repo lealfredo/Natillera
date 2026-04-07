@@ -431,4 +431,10 @@
         <Setter Property="SelectedTabColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}" />
     </Style>
 
+
+    <Style TargetType="Label" x:Key="ListLabel">
+        <Setter Property="TextColor" Value="{AppThemeBinding Light=Black, Dark=White}" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
 </ResourceDictionary>

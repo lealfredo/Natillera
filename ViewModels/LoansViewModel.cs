@@ -26,6 +26,21 @@ namespace Natillera.ViewModels
             {
                 _selectedParticipant = value;
                 OnPropertyChanged();
+                if (SetProperty(ref _selectedParticipant, value))
+                {
+                    if (value != null)
+                        LoadCommand.Execute(null);
+                }
+            }
+        }
+        private bool _isPersonal;
+        public bool IsPersonal
+        {
+            get => _isPersonal;
+            set
+            {
+                _isPersonal = value;
+                OnPropertyChanged();
             }
         }
 
@@ -62,6 +77,40 @@ namespace Natillera.ViewModels
             }
         }
 
+        private ObservableCollection<Participant> _filteredParticipants;
+        public ObservableCollection<Participant> FilteredParticipants
+        {
+            get => _filteredParticipants;
+            set => SetProperty(ref _filteredParticipants, value);
+        }
+
+        private string _searchText;
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                SetProperty(ref _searchText, value);
+                FilterParticipants();
+            }
+        }
+
+        public void FilterParticipants()
+        {
+            if (string.IsNullOrWhiteSpace(SearchText))
+                FilteredParticipants = new ObservableCollection<Participant>(Participants);
+            else
+                FilteredParticipants = new ObservableCollection<Participant>(
+                    Participants.Where(p => p.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        public async Task LoadParticipants()
+        {
+            var list = await _database.GetParticipantsAsync();
+            Participants = new ObservableCollection<Participant>(list);
+            FilteredParticipants = new ObservableCollection<Participant>(list);
+        }
+
         private List<LoanItem> _allLoans = new();
 
         private bool _showPaid;
@@ -95,8 +144,10 @@ namespace Natillera.ViewModels
         private void ApplyFilter()
         {
             var filtered = ShowPaid
-                ? _allLoans.OrderBy(x => x.IsPaid).ToList()
-                : _allLoans.Where(x => !x.IsPaid).ToList();
+                            ? _allLoans.OrderBy(x => x.IsPaid).ThenBy(l => l.StartDate).ToList()
+                            : _allLoans.Where(x => !x.IsPaid)
+                        .OrderBy(l => l.StartDate)
+                        .ToList();
 
             Loans.Clear();
 
@@ -176,10 +227,10 @@ namespace Natillera.ViewModels
                 // Meses transcurridos
                 var months =
                             (DateTime.Now.Year - loan.StartDate.Year) * 12 +
-                            (DateTime.Now.Month - loan.StartDate.Month) + 1;
+                            (DateTime.Now.Month - loan.StartDate.Month);
 
-                if (months < 1)
-                    months = 1;
+                //if (months < 1)
+                    //months = 1;
 
                 // Interés total generado
                 var totalInterestGenerated = monthlyInterest * months;
@@ -202,11 +253,14 @@ namespace Natillera.ViewModels
 
                 var totalPaid = interestPaid + principalPaid;
                 var totalBalance = pendingInterest + pendingPrincipal;
+                string name = loan.IsPersonal
+                        ? $"👤 {Participants.FirstOrDefault(x => x.Id == loan.PersonId)?.Name ?? loan.BorrowerName}"
+                        : Participants.FirstOrDefault(x => x.Id == loan.PersonId)?.Name ?? loan.BorrowerName;
 
                 _allLoans.Add(new LoanItem
                 {
                     Id = loan.Id,
-                    Name = Participants.FirstOrDefault(x => x.Id == loan.PersonId)?.Name ?? loan.BorrowerName,
+                    Name = name,
 
                     Amount = loan.PrincipalAmount,
                     InterestRate = loan.InterestRate,
@@ -224,7 +278,8 @@ namespace Natillera.ViewModels
                     Balance = totalBalance,
 
                     IsPaid = pendingPrincipal <= 0,
-                    StartDate = loan.StartDate
+                    StartDate = loan.StartDate,
+                    IsPersonal = loan.IsPersonal,
                 });
             }
 
@@ -251,20 +306,41 @@ namespace Natillera.ViewModels
                 return;
             }
 
-            var (availableInterest, availableContributions) =
-                await _database.GetAvailableMoney();
+            decimal fromInterest = 0;
+            decimal fromContributions = 0;
+            decimal totalAvailable = 0;
 
-            var totalAvailable = availableInterest + availableContributions;
-
-            if (amount > totalAvailable)
+            if (!IsPersonal)
             {
-                await Shell.Current.DisplayAlert("Error", "No hay suficiente dinero disponible", "OK");
-                return;
+                var (availableInterest, availableContributions) =
+                    await _database.GetAvailableMoney();
+
+                fromInterest = Math.Min(amount, availableInterest);
+                fromContributions = amount - fromInterest;
+
+                totalAvailable = availableInterest + availableContributions;
+
+                if (amount > totalAvailable)
+                {
+                    await Shell.Current.DisplayAlert("Error", "No hay suficiente dinero disponible", "OK");
+                    return;
+                }
             }
 
+            //var (availableInterest, availableContributions) =
+            //    await _database.GetAvailableMoney();
 
-            var fromInterest = Math.Min(amount, availableInterest);
-            var fromContributions = amount - fromInterest;
+            //var totalAvailable = availableInterest + availableContributions;
+
+            //if (amount > totalAvailable)
+            //{
+            //    await Shell.Current.DisplayAlert("Error", "No hay suficiente dinero disponible", "OK");
+            //    return;
+            //}
+
+
+            //var fromInterest = Math.Min(amount, availableInterest);
+            //var fromContributions = amount - fromInterest;
 
             var loan = new Loan
             {
@@ -274,7 +350,8 @@ namespace Natillera.ViewModels
                 PrincipalFromInterest = fromInterest,
                 PrincipalFromContributions = fromContributions,
                 InterestRate = rate,
-                StartDate = StartDate
+                StartDate = StartDate,
+                IsPersonal = IsPersonal,
             };
 
             await _database.AddLoanAsync(loan);

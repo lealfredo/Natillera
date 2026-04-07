@@ -54,6 +54,40 @@ namespace Rifa.ViewModels
             set { _amount = value; OnPropertyChanged(); }
         }
 
+        private ObservableCollection<Participant> _filteredParticipants;
+        public ObservableCollection<Participant> FilteredParticipants
+        {
+            get => _filteredParticipants;
+            set => SetProperty(ref _filteredParticipants, value);
+        }
+
+        private string _searchText;
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                SetProperty(ref _searchText, value);
+                FilterParticipants();
+            }
+        }
+
+        public void FilterParticipants()
+        {
+            if (string.IsNullOrWhiteSpace(SearchText))
+                FilteredParticipants = new ObservableCollection<Participant>(Participants);
+            else
+                FilteredParticipants = new ObservableCollection<Participant>(
+                    Participants.Where(p => p.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        public async Task LoadParticipants()
+        {
+            var list = await _database.GetParticipantsAsync();
+            Participants = new ObservableCollection<Participant>(list);
+            FilteredParticipants = new ObservableCollection<Participant>(list);
+        }
+
         public ICommand LoadCommand { get; }
         public ICommand AddCommand { get; }
         public ICommand DeleteCommand { get; }
@@ -133,7 +167,7 @@ namespace Rifa.ViewModels
             Contributions.Clear();
 
             var contributions = await _database.GetContributionsByParticipant(participantId);
-            var participant = Participants.FirstOrDefault(x => x.Id == participantId);
+            var participant = FilteredParticipants.FirstOrDefault(x => x.Id == participantId);
 
             decimal cuota = participant?.MonthlyContribution ?? 0;
 

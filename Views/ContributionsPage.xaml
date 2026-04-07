@@ -7,13 +7,63 @@
 
     <ScrollView>
 
-    <VerticalStackLayout Padding="15" Spacing="10">
 
-        <!-- Picker -->
+        <VerticalStackLayout Spacing="15" Padding="10">
+
+            <!-- Buscador -->
+            <SearchBar Placeholder="Buscar participante..."
+               Text="{Binding SearchText}"
+               CancelButtonColor="#1976D2"
+               BackgroundColor="#ECEFF1"
+               TextColor="#212121"
+               PlaceholderColor="#757575"
+               HeightRequest="40"
+               Margin="0,0,0,5"
+               />
+
+            <!-- Lista filtrada estilo dropdown -->
+            <Frame CornerRadius="12"
+           Padding="0"
+           HasShadow="True"
+           BackgroundColor="White"
+           BorderColor="#B0BEC5">
+
+                <CollectionView ItemsSource="{Binding FilteredParticipants}"
+                SelectionMode="Single"
+                SelectionChanged="CollectionView_SelectionChanged">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <SwipeView>
+                                <SwipeView.RightItems>
+                                    <!-- Swipe actions -->
+                                </SwipeView.RightItems>
+
+                                <Grid Padding="10">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding BindingContext.SelectParticipantCommand, Source={x:Reference Page}}"
+                                  CommandParameter="{Binding .}" />
+                                    </Grid.GestureRecognizers>
+
+                                    <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="16"/>
+                                </Grid>
+                            </SwipeView>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Frame>
+
+            <!-- Mostramos participante seleccionado -->
+            <Label Text="{Binding SelectedParticipant.Name, StringFormat='Seleccionado: {0}'}"
+           FontSize="14"
+           FontAttributes="Italic"
+           TextColor="#1976D2"
+           IsVisible="{Binding SelectedParticipant, Converter={StaticResource NullToBoolConverter}}" />
+
+            <!-- Picker --><!--
         <Picker Title="Seleccionar participante"
                 ItemsSource="{Binding Participants}"
                 ItemDisplayBinding="{Binding Name}"
-                SelectedItem="{Binding SelectedParticipant}" />
+                SelectedItem="{Binding SelectedParticipant}" />-->
 
         <!-- Monto -->
         <Entry Placeholder="Monto"
@@ -94,6 +144,14 @@
                                     <Setter Property="BackgroundColor" Value="White"/>
                                 </DataTrigger>
 
+                                <!-- SELECCIONADO -->
+                                <DataTrigger TargetType="Frame"
+                                         Binding="{Binding IsSelected}"
+                                         Value="True">
+                                    <Setter Property="BackgroundColor" Value="#4CAF50"/>
+                                    <Setter Property="BorderColor" Value="#4CAF50"/>
+                                </DataTrigger>
+
                                 <!-- PARCIAL -->
                                 <DataTrigger TargetType="Frame"
                                  Binding="{Binding State}"
@@ -115,14 +173,6 @@
                                      Binding="{Binding IsEnabled}"
                                      Value="False"> 
                                     <Setter Property="Opacity" Value="0.5"/>
-                                </DataTrigger>
-
-                                <!-- SELECCIONADO -->
-                                <DataTrigger TargetType="Frame"
-                                         Binding="{Binding IsSelected}"
-                                         Value="True">
-                                    <Setter Property="BackgroundColor" Value="#4CAF50"/>
-                                    <Setter Property="BorderColor" Value="#4CAF50"/>
                                 </DataTrigger>
 
                             </Frame.Triggers>

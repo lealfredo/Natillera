@@ -1,4 +1,6 @@
+using Natillera.Entities;
 using Natillera.ViewModels;
+using Rifa.ViewModels;
 
 namespace Natillera.Views;
 
@@ -15,13 +17,26 @@ public partial class BetPage : ContentPage
         if (BindingContext is BetViewModel vm)
         { 
             //await vm.CheckParticipantByPhoneAsync();
-            await vm.Load();
+            await vm.LoadParticipants();
         }
     }
 
-    protected override void OnAppearing()
+    protected async override void OnAppearing()
     {
         base.OnAppearing();
-        (BindingContext as BetViewModel)?.LoadCommand.Execute(null);
+
+        if (BindingContext is BetViewModel vm)
+            await vm.Load();
+    }
+
+    private void CollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.CurrentSelection.FirstOrDefault() is Participant selected)
+        {
+            if (BindingContext is BetViewModel vm)
+            {
+                vm.SelectedParticipant = selected;
+            }
+        }
     }
 }

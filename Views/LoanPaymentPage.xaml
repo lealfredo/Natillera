@@ -9,7 +9,13 @@
         <VerticalStackLayout Padding="15" Spacing="15">
 
             <!-- INTERESES -->
-            <Label Text="Intereses" FontAttributes="Bold" FontSize="16"/>
+            <Label Text="INTERÉS PERSONAL"
+       TextColor="Orange"
+       IsVisible="{Binding IsPersonalLoan}" />
+
+            <Label Text="INTERÉS NATILLERA"
+       TextColor="Green"
+       IsVisible="{Binding IsPersonalLoan, Converter={StaticResource InverseBoolConverter}}" />
 
             <CollectionView ItemsSource="{Binding Months}">
                 <CollectionView.ItemsLayout>

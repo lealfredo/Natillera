@@ -21,5 +21,6 @@ namespace Rifa.Entities
         public bool IsInterest { get; set; } // separa interés vs capital
 
         public DateTime Date { get; set; }
+        public bool IsFromPersonalLoan { get; set; }
     }
 }

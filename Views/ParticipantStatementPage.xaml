@@ -51,7 +51,7 @@
             <!-- PRÉSTAMOS -->
             <Label Text="Préstamos" FontAttributes="Bold"/>
 
-            <CollectionView ItemsSource="{Binding Loans}">
+            <CollectionView ItemsSource="{Binding NatilleraLoans}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Frame Padding="10" Margin="5" CornerRadius="10">
@@ -64,6 +64,28 @@
 
                                 <Label Text="{Binding Pending, StringFormat='Pendiente: $ {0:N0}'}"
                                        TextColor="Red"/>
+
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Label Text="👤 Préstamos" FontAttributes="Bold"/>
+
+            <CollectionView ItemsSource="{Binding PersonalLoans}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Padding="10" Margin="5" CornerRadius="10">
+                            <VerticalStackLayout>
+
+                                <Label Text="{Binding Date, StringFormat='{0:dd/MM/yyyy}'}"
+                           FontSize="12"/>
+
+                                <Label Text="{Binding Amount, StringFormat='Monto: $ {0:N0}'}"/>
+
+                                <Label Text="{Binding Pending, StringFormat='Pendiente: $ {0:N0}'}"
+                           TextColor="Red"/>
 
                             </VerticalStackLayout>
                         </Frame>

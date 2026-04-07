@@ -76,10 +76,15 @@ namespace Natillera.Data
 
         public async Task<List<Participant>> GetParticipantsAsync()
         {
-            return await _database
+            var participants = await _database
                 .Table<Participant>()
                 .OrderBy(p => p.Name)
                 .ToListAsync();
+
+            foreach (var participant in participants)
+                participant.Name = participant.Name.Trim();
+
+            return participants.OrderBy(p => p.Name).ToList();
         }
 
         public async Task<int> SaveParticipantAsync(Participant participant)

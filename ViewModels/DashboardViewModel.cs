@@ -133,16 +133,17 @@ namespace Natillera.ViewModels
             TotalContributions = contributions.Sum(x => x.Amount);
 
             // PRESTADO (capital entregado)
-            TotalLoaned = loans.Sum(x => x.PrincipalAmount);
+            var natilleraLoans = loans.Where(x => !x.IsPersonal);
+            TotalLoaned = natilleraLoans.Sum(x => x.PrincipalAmount);
 
             // CAPITAL RECUPERADO
             TotalRecovered = allPayments
-                .Where(x => !x.IsInterest)
+                .Where(x => !x.IsInterest && natilleraLoans.Any(l => l.Id == x.LoanId))
                 .Sum(x => x.Amount);
 
             // INTERESES GANADOS
             TotalInterest = allPayments
-                .Where(x => x.IsInterest)
+                .Where(x => x.IsInterest && natilleraLoans.Any(l => l.Id == x.LoanId) && !x.IsFromPersonalLoan)
                 .Sum(x => x.Amount);
 
             // RIFAS (igual que tenías)
@@ -198,7 +199,7 @@ namespace Natillera.ViewModels
             decimal recoveredFromInterest = 0;
             decimal recoveredFromContributions = 0;
 
-            foreach (var loan in loans)
+            foreach (var loan in natilleraLoans)
             {
                 var payments = allPayments.Where(x => x.LoanId == loan.Id && !x.IsInterest);
 
@@ -215,18 +216,19 @@ namespace Natillera.ViewModels
                 recoveredFromContributions += totalPaid * ratioContributions;
             }
 
-            LoanFromContributions = loans.Sum(x => x.PrincipalFromContributions);
-            LoanFromInterest = loans.Sum(x => x.PrincipalFromInterest);
+            LoanFromContributions = natilleraLoans.Sum(x => x.PrincipalFromContributions);
+            LoanFromInterest = natilleraLoans.Sum(x => x.PrincipalFromInterest);
 
-            // DISPONIBLE
+            // DISPONIBLE DESDE APORTES
             AvailableFromContributions =
                 TotalContributions
-                - loans.Sum(x => x.PrincipalFromContributions)
+                - natilleraLoans.Sum(x => x.PrincipalFromContributions)
                 + recoveredFromContributions;
 
+            // DISPONIBLE DESDE INTERESES
             AvailableFromInterest =
                 TotalInterest
-                - loans.Sum(x => x.PrincipalFromInterest)
+                - natilleraLoans.Sum(x => x.PrincipalFromInterest)
                 + recoveredFromInterest;
 
             // TOTAL FINAL

@@ -23,5 +23,6 @@ namespace Rifa.Entities
         public int TotalMonths { get; set; }
 
         public DateTime StartDate { get; set; }
+        public bool IsPersonal { get; set; }
     }
 }

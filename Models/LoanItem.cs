@@ -35,6 +35,8 @@ namespace Natillera.Models
 
         public bool IsPaid { get; set; }
 
+        public bool IsPersonal { get; set; }
+
         // UI
         public string Status =>
             IsPaid ? "Pagado"

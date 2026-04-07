@@ -37,7 +37,8 @@ namespace Natillera.ViewModels
 
 
         public ObservableCollection<ContributionItem> Contributions { get; set; } = new();
-        public ObservableCollection<LoanItem> Loans { get; set; } = new();
+        public ObservableCollection<LoanItem> NatilleraLoans { get; set; } = new();
+        public ObservableCollection<LoanItem> PersonalLoans { get; set; } = new();
         public ObservableCollection<RaffleItem> Raffles { get; set; } = new();
 
         public ParticipantStatementViewModel(INatilleraDatabase database)
@@ -67,10 +68,13 @@ namespace Natillera.ViewModels
             }
 
             var loans = (await _database.GetLoansAsync())
-    .Where(x => x.PersonId == ParticipantId)
-    .ToList();
+                            .Where(x => x.PersonId == ParticipantId)
+                            .ToList();
 
-            foreach (var loan in loans)
+            var natilleraLoans = loans.Where(x => !x.IsPersonal);
+            var personalLoans = loans.Where(x => x.IsPersonal);
+
+            foreach (var loan in natilleraLoans)
             {
                 try
                 {
@@ -96,10 +100,48 @@ namespace Natillera.ViewModels
                         StartDate = loan.StartDate
                     };
 
-                    // 🔥 SIEMPRE EN UI THREAD
+                    // SIEMPRE EN UI THREAD
                     MainThread.BeginInvokeOnMainThread(() =>
                     {
-                        Loans.Add(item);
+                        NatilleraLoans.Add(item);
+                    });
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"ERROR LOAN: {ex.Message}");
+                }
+            }
+
+            foreach (var loan in personalLoans)
+            {
+                try
+                {
+                    var payments = await _database.GetPaymentsAsync(loan.Id) ?? new List<LoanPayment>();
+
+                    var interestPaid = payments
+                        .Where(x => x.IsInterest)
+                        .Sum(x => x.Amount);
+
+                    var principalPaid = payments
+                        .Where(x => !x.IsInterest)
+                        .Sum(x => x.Amount);
+
+                    var pending = (loan?.PrincipalAmount ?? 0) - principalPaid;
+
+                    TotalLoaned += loan?.PrincipalAmount ?? 0;
+                    TotalInterestPaid += interestPaid;
+
+                    var item = new LoanItem
+                    {
+                        Amount = loan?.PrincipalAmount ?? 0,
+                        Pending = pending,
+                        StartDate = loan.StartDate
+                    };
+
+                    // SIEMPRE EN UI THREAD
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        PersonalLoans.Add(item);
                     });
                 }
                 catch (Exception ex)

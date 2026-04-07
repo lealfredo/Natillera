@@ -10,7 +10,6 @@ namespace Rifa.Entities
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
 
-        [Indexed]
         public int PersonId { get; set; }
 
         public decimal Amount { get; set; }

@@ -17,7 +17,21 @@ namespace Natillera.ViewModels
             _database = database;
             Title = "Registrar Apuesta";
         }
-        public Participant SelectedParticipant { get; set; }
+
+        private Participant _selectedParticipant;
+        public Participant SelectedParticipant
+        {
+            get => _selectedParticipant;
+            set
+            {
+                if (SetProperty(ref _selectedParticipant, value))
+                {
+                    // ESTA ES LA CLAVE
+                    SearchText = value?.Name;
+                }
+            }
+        }
+
         public ObservableCollection<Participant> Participants { get; set; } = new();
 
         [ObservableProperty]
@@ -40,6 +54,40 @@ namespace Natillera.ViewModels
         {
             get => _isNewParticipant;
             set => SetProperty(ref _isNewParticipant, value);
+        }
+
+        private ObservableCollection<Participant> _filteredParticipants;
+        public ObservableCollection<Participant> FilteredParticipants
+        {
+            get => _filteredParticipants;
+            set => SetProperty(ref _filteredParticipants, value);
+        }
+
+        private string _searchText;
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                SetProperty(ref _searchText, value);
+                FilterParticipants();
+            }
+        }
+
+        public void FilterParticipants()
+        {
+            if (string.IsNullOrWhiteSpace(SearchText))
+                FilteredParticipants = new ObservableCollection<Participant>(Participants);
+            else
+                FilteredParticipants = new ObservableCollection<Participant>(
+                    Participants.Where(p => p.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        public async Task LoadParticipants()
+        {
+            var list = await _database.GetParticipantsAsync();
+            Participants = new ObservableCollection<Participant>(list);
+            FilteredParticipants = new ObservableCollection<Participant>(list);
         }
 
         [RelayCommand]
