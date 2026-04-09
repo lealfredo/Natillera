@@ -58,6 +58,20 @@ namespace Natillera.ViewModels
             set { _totalContributions = value; OnPropertyChanged(); }
         }
 
+        private decimal _loanFromRaffles;
+        public decimal LoanFromRaffles
+        {
+            get => _loanFromRaffles;
+            set { _loanFromRaffles = value; OnPropertyChanged(); }
+        }
+
+        private decimal _availableFromRaffles;
+        public decimal AvailableFromRaffles
+        {
+            get => _availableFromRaffles;
+            set { _availableFromRaffles = value; OnPropertyChanged(); }
+        }
+
         private decimal _totalLoaned;
         public decimal TotalLoaned
         {
@@ -114,39 +128,47 @@ namespace Natillera.ViewModels
             set { _raffleProfit = value; OnPropertyChanged(); }
         }
 
+        public decimal _totalOutstandingLoans;
+        public decimal TotalOutstandingLoans
+        {
+            get => _totalOutstandingLoans;
+            set { _totalOutstandingLoans = value; OnPropertyChanged(); }
+        }
+
         // LOAD
 
         private async Task Load()
         {
+            // 🔥 DATA BASE
             var contributions = await _database.GetAllContributionsAsync();
             var loans = await _database.GetLoansAsync();
+            var allPayments = await _database.GetAllPaymentsAsync(); // 🔥 optimizado
 
-            var allPayments = new List<LoanPayment>();
+            var natilleraLoans = loans.Where(x => !x.IsPersonal).ToList();
 
-            foreach (var loan in loans)
-            {
-                var payments = await _database.GetPaymentsAsync(loan.Id);
-                allPayments.AddRange(payments);
-            }
-
-            // APORTES
+            // =========================
+            // 🔹 APORTES
+            // =========================
             TotalContributions = contributions.Sum(x => x.Amount);
 
-            // PRESTADO (capital entregado)
-            var natilleraLoans = loans.Where(x => !x.IsPersonal);
+            // =========================
+            // 🔹 PRÉSTAMOS
+            // =========================
             TotalLoaned = natilleraLoans.Sum(x => x.PrincipalAmount);
 
-            // CAPITAL RECUPERADO
             TotalRecovered = allPayments
                 .Where(x => !x.IsInterest && natilleraLoans.Any(l => l.Id == x.LoanId))
                 .Sum(x => x.Amount);
 
-            // INTERESES GANADOS
             TotalInterest = allPayments
                 .Where(x => x.IsInterest && natilleraLoans.Any(l => l.Id == x.LoanId) && !x.IsFromPersonalLoan)
                 .Sum(x => x.Amount);
 
-            // RIFAS (igual que tenías)
+            TotalOutstandingLoans = TotalLoaned - TotalRecovered;
+
+            // =========================
+            // 🔹 RIFAS
+            // =========================
             var raffles = await _database.GetAllNoPersonalRaffleWeek();
             var bets = await _database.GetAllBet();
             var winners = await _database.GetAllRaffleWinner();
@@ -160,14 +182,14 @@ namespace Natillera.ViewModels
                 .GroupBy(x => x.RaffleWeekId)
                 .ToDictionary(g => g.Key, g => g.Count());
 
-            // RECAUDADO
+            // 🔥 RECAUDADO
             TotalRaffleCollected = raffles.Sum(r =>
             {
                 takenNumbersByRaffle.TryGetValue(r.Id, out var count);
                 return r.BetPrize * count;
             });
 
-            // PREMIOS
+            // 🔥 PREMIOS
             TotalRafflePrizes = 0;
 
             foreach (var raffle in raffles)
@@ -176,66 +198,82 @@ namespace Natillera.ViewModels
 
                 foreach (var w in raffleWinners)
                 {
-                    switch (w.BetType)
+                    TotalRafflePrizes += w.BetType switch
                     {
-                        case BetType.Start:
-                            TotalRafflePrizes += raffle.FirstTwoPrize;
-                            break;
-
-                        case BetType.Middle:
-                            TotalRafflePrizes += raffle.MiddleTwoPrize;
-                            break;
-
-                        case BetType.End:
-                            TotalRafflePrizes += raffle.LastTwoPrize;
-                            break;
-                    }
+                        BetType.Start => raffle.FirstTwoPrize,
+                        BetType.Middle => raffle.MiddleTwoPrize,
+                        BetType.End => raffle.LastTwoPrize,
+                        _ => 0
+                    };
                 }
             }
 
-            // GANANCIA RIFAS
+            // 🔥 BALANCE REAL RIFAS
             RaffleProfit = TotalRaffleCollected - TotalRafflePrizes;
+            if (RaffleProfit < 0) RaffleProfit = 0;
 
-            decimal recoveredFromInterest = 0;
-            decimal recoveredFromContributions = 0;
+            // =========================
+            // 🔹 RECUPERACIÓN POR FUENTE
+            // =========================
+            //decimal recoveredFromInterest = 0;
+            //decimal recoveredFromContributions = 0;
+            //decimal recoveredFromRaffles = 0;
 
-            foreach (var loan in natilleraLoans)
-            {
-                var payments = allPayments.Where(x => x.LoanId == loan.Id && !x.IsInterest);
+            //foreach (var loan in natilleraLoans)
+            //{
+            //    var payments = allPayments.Where(x => x.LoanId == loan.Id && !x.IsInterest);
 
-                var totalPrincipal = loan.PrincipalAmount;
+            //    var totalPrincipal = loan.PrincipalAmount;
+            //    if (totalPrincipal == 0) continue;
 
-                if (totalPrincipal == 0) continue;
+            //    var ratioInterest = loan.PrincipalFromInterest / totalPrincipal;
+            //    var ratioContributions = loan.PrincipalFromContributions / totalPrincipal;
+            //    var ratioRaffles = loan.PrincipalFromRaffles / totalPrincipal;
 
-                var ratioInterest = loan.PrincipalFromInterest / totalPrincipal;
-                var ratioContributions = loan.PrincipalFromContributions / totalPrincipal;
+            //    var totalPaid = payments.Sum(x => x.Amount);
 
-                var totalPaid = payments.Sum(x => x.Amount);
+            //    recoveredFromInterest += totalPaid * ratioInterest;
+            //    recoveredFromContributions += totalPaid * ratioContributions;
+            //    recoveredFromRaffles += totalPaid * ratioRaffles;
+            //}
 
-                recoveredFromInterest += totalPaid * ratioInterest;
-                recoveredFromContributions += totalPaid * ratioContributions;
-            }
-
+            // =========================
+            // 🔹 PRESTADO POR FUENTE
+            // =========================
             LoanFromContributions = natilleraLoans.Sum(x => x.PrincipalFromContributions);
             LoanFromInterest = natilleraLoans.Sum(x => x.PrincipalFromInterest);
+            LoanFromRaffles = natilleraLoans.Sum(x => x.PrincipalFromRaffles);
 
-            // DISPONIBLE DESDE APORTES
+            // =========================
+            // 🔹 DISPONIBLE REAL
+            // =========================
             AvailableFromContributions =
                 TotalContributions
-                - natilleraLoans.Sum(x => x.PrincipalFromContributions)
-                + recoveredFromContributions;
+                - LoanFromContributions;
+            //+ recoveredFromContributions;
 
-            // DISPONIBLE DESDE INTERESES
             AvailableFromInterest =
                 TotalInterest
-                - natilleraLoans.Sum(x => x.PrincipalFromInterest)
-                + recoveredFromInterest;
+                - LoanFromInterest;
+            //+ recoveredFromInterest;
 
-            // TOTAL FINAL
+            AvailableFromRaffles =
+                RaffleProfit
+                - LoanFromRaffles;
+                //+ recoveredFromRaffles;
+
+            // 🔥 SEGURIDAD
+            if (AvailableFromContributions < 0) AvailableFromContributions = 0;
+            if (AvailableFromInterest < 0) AvailableFromInterest = 0;
+            if (AvailableFromRaffles < 0) AvailableFromRaffles = 0;
+
+            // =========================
+            // 🔹 TOTAL FINAL
+            // =========================
             AvailableMoney =
-                AvailableFromContributions
-                + AvailableFromInterest
-                + RaffleProfit;
+                AvailableFromContributions +
+                AvailableFromInterest +
+                AvailableFromRaffles;
         }
     }
 }

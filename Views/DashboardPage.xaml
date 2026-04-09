@@ -7,13 +7,24 @@
     <ScrollView>
         <VerticalStackLayout Padding="15" Spacing="15">
 
-            <!-- 💰 APORTES -->
+            <!-- APORTES -->
             <Frame CornerRadius="12" Padding="15" BackgroundColor="#E3F2FD">
                 <VerticalStackLayout>
                     <Label Text="Aportes" FontAttributes="Bold"/>
                     <Label Text="{Binding TotalContributions, StringFormat='$ {0:N0}'}"
                        FontSize="22"
                        FontAttributes="Bold"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- INTERESES -->
+            <Frame CornerRadius="12" Padding="15" BackgroundColor="#F3E5F5">
+                <VerticalStackLayout>
+                    <Label Text="Intereses ganados" FontAttributes="Bold"/>
+                    <Label Text="{Binding TotalInterest, StringFormat='$ {0:N0}'}"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       TextColor="#7B1FA2"/>
                 </VerticalStackLayout>
             </Frame>
 
@@ -34,6 +45,10 @@
                FontSize="12"
                TextColor="#8E24AA"/>
 
+                    <Label Text="{Binding LoanFromRaffles, StringFormat='De rifas: $ {0:N0}'}"
+               FontSize="12"
+               TextColor="Blue"/>
+                        
                     <Label Text="{Binding TotalRecovered, StringFormat='Recuperado: $ {0:N0}'}"
                TextColor="Green"/>
 
@@ -41,17 +56,6 @@
                TextColor="Red"
                FontAttributes="Bold"/>
 
-                </VerticalStackLayout>
-            </Frame>
-
-            <!-- INTERESES -->
-            <Frame CornerRadius="12" Padding="15" BackgroundColor="#F3E5F5">
-                <VerticalStackLayout>
-                    <Label Text="Intereses ganados" FontAttributes="Bold"/>
-                    <Label Text="{Binding TotalInterest, StringFormat='$ {0:N0}'}"
-                       FontSize="20"
-                       FontAttributes="Bold"
-                       TextColor="#7B1FA2"/>
                 </VerticalStackLayout>
             </Frame>
 
@@ -72,6 +76,22 @@
                 </VerticalStackLayout>
             </Frame>
 
+            <Frame CornerRadius="12" Padding="15" BackgroundColor="#E3F2FD">
+                <VerticalStackLayout Spacing="4">
+
+                    <Label Text="Disponible" FontAttributes="Bold"/>
+
+                    <Label Text="{Binding AvailableFromContributions, StringFormat='Aportes: $ {0:N0}'}"/>
+                    <Label Text="{Binding AvailableFromInterest, StringFormat='Intereses: $ {0:N0}'}"/>
+                    <Label Text="{Binding AvailableFromRaffles, StringFormat='Rifas: $ {0:N0}'}"/>
+
+                    <Label Text="{Binding AvailableMoney, StringFormat='Total: $ {0:N0}'}"
+                       FontAttributes="Bold"
+                       TextColor="Green"/>
+
+                </VerticalStackLayout>
+            </Frame>
+
             <!-- DISPONIBLE (DESTACADO) -->
             <Frame CornerRadius="12"
                Padding="20"
@@ -89,20 +109,6 @@
                        FontAttributes="Bold"/>
                 </VerticalStackLayout>
 
-            </Frame>
-
-            <Frame CornerRadius="12" Padding="15" BackgroundColor="#ECEFF1">
-                <VerticalStackLayout>
-
-                    <Label Text="Detalle disponible"
-               FontAttributes="Bold"
-               FontSize="14"/>
-
-                    <Label Text="{Binding AvailableFromContributions, StringFormat='Aportes: $ {0:N0}'}"/>
-
-                    <Label Text="{Binding AvailableFromInterest, StringFormat='Intereses: $ {0:N0}'}"/>
-
-                </VerticalStackLayout>
             </Frame>
 
         </VerticalStackLayout>

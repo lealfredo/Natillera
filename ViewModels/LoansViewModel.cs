@@ -315,22 +315,34 @@ namespace Natillera.ViewModels
             decimal fromInterest = 0;
             decimal fromContributions = 0;
             decimal totalAvailable = 0;
+            decimal fromRaffles = 0;
 
             if (!IsPersonal)
             {
-                var (availableInterest, availableContributions) =
-                    await _database.GetAvailableMoney();
+                var (availableInterest, availableContributions, availableFromRaffles) = await _database.GetAvailableMoney();
 
-                fromInterest = Math.Min(amount, availableInterest);
-                fromContributions = amount - fromInterest;
-
-                totalAvailable = availableInterest + availableContributions;
+                // TOTAL DISPONIBLE REAL
+                totalAvailable =
+                    availableInterest +
+                    availableContributions +
+                    availableFromRaffles;
 
                 if (amount > totalAvailable)
                 {
                     await Shell.Current.DisplayAlert("Error", "No hay suficiente dinero disponible", "OK");
                     return;
                 }
+
+                // DISTRIBUCIÓN CORRECTA (3 fuentes)
+                var remaining = amount;
+
+                fromInterest = Math.Min(remaining, availableInterest);
+                remaining -= fromInterest;
+
+                fromContributions = Math.Min(remaining, availableContributions);
+                remaining -= fromContributions;
+
+                fromRaffles = remaining; // lo que quede sale de rifas
             }
 
             //var (availableInterest, availableContributions) =
@@ -343,7 +355,6 @@ namespace Natillera.ViewModels
             //    await Shell.Current.DisplayAlert("Error", "No hay suficiente dinero disponible", "OK");
             //    return;
             //}
-
 
             //var fromInterest = Math.Min(amount, availableInterest);
             //var fromContributions = amount - fromInterest;
@@ -358,6 +369,7 @@ namespace Natillera.ViewModels
                 InterestRate = rate,
                 StartDate = StartDate,
                 IsPersonal = IsPersonal,
+                PrincipalFromRaffles = fromRaffles
             };
 
             await _database.AddLoanAsync(loan);

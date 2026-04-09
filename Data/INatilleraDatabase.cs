@@ -49,9 +49,9 @@ namespace Natillera.Data
         Task<List<Participant>> GetAllParticipant();
 
         Task<List<Bet>> GetAllBet();
-
+        Task<List<Bet>> GetAllCollectedBet();
         Task<List<RaffleWinner>> GetAllRaffleWinner();
-
+        Task<List<RaffleWeek>> GetAllRafflesNatilleraAsync();
         Task SaveRaffleWeekRangeAsync(List<RaffleWeek> raffleWeeks);
 
         Task SaveParticipantRangeAsync(List<Participant> participants);
@@ -85,7 +85,7 @@ namespace Natillera.Data
         Task<int> AddLoanAsync(Loan loan);
         Task<int> AddPaymentAsync(LoanPayment payment);
         Task<int> UpdateLoanAsync(Loan loan);
-        Task<(decimal availableFromInterest, decimal availableFromContributions)> GetAvailableMoney();
+        Task<(decimal availableFromInterest, decimal availableFromContributions, decimal availableFromRaffles)> GetAvailableMoney();
 
         //----------- Settlement -----------
         Task<List<Settlement>> GetSettlementAsync();
