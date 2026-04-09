@@ -5,8 +5,8 @@
              x:Name="Page"
             Title="Préstamos">
     <ScrollView>
-
-        <VerticalStackLayout Padding="15" Spacing="10">
+        <Grid>
+            <VerticalStackLayout Padding="15" Spacing="10">
 
             <!-- Buscador -->
             <SearchBar Placeholder="Buscar participante..."
@@ -62,34 +62,52 @@
                 ItemDisplayBinding="{Binding Name}"
                 SelectedItem="{Binding SelectedParticipant}" />-->
 
-        <Entry Placeholder="Nombre (si es externo)"
-               Text="{Binding BorrowerName}" />
+            <VerticalStackLayout Spacing="10">
+                <Entry Placeholder="Nombre (si es externo)"
+                       Text="{Binding BorrowerName}" />
         
-        <DatePicker
-            Date="{Binding StartDate}" />
+                <DatePicker
+                    Date="{Binding StartDate}" />
 
-        <Entry Placeholder="Monto"
-               Keyboard="Numeric"
-               Text="{Binding Amount}" />
+                <Entry Placeholder="Monto"
+                       Keyboard="Numeric"
+                       Text="{Binding Amount}" />
 
-        <Entry Placeholder="Interés % (ej: 5 = 5%)"
-               Keyboard="Numeric"
-               Text="{Binding InterestRate}" />
+                <Entry Placeholder="Interés % (ej: 5 = 5%)"
+                       Keyboard="Numeric"
+                       Text="{Binding InterestRate}" />
             
-            <HorizontalStackLayout>
-                <Label Text="Préstamo personal"/>
-                <Switch IsToggled="{Binding IsPersonal}" />
+                    <HorizontalStackLayout>
+                        <Label Text="Préstamo personal"/>
+                        <Switch IsToggled="{Binding IsPersonal}" />
+                    </HorizontalStackLayout>
+
+                    <Button Text="Crear préstamo"
+                        Command="{Binding AddLoanCommand}" />
+
+            </VerticalStackLayout>
+
+
+            <HorizontalStackLayout Spacing="10">
+
+                <DatePicker Date="{Binding FromDate}" />
+                <DatePicker Date="{Binding ToDate}" />
+
+                <Button Text="Filtrar"
+            Command="{Binding LoadCommand}" />
+
             </HorizontalStackLayout>
 
-            <Button Text="Crear préstamo"
-                Command="{Binding AddLoanCommand}" />
-        
             <HorizontalStackLayout>
                 <Label Text="Mostrar pagados"/>
                 <Switch IsToggled="{Binding ShowPaid}" />
             </HorizontalStackLayout>
 
-            <CollectionView ItemsSource="{Binding Loans}">
+            <Label Text="Seleccione un rango y presione Filtrar"
+       IsVisible="{Binding HasLoaded, Converter={StaticResource InverseBoolConverter}}" />
+
+            <CollectionView ItemsSource="{Binding Loans}"
+                            IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
             <CollectionView.ItemTemplate>
                     <DataTemplate>
 
@@ -254,6 +272,26 @@
                 </CollectionView.ItemTemplate>
         </CollectionView>
 
-    </VerticalStackLayout>
+
+
+            <!-- LOADER OVERLAY -->
+            <Grid BackgroundColor="#80000000"
+          IsVisible="{Binding IsLoading}">
+
+                <ActivityIndicator 
+            IsRunning="True"
+            Color="White"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"/>
+
+                <Label Text="Cargando préstamos..."
+       TextColor="White"
+       HorizontalOptions="Center"
+       VerticalOptions="Center"
+       Margin="0,40,0,0"/>
+            </Grid>
+
+        </VerticalStackLayout>
+        </Grid>
     </ScrollView>
 </ContentPage>

@@ -17,7 +17,30 @@ namespace Natillera.ViewModels
         public ObservableCollection<LoanItem> Loans { get; set; } = new();
         public ObservableCollection<Participant> Participants { get; set; } = new();
 
-        public DateTime StartDate { get; set; }
+        private bool _hasLoaded;
+        public bool HasLoaded
+        {
+            get => _hasLoaded;
+            set
+            {
+                _hasLoaded = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DateTime FromDate { get; set; } = DateTime.Now.AddMonths(-1);
+        public DateTime ToDate { get; set; } = DateTime.Now;
+
+        private DateTime _startDate;
+        public DateTime StartDate
+        {
+            get => _startDate;
+            set
+            {
+                _startDate = value;
+                OnPropertyChanged();
+            }
+        }
         private Participant _selectedParticipant;
         public Participant SelectedParticipant
         {
@@ -125,6 +148,17 @@ namespace Natillera.ViewModels
             }
         }
 
+        private bool _isLoading;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                _isLoading = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ICommand LoadCommand { get; }
         public ICommand AddLoanCommand { get; }
         public ICommand DeleteLoanCommand => new Command<LoanItem>(async (l) => await DeleteLoan(l));
@@ -213,83 +247,94 @@ namespace Natillera.ViewModels
 
         private async Task Load()
         {
-            Loans.Clear();
-            Participants.Clear();
-            _allLoans.Clear();
-
-            var participants = await _database.GetParticipantsAsync();
-            foreach (var p in participants)
-                Participants.Add(p);
-
-            var loans = await _database.GetLoansAsync();
-
-            foreach (var loan in loans)
+            try
             {
-                var payments = await _database.GetPaymentsAsync(loan.Id);
+                IsLoading = true;
 
-                // Interés mensual (%)
-                var monthlyInterest = loan.PrincipalAmount * (loan.InterestRate / 100);
+                Loans.Clear();
+                Participants.Clear();
+                _allLoans.Clear();
 
-                // Meses transcurridos
-                var months =
-                            (DateTime.Now.Year - loan.StartDate.Year) * 12 +
-                            (DateTime.Now.Month - loan.StartDate.Month);
+                var participants = await _database.GetParticipantsAsync();
+                foreach (var p in participants)
+                    Participants.Add(p);
 
-                if (months < 1)
-                    months = 1;
+                //var loans = await _database.GetAllLoansAsync();
+                var loans = await _database.GetLoansByDateRange(FromDate, ToDate);
 
-                // Interés total generado
-                var totalInterestGenerated = monthlyInterest * months;
-
-                // Interés pagado
-                var interestPaid = payments
-                    .Where(x => x.IsInterest)
-                    .Sum(x => x.Amount);
-
-                var pendingInterest = totalInterestGenerated - interestPaid;
-                if (pendingInterest < 0) pendingInterest = 0;
-
-                // Capital pagado
-                var principalPaid = payments
-                    .Where(x => !x.IsInterest)
-                    .Sum(x => x.Amount);
-
-                var pendingPrincipal = loan.PrincipalAmount - principalPaid;
-                if (pendingPrincipal < 0) pendingPrincipal = 0;
-
-                var totalPaid = interestPaid + principalPaid;
-                var totalBalance = pendingInterest + pendingPrincipal;
-                string name = loan.IsPersonal
-                        ? $"👤 {Participants.FirstOrDefault(x => x.Id == loan.PersonId)?.Name ?? loan.BorrowerName}"
-                        : Participants.FirstOrDefault(x => x.Id == loan.PersonId)?.Name ?? loan.BorrowerName;
-
-                _allLoans.Add(new LoanItem
+                foreach (var loan in loans)
                 {
-                    Id = loan.Id,
-                    Name = name,
+                    var payments = await _database.GetPaymentsAsync(loan.Id);
 
-                    Amount = loan.PrincipalAmount,
-                    InterestRate = loan.InterestRate,
+                    // Interés mensual (%)
+                    var monthlyInterest = loan.PrincipalAmount * (loan.InterestRate / 100);
 
-                    MonthlyInterest = monthlyInterest,
+                    // Meses transcurridos
+                    var months =
+                                (DateTime.Now.Year - loan.StartDate.Year) * 12 +
+                                (DateTime.Now.Month - loan.StartDate.Month);
 
-                    TotalInterestGenerated = totalInterestGenerated,
-                    InterestPaid = interestPaid,
-                    PendingInterest = pendingInterest,
+                    if (months < 1)
+                        months = 1;
 
-                    PrincipalPaid = principalPaid,
-                    PendingPrincipal = pendingPrincipal,
+                    // Interés total generado
+                    var totalInterestGenerated = monthlyInterest * months;
 
-                    TotalPaid = totalPaid,
-                    Balance = totalBalance,
+                    // Interés pagado
+                    var interestPaid = payments
+                        .Where(x => x.IsInterest)
+                        .Sum(x => x.Amount);
 
-                    IsPaid = pendingPrincipal <= 0,
-                    StartDate = loan.StartDate,
-                    IsPersonal = loan.IsPersonal,
-                });
+                    var pendingInterest = totalInterestGenerated - interestPaid;
+                    if (pendingInterest < 0) pendingInterest = 0;
+
+                    // Capital pagado
+                    var principalPaid = payments
+                        .Where(x => !x.IsInterest)
+                        .Sum(x => x.Amount);
+
+                    var pendingPrincipal = loan.PrincipalAmount - principalPaid;
+                    if (pendingPrincipal < 0) pendingPrincipal = 0;
+
+                    var totalPaid = interestPaid + principalPaid;
+                    var totalBalance = pendingInterest + pendingPrincipal;
+                    string name = loan.IsPersonal
+                            ? $"👤 {Participants.FirstOrDefault(x => x.Id == loan.PersonId)?.Name ?? loan.BorrowerName}"
+                            : Participants.FirstOrDefault(x => x.Id == loan.PersonId)?.Name ?? loan.BorrowerName;
+
+                    _allLoans.Add(new LoanItem
+                    {
+                        Id = loan.Id,
+                        Name = name,
+
+                        Amount = loan.PrincipalAmount,
+                        InterestRate = loan.InterestRate,
+
+                        MonthlyInterest = monthlyInterest,
+
+                        TotalInterestGenerated = totalInterestGenerated,
+                        InterestPaid = interestPaid,
+                        PendingInterest = pendingInterest,
+
+                        PrincipalPaid = principalPaid,
+                        PendingPrincipal = pendingPrincipal,
+
+                        TotalPaid = totalPaid,
+                        Balance = totalBalance,
+
+                        IsPaid = pendingPrincipal <= 0,
+                        StartDate = loan.StartDate,
+                        IsPersonal = loan.IsPersonal,
+                    });
+                }
+
+                HasLoaded = true;
+                ApplyFilter();
             }
-
-            ApplyFilter();
+            finally
+            {
+                IsLoading = false; // TERMINA loader
+            }
         }
 
         private async Task AddLoan()

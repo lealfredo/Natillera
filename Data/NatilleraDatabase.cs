@@ -98,6 +98,7 @@ namespace Natillera.Data
         public async Task<List<Participant>> GetParticipantsPaged(int page, int pageSize)
         {
             return await _database.Table<Participant>()
+                .OrderBy(x => x.Name)
                 .Skip(page * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -255,7 +256,7 @@ namespace Natillera.Data
         public Task<List<RaffleWeek>> GetAllRafflesNatilleraAsync()
         {
             return _database.Table<RaffleWeek>()
-                      .Where(r => r.IsClosed && !r.IsPersonal)
+                      .Where(r => !r.IsPersonal)
                       .OrderByDescending(r => r.DrawDate)
                       .ToListAsync();
         }
@@ -474,6 +475,17 @@ namespace Natillera.Data
                 .OrderByDescending(x => x.StartDate)
                 .ToListAsync();
 
+        public Task<List<Loan>> GetAllLoansAsync()
+        => _database.Table<Loan>()
+                .OrderByDescending(x => x.StartDate)
+                .ToListAsync();
+
+        public Task<List<Loan>> GetLoansByDateRange(DateTime from, DateTime to)
+        => _database.Table<Loan>()
+                .Where(x => x.StartDate >= from && x.StartDate <= to)
+                .OrderByDescending(x => x.StartDate)
+                .ToListAsync();
+
         public Task<List<LoanPayment>> GetPaymentsAsync(int loanId)
             => _database.Table<LoanPayment>().Where(x => x.LoanId == loanId && !x.IsFromPersonalLoan).ToListAsync();
 
@@ -537,42 +549,45 @@ namespace Natillera.Data
             if (raffleBalance < 0) raffleBalance = 0;
 
             // 3. RECUPERACIÓN PROPORCIONAL
-            //decimal recoveredFromInterest = 0;
-            //decimal recoveredFromContributions = 0;
-            //decimal recoveredFromRaffles = 0;
+            decimal recoveredFromInterest = 0;
+            decimal recoveredFromContributions = 0;
+            decimal recoveredFromRaffles = 0;
 
-            //foreach (var loan in natilleraLoans)
-            //{
-            //    var payments = allPayments
-            //        .Where(x => x.LoanId == loan.Id && !x.IsInterest && !x.IsFromPersonalLoan);
+            foreach (var loan in natilleraLoans)
+            {
+                var payments = allPayments
+                    .Where(x => x.LoanId == loan.Id && !x.IsInterest && !x.IsFromPersonalLoan);
 
-            //    var totalPrincipal = loan.PrincipalAmount;
-            //    if (totalPrincipal == 0) continue;
+                var totalPrincipal = loan.PrincipalAmount;
+                if (totalPrincipal == 0) continue;
 
-            //    var ratioInterest = loan.PrincipalFromInterest / totalPrincipal;
-            //    var ratioContributions = loan.PrincipalFromContributions / totalPrincipal;
-            //    var ratioRaffles = loan.PrincipalFromRaffles / totalPrincipal;
+                var ratioInterest = loan.PrincipalFromInterest / totalPrincipal;
+                var ratioContributions = loan.PrincipalFromContributions / totalPrincipal;
+                var ratioRaffles = loan.PrincipalFromRaffles / totalPrincipal;
 
-            //    var totalPaidLoan = payments.Sum(x => x.Amount);
+                var totalPaidLoan = payments.Sum(x => x.Amount);
 
-            //    recoveredFromInterest += totalPaidLoan * ratioInterest;
-            //    recoveredFromContributions += totalPaidLoan * ratioContributions;
-            //    recoveredFromRaffles += totalPaidLoan * ratioRaffles;
-            //}
+                recoveredFromInterest += totalPaidLoan * ratioInterest;
+                recoveredFromContributions += totalPaidLoan * ratioContributions;
+                recoveredFromRaffles += totalPaidLoan * ratioRaffles;
+            }
 
             // 4. DISPONIBLE REAL POR FUENTE
 
             var availableFromInterest =
                 totalInterest
-                - natilleraLoans.Sum(x => x.PrincipalFromInterest);
+                - natilleraLoans.Sum(x => x.PrincipalFromInterest)
+                + recoveredFromInterest;
 
             var availableFromContributions =
                 totalContributions
-                - natilleraLoans.Sum(x => x.PrincipalFromContributions);
+                - natilleraLoans.Sum(x => x.PrincipalFromContributions)
+                + recoveredFromContributions;
 
             var availableFromRaffles =
                 raffleBalance
-                - natilleraLoans.Sum(x => x.PrincipalFromRaffles);
+                - natilleraLoans.Sum(x => x.PrincipalFromRaffles)
+                + recoveredFromRaffles;
 
             // 5. SEGURIDAD
             if (availableFromInterest < 0) availableFromInterest = 0;
