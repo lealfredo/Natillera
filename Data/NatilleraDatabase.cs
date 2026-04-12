@@ -479,6 +479,11 @@ namespace Natillera.Data
         => _database.Table<Loan>()
                 .OrderByDescending(x => x.StartDate)
                 .ToListAsync();
+        public Task<List<Loan>> GetAllLoansByParticipantAsync(int participantId)
+       => _database.Table<Loan>()
+                .Where(x => x.PersonId == participantId)
+               .OrderByDescending(x => x.StartDate)
+               .ToListAsync();
 
         public Task<List<Loan>> GetLoansByDateRange(DateTime from, DateTime to)
         => _database.Table<Loan>()

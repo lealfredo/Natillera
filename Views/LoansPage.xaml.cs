@@ -13,12 +13,16 @@ public partial class LoansPage : ContentPage
 		BindingContext = vm;
 	}
 
-    protected override void OnAppearing()
+    protected async override void OnAppearing()
     {
         base.OnAppearing();
 
         if (BindingContext is LoansViewModel vm)
+        { 
             vm.HasLoaded = false;
+            await vm.Init();
+            vm.LoadCommand.Execute(null);
+        }
     }
 
     private void CollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -27,7 +31,6 @@ public partial class LoansPage : ContentPage
         {
             var vm = BindingContext as LoansViewModel;
             vm.SelectedParticipant = selected;
-            //vm.LoadCommand.Execute(null);
         }
     }
 }

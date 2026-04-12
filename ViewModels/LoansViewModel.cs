@@ -1,4 +1,5 @@
-﻿using Natillera.Data;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Natillera.Data;
 using Natillera.Entities;
 using Natillera.Models;
 using Natillera.Views;
@@ -78,6 +79,116 @@ namespace Natillera.ViewModels
             }
         }
 
+        private decimal _totalLoaned;
+        public decimal TotalLoaned
+        {
+            get => _totalLoaned;
+            set
+            {
+                _totalLoaned = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal _totalNatilleraLoaned;
+        public decimal TotalNatilleraLoaned
+        {
+            get => _totalNatilleraLoaned;
+            set
+            {
+                _totalNatilleraLoaned = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal _totalNatilleraPaid;
+        public decimal TotalNatilleraPaid
+        {
+            get => _totalNatilleraPaid;
+            set
+            {
+                _totalNatilleraPaid = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal _totalNatilleraBalance;
+        public decimal TotalNatilleraBalance
+        {
+            get => _totalNatilleraBalance;
+            set
+            {
+                _totalNatilleraBalance = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal _totalPersonalLoaned;
+        public decimal TotalPersonalLoaned
+        {
+            get => _totalPersonalLoaned;
+            set
+            {
+                _totalPersonalLoaned = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal _totalPersonalPaid;
+        public decimal TotalPersonalPaid
+        {
+            get => _totalPersonalPaid;
+            set
+            {
+                _totalPersonalPaid = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal _totalPersonalBalance;
+        public decimal TotalPersonalBalance
+        {
+            get => _totalPersonalBalance;
+            set
+            {
+                _totalPersonalBalance = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal _totalPaid;
+        public decimal TotalPaid
+        {
+            get => _totalPaid;
+            set
+            {
+                _totalPaid = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal _totalBalance;
+        public decimal TotalBalance
+        {
+            get => _totalBalance;
+            set
+            {
+                _totalBalance = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _totalLoans;
+        public string TotalLoans
+        {
+            get => _totalLoans;
+            set
+            {
+                _totalLoans = value;
+                OnPropertyChanged();
+            }
+        }
+
         private string _amount;
         public string Amount
         {
@@ -99,6 +210,14 @@ namespace Natillera.ViewModels
                 OnPropertyChanged();
             }
         }
+
+
+        [ObservableProperty]
+        private int _totalLoansCount;
+        [ObservableProperty]
+        private int _totalPersonalLoansCount;
+        [ObservableProperty]
+        private int _totalNatilleraLoansCount;
 
         private ObservableCollection<Participant> _filteredParticipants;
         public ObservableCollection<Participant> FilteredParticipants
@@ -245,6 +364,11 @@ namespace Natillera.ViewModels
             await Shell.Current.Navigation.PushModalAsync(page);
         }
 
+        public async Task Init()
+        {
+            await LoadParticipants();
+        }
+
         private async Task Load()
         {
             try
@@ -252,35 +376,49 @@ namespace Natillera.ViewModels
                 IsLoading = true;
 
                 Loans.Clear();
-                Participants.Clear();
                 _allLoans.Clear();
 
-                var participants = await _database.GetParticipantsAsync();
-                foreach (var p in participants)
-                    Participants.Add(p);
+                if (SelectedParticipant == null)
+                {
+                    HasLoaded = false;
+                    return;
+                }
 
-                //var loans = await _database.GetAllLoansAsync();
-                var loans = await _database.GetLoansByDateRange(FromDate, ToDate);
+                var participantsDict = Participants.ToDictionary(x => x.Id, x => x.Name);
+
+                var loans = await _database.GetAllLoansByParticipantAsync(SelectedParticipant.Id);
+
+                TotalLoansCount = loans.Count;
+                TotalNatilleraLoansCount = loans.Count(x => !x.IsPersonal);
+                TotalPersonalLoansCount = loans.Count(x => x.IsPersonal);
+
+                decimal totalLoaned = 0;
+                decimal totalPaidSum = 0;
+                decimal totalBalanceSum = 0;
+
+                decimal totalNatilleraLoaned = 0;
+                decimal totalNatilleraPaidSum = 0;
+                decimal totalNatilleraBalanceSum = 0;
+
+                decimal totalPersonalLoaned = 0;
+                decimal totalPersonalPaidSum = 0;
+                decimal totalPersonalBalanceSum = 0;
 
                 foreach (var loan in loans)
                 {
                     var payments = await _database.GetPaymentsAsync(loan.Id);
 
-                    // Interés mensual (%)
                     var monthlyInterest = loan.PrincipalAmount * (loan.InterestRate / 100);
 
-                    // Meses transcurridos
                     var months =
-                                (DateTime.Now.Year - loan.StartDate.Year) * 12 +
-                                (DateTime.Now.Month - loan.StartDate.Month);
+                        (DateTime.Now.Year - loan.StartDate.Year) * 12 +
+                        (DateTime.Now.Month - loan.StartDate.Month);
 
                     if (months < 1)
                         months = 1;
 
-                    // Interés total generado
                     var totalInterestGenerated = monthlyInterest * months;
 
-                    // Interés pagado
                     var interestPaid = payments
                         .Where(x => x.IsInterest)
                         .Sum(x => x.Amount);
@@ -288,7 +426,6 @@ namespace Natillera.ViewModels
                     var pendingInterest = totalInterestGenerated - interestPaid;
                     if (pendingInterest < 0) pendingInterest = 0;
 
-                    // Capital pagado
                     var principalPaid = payments
                         .Where(x => !x.IsInterest)
                         .Sum(x => x.Amount);
@@ -298,9 +435,31 @@ namespace Natillera.ViewModels
 
                     var totalPaid = interestPaid + principalPaid;
                     var totalBalance = pendingInterest + pendingPrincipal;
+
+                    participantsDict.TryGetValue((int)loan.PersonId, out var participantName);
+
                     string name = loan.IsPersonal
-                            ? $"👤 {Participants.FirstOrDefault(x => x.Id == loan.PersonId)?.Name ?? loan.BorrowerName}"
-                            : Participants.FirstOrDefault(x => x.Id == loan.PersonId)?.Name ?? loan.BorrowerName;
+                        ? $"👤 {participantName ?? loan.BorrowerName}"
+                        : participantName ?? loan.BorrowerName;
+
+                    // 🔥 GLOBAL
+                    totalLoaned += loan.PrincipalAmount;
+                    totalPaidSum += totalPaid;
+                    totalBalanceSum += totalBalance;
+
+                    // 🔥 SEPARACIÓN
+                    if (loan.IsPersonal)
+                    {
+                        totalPersonalLoaned += loan.PrincipalAmount;
+                        totalPersonalPaidSum += totalPaid;
+                        totalPersonalBalanceSum += totalBalance;
+                    }
+                    else
+                    {
+                        totalNatilleraLoaned += loan.PrincipalAmount;
+                        totalNatilleraPaidSum += totalPaid;
+                        totalNatilleraBalanceSum += totalBalance;
+                    }
 
                     _allLoans.Add(new LoanItem
                     {
@@ -328,12 +487,28 @@ namespace Natillera.ViewModels
                     });
                 }
 
+                // TOTALES GENERALES
+                TotalLoaned = totalLoaned;
+                TotalPaid = totalPaidSum;
+                TotalBalance = totalBalanceSum;
+
+                // TOTALES NATILLERA
+                TotalNatilleraLoaned = totalNatilleraLoaned;
+                TotalNatilleraPaid = totalNatilleraPaidSum;
+                TotalNatilleraBalance = totalNatilleraBalanceSum;
+
+                // TOTALES PERSONALES
+                TotalPersonalLoaned = totalPersonalLoaned;
+                TotalPersonalPaid = totalPersonalPaidSum;
+                TotalPersonalBalance = totalPersonalBalanceSum;
+
                 HasLoaded = true;
+
                 ApplyFilter();
             }
             finally
             {
-                IsLoading = false; // TERMINA loader
+                IsLoading = false;
             }
         }
 

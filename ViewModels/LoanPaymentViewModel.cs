@@ -45,7 +45,7 @@ namespace Natillera.ViewModels
         {
             LoanId = loanId;
 
-            var loan = (await _database.GetLoansAsync()).First(x => x.Id == loanId);
+            var loan = (await _database.GetAllLoansAsync()).First(x => x.Id == loanId);
             var payments = await _database.GetPaymentsAsync(loanId);
             IsPersonalLoan = loan.IsPersonal;
 
@@ -91,7 +91,7 @@ namespace Natillera.ViewModels
 
         private async Task Confirm()
         {
-            var loan = (await _database.GetLoansAsync())
+            var loan = (await _database.GetAllLoansAsync())
                 .First(x => x.Id == LoanId);
 
             var payments = await _database.GetPaymentsAsync(LoanId);
