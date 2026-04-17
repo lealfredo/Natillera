@@ -516,12 +516,12 @@ namespace Natillera.ViewModels
                         ? $"👤 {participantName ?? loan.BorrowerName}"
                         : participantName ?? loan.BorrowerName;
 
-                    // 🔥 GLOBAL
+                    // GLOBAL
                     totalLoaned += loan.PrincipalAmount;
                     totalPaidSum += totalPaid;
                     totalBalanceSum += totalBalance;
 
-                    // 🔥 SEPARACIÓN
+                    // SEPARACIÓN
                     if (loan.IsPersonal)
                     {
                         totalPersonalLoaned += loan.PrincipalAmount;
@@ -663,7 +663,7 @@ namespace Natillera.ViewModels
             var loan = new Loan
             {
                 PersonId = SelectedFilter?.Id,
-                BorrowerName = SelectedFilter?.Name ?? BorrowerName,
+                BorrowerName = SelectedFilter?.Id != null ? SelectedFilter?.Name : BorrowerName,
                 PrincipalAmount = amount,
                 PrincipalFromInterest = fromInterest,
                 PrincipalFromContributions = fromContributions,
