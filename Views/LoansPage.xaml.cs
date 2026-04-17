@@ -1,4 +1,5 @@
 using Natillera.Entities;
+using Natillera.Models;
 using Natillera.ViewModels;
 using Rifa.ViewModels;
 
@@ -27,10 +28,20 @@ public partial class LoansPage : ContentPage
 
     private void CollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (e.CurrentSelection.FirstOrDefault() is Participant selected)
+        if (e.CurrentSelection.FirstOrDefault() is ParticipantFilter selected)
         {
             var vm = BindingContext as LoansViewModel;
-            vm.SelectedParticipant = selected;
+
+            vm.SelectedFilter = selected;
+
+            // SOLO si es participante real
+            if (selected.Participant != null)
+                vm.SelectedParticipant = selected.Participant;
+            else
+                vm.SelectedParticipant = null;
+
+            // 🔥 cerrar dropdown
+            vm.FilteredParticipants.Clear();
         }
     }
 }

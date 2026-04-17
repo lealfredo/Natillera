@@ -83,6 +83,7 @@ namespace Natillera.Data
         Task<List<Loan>> GetLoansByDateRange(DateTime from, DateTime to);
         Task<List<Loan>> GetAllLoansAsync();
         Task<List<Loan>> GetAllLoansByParticipantAsync(int participantId);
+        Task<List<Loan>> GetAllLoansByNOParticipantAsync();
         Task<List<LoanPayment>> GetPaymentsAsync(int loanId);
         Task<List<LoanPayment>> GetAllPaymentsAsync();
         Task<int> AddLoanAsync(Loan loan);

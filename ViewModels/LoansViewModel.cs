@@ -16,7 +16,7 @@ namespace Natillera.ViewModels
     {
         private readonly INatilleraDatabase _database;
         public ObservableCollection<LoanItem> Loans { get; set; } = new();
-        public ObservableCollection<Participant> Participants { get; set; } = new();
+        public ObservableCollection<ParticipantFilter> Participants { get; set; } = new();
 
         private bool _hasLoaded;
         public bool HasLoaded
@@ -219,11 +219,25 @@ namespace Natillera.ViewModels
         [ObservableProperty]
         private int _totalNatilleraLoansCount;
 
-        private ObservableCollection<Participant> _filteredParticipants;
-        public ObservableCollection<Participant> FilteredParticipants
+        private ObservableCollection<ParticipantFilter> _filteredParticipants;
+        public ObservableCollection<ParticipantFilter> FilteredParticipants
         {
             get => _filteredParticipants;
             set => SetProperty(ref _filteredParticipants, value);
+        }
+
+        private ParticipantFilter _selectedFilter;
+        public ParticipantFilter SelectedFilter
+        {
+            get => _selectedFilter;
+            set
+            {
+                if (SetProperty(ref _selectedFilter, value))
+                {
+                    // importante para UI
+                    SearchText = value?.Name;
+                }
+            }
         }
 
         private string _searchText;
@@ -240,17 +254,52 @@ namespace Natillera.ViewModels
         public void FilterParticipants()
         {
             if (string.IsNullOrWhiteSpace(SearchText))
-                FilteredParticipants = new ObservableCollection<Participant>(Participants);
+            {
+                FilteredParticipants = new ObservableCollection<ParticipantFilter>(Participants);
+            }
             else
-                FilteredParticipants = new ObservableCollection<Participant>(
-                    Participants.Where(p => p.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase)));
+            {
+                var filtered = Participants
+                    .Where(p => !string.IsNullOrWhiteSpace(p.Name) &&
+                                p.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                FilteredParticipants = new ObservableCollection<ParticipantFilter>(filtered);
+            }
         }
 
         public async Task LoadParticipants()
         {
             var list = await _database.GetParticipantsAsync();
-            Participants = new ObservableCollection<Participant>(list);
-            FilteredParticipants = new ObservableCollection<Participant>(list);
+
+            Participants.Clear();
+
+            // OPCIÓN: TODOS
+            Participants.Add(new ParticipantFilter
+            {
+                Name = "Todos",
+                IsAll = true
+            });
+
+            // OPCIÓN: EXTERNOS
+            Participants.Add(new ParticipantFilter
+            {
+                Name = "Externos",
+                Id = null
+            });
+
+            // PARTICIPANTES REALES
+            foreach (var p in list)
+            {
+                Participants.Add(new ParticipantFilter
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Participant = p
+                });
+            }
+
+            FilterParticipants(); // CLAVE
         }
 
         private List<LoanItem> _allLoans = new();
@@ -378,15 +427,40 @@ namespace Natillera.ViewModels
                 Loans.Clear();
                 _allLoans.Clear();
 
-                if (SelectedParticipant == null)
+                if (SelectedFilter == null)
                 {
                     HasLoaded = false;
                     return;
                 }
 
-                var participantsDict = Participants.ToDictionary(x => x.Id, x => x.Name);
+                var participantId = GetParticipantId();
+                var isExternal = SelectedFilter?.Id == null && !SelectedFilter.IsAll;
 
-                var loans = await _database.GetAllLoansByParticipantAsync(SelectedParticipant.Id);
+                if (Participants == null || Participants.Count == 0)
+                    return;
+
+                var safeParticipants = Participants
+                        .Where(x => x != null && x.Id > 0)
+                        .ToList();
+
+                var participantsDict = safeParticipants
+                    .GroupBy(x => x.Id)
+                    .ToDictionary(g => g.Key, g => g.First().Name);
+
+                List<Loan> loans = new List<Loan>();
+
+                if (SelectedFilter.IsAll)
+                {
+                    loans = await _database.GetAllLoansAsync();
+                }
+                else if (isExternal)
+                {
+                    loans = await _database.GetAllLoansByNOParticipantAsync();
+                }
+                else
+                {
+                    loans = await _database.GetAllLoansByParticipantAsync(SelectedParticipant.Id);
+                }
 
                 TotalLoansCount = loans.Count;
                 TotalNatilleraLoansCount = loans.Count(x => !x.IsPersonal);
@@ -436,7 +510,7 @@ namespace Natillera.ViewModels
                     var totalPaid = interestPaid + principalPaid;
                     var totalBalance = pendingInterest + pendingPrincipal;
 
-                    participantsDict.TryGetValue((int)loan.PersonId, out var participantName);
+                    participantsDict.TryGetValue((int?)loan?.PersonId ?? 0, out var participantName);
 
                     string name = loan.IsPersonal
                         ? $"👤 {participantName ?? loan.BorrowerName}"
@@ -512,9 +586,16 @@ namespace Natillera.ViewModels
             }
         }
 
+        private int? GetParticipantId()
+        {
+            if (SelectedFilter == null) return null;
+            if (SelectedFilter.IsAll) return null;
+            return SelectedFilter.Id;
+        }
+
         private async Task AddLoan()
         {
-            if (SelectedParticipant == null && string.IsNullOrWhiteSpace(BorrowerName))
+            if (SelectedFilter == null && string.IsNullOrWhiteSpace(BorrowerName))
             {
                 await Shell.Current.DisplayAlert("Error", "Seleccione participante o ingrese nombre", "OK");
                 return;
@@ -581,8 +662,8 @@ namespace Natillera.ViewModels
 
             var loan = new Loan
             {
-                PersonId = SelectedParticipant?.Id,
-                BorrowerName = SelectedParticipant?.Name ?? BorrowerName,
+                PersonId = SelectedFilter?.Id,
+                BorrowerName = SelectedFilter?.Name ?? BorrowerName,
                 PrincipalAmount = amount,
                 PrincipalFromInterest = fromInterest,
                 PrincipalFromContributions = fromContributions,

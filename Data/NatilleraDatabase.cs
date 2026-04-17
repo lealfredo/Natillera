@@ -485,6 +485,12 @@ namespace Natillera.Data
                .OrderByDescending(x => x.StartDate)
                .ToListAsync();
 
+        public Task<List<Loan>> GetAllLoansByNOParticipantAsync()
+       => _database.Table<Loan>()
+                .Where(x => x.PersonId == null)
+               .OrderByDescending(x => x.StartDate)
+               .ToListAsync();
+
         public Task<List<Loan>> GetLoansByDateRange(DateTime from, DateTime to)
         => _database.Table<Loan>()
                 .Where(x => x.StartDate >= from && x.StartDate <= to)
