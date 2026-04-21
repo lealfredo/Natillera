@@ -679,7 +679,6 @@ namespace Natillera.ViewModels
             Amount = string.Empty;
             InterestRate = string.Empty;
             BorrowerName = string.Empty;
-            SelectedParticipant = null;
             StartDate = DateTime.Now;
 
             await Load();
