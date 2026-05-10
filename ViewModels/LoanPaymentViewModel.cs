@@ -53,12 +53,23 @@ namespace Natillera.ViewModels
 
             Months.Clear();
 
-            // calcular meses transcurridos
-            var start = new DateTime(loan.StartDate.Year, loan.StartDate.Month, 1);
-            var end = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            // FECHA INICIO REAL DEL PRÉSTAMO
+            var start = loan.StartDate.Date;
+            var now = DateTime.Now.Date;
 
-            int totalMonths = ((end.Year - start.Year) * 12) + end.Month - start.Month;
+            // DIFERENCIA BASE DE MESES
+            int totalMonths =
+                ((now.Year - start.Year) * 12) +
+                (now.Month - start.Month);
 
+            // SI YA PASÓ EL DÍA DE CORTE
+            // se habilita el siguiente mes
+            if (now.Day >= start.Day)
+            {
+                totalMonths++;
+            }
+
+            // MÍNIMO 1 MES
             if (totalMonths < 1)
                 totalMonths = 1;
 

@@ -59,6 +59,40 @@
                 </VerticalStackLayout>
             </Frame>
 
+
+            <!-- INTERESES PERSONALES-->
+            <Frame CornerRadius="12" Padding="15" BackgroundColor="#F3E5F5">
+                <VerticalStackLayout>
+                    <Label Text="Intereses ganados" FontAttributes="Bold"/>
+                    <Label Text="{Binding TotalInterestPersonal, StringFormat='$ {0:N0}'}"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       TextColor="#7B1FA2"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- PRÉSTAMOS PERSONALES-->
+            <Frame CornerRadius="12" Padding="15" BackgroundColor="#FFF3E0">
+                <VerticalStackLayout Spacing="4">
+
+                    <Label Text="Préstamos personales" FontAttributes="Bold"/>
+
+                    <Label Text="{Binding TotalLoanedPersonal, StringFormat='Prestado: $ {0:N0}'}"/>
+
+                    <Label Text="{Binding LoanFromInterestPersonal, StringFormat='De intereses: $ {0:N0}'}"
+                           FontSize="12"
+                           TextColor="#8E24AA"/>
+
+                    <Label Text="{Binding TotalRecoveredPersonal, StringFormat='Recuperado: $ {0:N0}'}"
+                            TextColor="Green"/>
+
+                    <Label Text="{Binding TotalOutstandingLoansPersonal, StringFormat='Pendiente: $ {0:N0}'}"
+                           TextColor="Red"
+                           FontAttributes="Bold"/>
+
+                </VerticalStackLayout>
+            </Frame>
+
             <!-- RIFAS -->
             <Frame CornerRadius="12" Padding="15" BackgroundColor="#FFFDE7">
                 <VerticalStackLayout Spacing="4">

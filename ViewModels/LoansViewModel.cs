@@ -484,14 +484,27 @@ namespace Natillera.ViewModels
 
                     var monthlyInterest = loan.PrincipalAmount * (loan.InterestRate / 100);
 
-                    var months =
-                        (DateTime.Now.Year - loan.StartDate.Year) * 12 +
-                        (DateTime.Now.Month - loan.StartDate.Month);
+                    // FECHA INICIO REAL DEL PRÉSTAMO
+                    var start = loan.StartDate.Date;
+                    var now = DateTime.Now.Date;
 
-                    if (months < 1)
-                        months = 1;
+                    // DIFERENCIA BASE DE MESES
+                    int totalMonths =
+                        ((now.Year - start.Year) * 12) +
+                        (now.Month - start.Month);
 
-                    var totalInterestGenerated = monthlyInterest * months;
+                    // SI YA PASÓ EL DÍA DE CORTE
+                    // se habilita el siguiente mes
+                    if (now.Day >= start.Day)
+                    {
+                        totalMonths++;
+                    }
+
+                    // MÍNIMO 1 MES
+                    if (totalMonths < 1)
+                        totalMonths = 1;
+
+                    var totalInterestGenerated = monthlyInterest * totalMonths;
 
                     var interestPaid = payments
                         .Where(x => x.IsInterest)
@@ -644,6 +657,24 @@ namespace Natillera.ViewModels
                 remaining -= fromContributions;
 
                 fromRaffles = remaining; // lo que quede sale de rifas
+            }
+            else
+            {
+                // INTERESES PERSONALES DISPONIBLES
+                var availablePersonalInterest =
+                    await _database.GetAvailablePersonalInterest();
+
+                // EL RESTO LO PONE LA PERSONA
+                fromInterest = Math.Min(amount, availablePersonalInterest);
+
+                // LO QUE FALTA LO PONE EL DUEÑO
+                fromContributions = amount - fromInterest;
+
+                // PERSONALES NO USAN RIFAS
+                fromRaffles = 0;
+
+                totalAvailable =
+                    availablePersonalInterest + fromContributions;
             }
 
             //var (availableInterest, availableContributions) =

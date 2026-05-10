@@ -32,7 +32,7 @@ namespace Natillera.ViewModels
 
             var participants = await _database.GetParticipantsAsync();
 
-            var db = _database.GetConnection(); // 👈 agrega esto en el repo
+            var db = _database.GetConnection(); // agrega esto en el repo
             var settlement = await db.Table<Settlement>()
                                      .OrderByDescending(x => x.Id)
                                      .FirstOrDefaultAsync();

@@ -48,8 +48,7 @@ namespace Natillera.ViewModels
 
         public async Task Load()
         {
-            var participant = (await _database.GetParticipantsAsync())
-                .First(x => x.Id == ParticipantId);
+            var participant = await _database.GetParticipantByIdAsync(ParticipantId);
 
             Name = participant.Name;
 
@@ -69,9 +68,7 @@ namespace Natillera.ViewModels
                 });
             }
 
-            var loans = (await _database.GetLoansAsync())
-                            .Where(x => x.PersonId == ParticipantId)
-                            .ToList();
+            var loans = await _database.GetAllLoansByParticipantAsync(ParticipantId);
 
             var natilleraLoans = loans.Where(x => !x.IsPersonal);
             var personalLoans = loans.Where(x => x.IsPersonal);

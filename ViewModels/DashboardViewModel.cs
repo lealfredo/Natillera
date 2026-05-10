@@ -40,6 +40,13 @@ namespace Natillera.ViewModels
             set { _loanFromInterest = value; OnPropertyChanged(); }
         }
 
+        private decimal _loanFromInterestPersonal;
+        public decimal LoanFromInterestPersonal
+        {
+            get => _loanFromInterestPersonal;
+            set { _loanFromInterestPersonal = value; OnPropertyChanged(); }
+        }
+
         public DashboardViewModel(INatilleraDatabase database)
         {
             _database = database;
@@ -79,6 +86,13 @@ namespace Natillera.ViewModels
             set { _totalLoaned = value; OnPropertyChanged(); }
         }
 
+        private decimal _totalLoanedPersonal;
+        public decimal TotalLoanedPersonal
+        {
+            get => _totalLoanedPersonal;
+            set { _totalLoanedPersonal = value; OnPropertyChanged(); }
+        }
+
         private decimal _totalRecovered;
         public decimal TotalRecovered
         {
@@ -86,11 +100,25 @@ namespace Natillera.ViewModels
             set { _totalRecovered = value; OnPropertyChanged(); }
         }
 
+        private decimal _totalRecoveredPersonal;
+        public decimal TotalRecoveredPersonal
+        {
+            get => _totalRecoveredPersonal;
+            set { _totalRecoveredPersonal = value; OnPropertyChanged(); }
+        }
+
         private decimal _totalInterest;
         public decimal TotalInterest
         {
             get => _totalInterest;
             set { _totalInterest = value; OnPropertyChanged(); }
+        }
+
+        private decimal _totalInterestPersonal;
+        public decimal TotalInterestPersonal
+        {
+            get => _totalInterestPersonal;
+            set { _totalInterestPersonal = value; OnPropertyChanged(); }
         }
 
         private decimal _availableMoney;
@@ -135,39 +163,58 @@ namespace Natillera.ViewModels
             set { _totalOutstandingLoans = value; OnPropertyChanged(); }
         }
 
+        public decimal _totalOutstandingLoansPersonal;
+        public decimal TotalOutstandingLoansPersonal
+        {
+            get => _totalOutstandingLoansPersonal;
+            set { _totalOutstandingLoansPersonal = value; OnPropertyChanged(); }
+        }
+
         // LOAD
 
         private async Task Load()
         {
-            // 🔥 DATA BASE
+            // DATA BASE
             var contributions = await _database.GetAllContributionsAsync();
-            var loans = await _database.GetLoansAsync();
-            var allPayments = await _database.GetAllPaymentsAsync(); // 🔥 optimizado
+            var loans = await _database.GetAllLoansAsync();
+            var allPayments = await _database.GetAllPaymentsAsync(); // optimizado
 
             var natilleraLoans = loans.Where(x => !x.IsPersonal).ToList();
+            var personalLoans = loans.Where(x => x.IsPersonal).ToList();
 
             // =========================
-            // 🔹 APORTES
+            // APORTES
             // =========================
             TotalContributions = contributions.Sum(x => x.Amount);
 
             // =========================
-            // 🔹 PRÉSTAMOS
+            // PRÉSTAMOS
             // =========================
             TotalLoaned = natilleraLoans.Sum(x => x.PrincipalAmount);
+            TotalLoanedPersonal = personalLoans.Sum(x => x.PrincipalAmount);
 
             TotalRecovered = allPayments
                 .Where(x => !x.IsInterest && natilleraLoans.Any(l => l.Id == x.LoanId))
+                .Sum(x => x.Amount);
+
+            TotalRecoveredPersonal = allPayments
+                .Where(x => !x.IsInterest && personalLoans.Any(l => l.Id == x.LoanId))
                 .Sum(x => x.Amount);
 
             TotalInterest = allPayments
                 .Where(x => x.IsInterest && natilleraLoans.Any(l => l.Id == x.LoanId) && !x.IsFromPersonalLoan)
                 .Sum(x => x.Amount);
 
+            TotalInterestPersonal = allPayments
+                .Where(x => x.IsInterest && personalLoans.Any(l => l.Id == x.LoanId) && x.IsFromPersonalLoan)
+                .Sum(x => x.Amount);
+
             TotalOutstandingLoans = TotalLoaned - TotalRecovered;
 
+            TotalOutstandingLoansPersonal = TotalLoanedPersonal - TotalRecoveredPersonal;
+
             // =========================
-            // 🔹 RIFAS
+            // RIFAS
             // =========================
             var raffles = await _database.GetAllRafflesNatilleraAsync();
             var bets = await _database.GetAllBet();
@@ -182,14 +229,14 @@ namespace Natillera.ViewModels
                 .GroupBy(x => x.RaffleWeekId)
                 .ToDictionary(g => g.Key, g => g.Count());
 
-            // 🔥 RECAUDADO
+            // RECAUDADO
             TotalRaffleCollected = raffles.Sum(r =>
             {
                 takenNumbersByRaffle.TryGetValue(r.Id, out var count);
                 return r.BetPrize * count;
             });
 
-            // 🔥 PREMIOS
+            // PREMIOS
             TotalRafflePrizes = 0;
 
             foreach (var raffle in raffles)
@@ -208,12 +255,12 @@ namespace Natillera.ViewModels
                 }
             }
 
-            // 🔥 BALANCE REAL RIFAS
+            // BALANCE REAL RIFAS
             RaffleProfit = TotalRaffleCollected - TotalRafflePrizes;
             if (RaffleProfit < 0) RaffleProfit = 0;
 
             // =========================
-            // 🔹 RECUPERACIÓN POR FUENTE
+            // RECUPERACIÓN POR FUENTE
             // =========================
             decimal recoveredFromInterest = 0;
             decimal recoveredFromContributions = 0;
@@ -238,14 +285,15 @@ namespace Natillera.ViewModels
             }
 
             // =========================
-            // 🔹 PRESTADO POR FUENTE
+            // PRESTADO POR FUENTE
             // =========================
             LoanFromContributions = natilleraLoans.Sum(x => x.PrincipalFromContributions);
             LoanFromInterest = natilleraLoans.Sum(x => x.PrincipalFromInterest);
+            LoanFromInterestPersonal = personalLoans.Sum(x => x.PrincipalFromInterest);
             LoanFromRaffles = natilleraLoans.Sum(x => x.PrincipalFromRaffles);
 
             // =========================
-            // 🔹 DISPONIBLE REAL
+            // DISPONIBLE REAL
             // =========================
             AvailableFromContributions =
                 TotalContributions
@@ -262,13 +310,13 @@ namespace Natillera.ViewModels
                 - LoanFromRaffles
                 + recoveredFromRaffles;
 
-            // 🔥 SEGURIDAD
+            // SEGURIDAD
             if (AvailableFromContributions < 0) AvailableFromContributions = 0;
             if (AvailableFromInterest < 0) AvailableFromInterest = 0;
             if (AvailableFromRaffles < 0) AvailableFromRaffles = 0;
 
             // =========================
-            // 🔹 TOTAL FINAL
+            // TOTAL FINAL
             // =========================
             AvailableMoney =
                 AvailableFromContributions +

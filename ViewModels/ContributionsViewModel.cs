@@ -3,6 +3,7 @@ using Natillera.Data;
 using Natillera.Entities;
 using Natillera.Models;
 using Natillera.ViewModels;
+using Natillera.Views;
 using Rifa.Entities;
 using System;
 using System.Collections.Generic;
@@ -125,7 +126,7 @@ namespace Rifa.ViewModels
                 new () { MonthNumber = 9, Name = "Septiembre", IsSelected = false, IsEnabled = true },
                 new () { MonthNumber = 10, Name = "Octubre", IsSelected = false, IsEnabled = true },
                 new () { MonthNumber = 11, Name = "Noviembre", IsSelected = false, IsEnabled = true },
-                new () { MonthNumber = 12, Name = "Diciembre", IsSelected = false, IsEnabled = true },
+                //new () { MonthNumber = 12, Name = "Diciembre", IsSelected = false, IsEnabled = false },
             };
         }
 
@@ -225,100 +226,138 @@ namespace Rifa.ViewModels
 
         private async Task Add()
         {
-            var selectedMonths = Months
-                .Where(x => x.IsSelected && x.IsEnabled)
-                .ToList();
-
-            if (!selectedMonths.Any())
+            try
             {
-                await Shell.Current.DisplayAlert("Error", "Seleccione al menos un mes", "OK");
-                return;
-            }
+                var selectedMonths = Months
+                    .Where(x => x.IsSelected && x.IsEnabled)
+                    .ToList();
 
-            if (SelectedParticipant == null)
-            {
-                await Shell.Current.DisplayAlert("Error", "Seleccione participante", "OK");
-                return;
-            }
-
-            decimal cuota = SelectedParticipant?.MonthlyContribution ?? 0;
-
-            if (cuota <= 0)
-            {
-                await Shell.Current.DisplayAlert("Error", "El participante no tiene cuota definida", "OK");
-                return;
-            }
-
-            // Intentar leer monto
-            decimal montoIngresado = 0;
-            decimal.TryParse(Amount, out montoIngresado);
-
-            var year = DateTime.Now.Year;
-
-            // CASO 1: SIN MONTO → pagar completo cada mes
-            if (montoIngresado == 0)
-            {
-                foreach (var m in selectedMonths)
+                if (!selectedMonths.Any())
                 {
-                    var restante = cuota - m.PaidAmount;
-
-                    if (restante <= 0)
-                        continue;
-
-                    await _database.AddContributionAsync(new Contribution
-                    {
-                        PersonId = SelectedParticipant.Id,
-                        Month = m.MonthNumber,
-                        Year = year,
-                        Amount = restante,
-                        Date = DateTime.Now
-                    });
+                    await Shell.Current.DisplayAlert("Error", "Seleccione al menos un mes", "OK");
+                    return;
                 }
-            }
-            else
-            {
-                // CASO 2: CON MONTO → distribuir
-                decimal montoRestante = montoIngresado;
 
-                foreach (var m in selectedMonths)
+                if (SelectedParticipant == null)
                 {
-                    if (montoRestante <= 0)
-                        break;
+                    await Shell.Current.DisplayAlert("Error", "Seleccione participante", "OK");
+                    return;
+                }
 
-                    var restanteMes = cuota - m.PaidAmount;
+                decimal cuota = SelectedParticipant?.MonthlyContribution ?? 0;
 
-                    if (restanteMes <= 0)
-                        continue;
+                if (cuota <= 0)
+                {
+                    await Shell.Current.DisplayAlert("Error", "El participante no tiene cuota definida", "OK");
+                    return;
+                }
 
-                    if(restanteMes < montoRestante)
+                // Intentar leer monto
+                decimal montoIngresado = 0;
+                decimal.TryParse(Amount, out montoIngresado);
+
+                var year = DateTime.Now.Year;
+
+                var receipt = new ContributionReceipt
+                {
+                    ParticipantName = SelectedParticipant.Name,
+                    Date = DateTime.Now
+                };
+
+                // CASO 1: SIN MONTO → pagar completo cada mes
+                if (montoIngresado == 0)
+                {
+                    foreach (var m in selectedMonths)
                     {
-                        await Shell.Current.DisplayAlert("Error", $"Esta pagando mas de lo que debe para el mes {m.Name}", "OK");
-                        return;
+                        var restante = cuota - m.PaidAmount;
+
+                        if (restante <= 0)
+                            continue;
+
+                        await _database.AddContributionAsync(new Contribution
+                        {
+                            PersonId = SelectedParticipant.Id,
+                            Month = m.MonthNumber,
+                            Year = year,
+                            Amount = restante,
+                            Date = DateTime.Now
+                        });
+
+                        // AGREGAR AL RECIBO
+                        receipt.Details.Add(new ContributionDetail
+                        {
+                            MonthName = m.Name,
+                            Year = year,
+                            Amount = restante
+                        });
                     }
+                }
+                else
+                {
+                    // CASO 2: CON MONTO → distribuir
+                    decimal montoRestante = montoIngresado;
 
-                    var pago = Math.Min(montoRestante, restanteMes);
-
-                    await _database.AddContributionAsync(new Contribution
+                    foreach (var m in selectedMonths)
                     {
-                        PersonId = SelectedParticipant.Id,
-                        Month = m.MonthNumber,
-                        Year = year,
-                        Amount = pago,
-                        Date = DateTime.Now
-                    });
+                        if (montoRestante <= 0)
+                            break;
 
-                    montoRestante -= pago;
+                        var restanteMes = cuota - m.PaidAmount;
+
+                        if (restanteMes <= 0)
+                            continue;
+
+                        if (restanteMes < montoRestante)
+                        {
+                            await Shell.Current.DisplayAlert("Error", $"Esta pagando mas de lo que debe para el mes {m.Name}", "OK");
+                            return;
+                        }
+
+                        var pago = Math.Min(montoRestante, restanteMes);
+
+                        await _database.AddContributionAsync(new Contribution
+                        {
+                            PersonId = SelectedParticipant.Id,
+                            Month = m.MonthNumber,
+                            Year = year,
+                            Amount = pago,
+                            Date = DateTime.Now
+                        });
+
+                        // AGREGAR AL RECIBO
+                        receipt.Details.Add(new ContributionDetail
+                        {
+                            MonthName = m.Name,
+                            Year = year,
+                            Amount = pago
+                        });
+
+                        montoRestante -= pago;
+                    }
+                }
+
+                // refrescar antes de limpiar
+                await LoadPaidMonths(SelectedParticipant.Id);
+
+                // limpiar UI
+                Amount = null;
+
+                foreach (var item in Months)
+                    item.IsSelected = false;
+
+                if (receipt.Details.Any())
+                {
+                    await Shell.Current.GoToAsync(nameof(ContributionReceiptPage), new Dictionary<string, object>
+                    {
+                        { "Receipt", receipt }
+                    });
                 }
             }
-
-            // refrescar antes de limpiar
-            await LoadPaidMonths(SelectedParticipant.Id);
-
-            // limpiar UI
-            Amount = null;
-
-            foreach (var item in Months)
-                item.IsSelected = false;
+            catch (Exception ex)
+            {
+                await Shell.Current.DisplayAlert("Error", $"{ex.Message}", "OK");
+                return;
+            }
         }
 
         private async Task Delete(ContributionItem item)

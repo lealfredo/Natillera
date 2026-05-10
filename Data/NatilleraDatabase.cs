@@ -475,6 +475,12 @@ namespace Natillera.Data
                 .OrderByDescending(x => x.StartDate)
                 .ToListAsync();
 
+        public Task<List<Loan>> GetPersonalLoansAsync()
+        => _database.Table<Loan>()
+            .Where(l => l.IsPersonal)
+                .OrderByDescending(x => x.StartDate)
+                .ToListAsync();
+
         public Task<List<Loan>> GetAllLoansAsync()
         => _database.Table<Loan>()
                 .OrderByDescending(x => x.StartDate)
@@ -498,7 +504,7 @@ namespace Natillera.Data
                 .ToListAsync();
 
         public Task<List<LoanPayment>> GetPaymentsAsync(int loanId)
-            => _database.Table<LoanPayment>().Where(x => x.LoanId == loanId && !x.IsFromPersonalLoan).ToListAsync();
+            => _database.Table<LoanPayment>().Where(x => x.LoanId == loanId).ToListAsync();
 
         public Task<List<LoanPayment>> GetAllPaymentsAsync()
             => _database.Table<LoanPayment>().ToListAsync();
@@ -606,6 +612,60 @@ namespace Natillera.Data
             if (availableFromRaffles < 0) availableFromRaffles = 0;
 
             return (availableFromInterest, availableFromContributions, availableFromRaffles);
+        }
+
+        public async Task<decimal> GetAvailablePersonalInterest()
+        {
+            var loans = await GetPersonalLoansAsync();
+
+            // SOLO préstamos personales
+            var personalLoans = loans
+                .Where(x => x.IsPersonal)
+                .ToList();
+
+            var allPayments = await GetAllPaymentsAsync();
+
+            // INTERESES GENERADOS POR PRÉSTAMOS PERSONALES
+            var totalPersonalInterest = allPayments
+                .Where(x => x.IsInterest && x.IsFromPersonalLoan)
+                .Sum(x => x.Amount);
+
+            // RECUPERACIÓN DE CAPITAL PRESTADO DESDE INTERESES PERSONALES
+            decimal recoveredFromPersonalInterest = 0;
+
+            foreach (var loan in personalLoans)
+            {
+                var payments = allPayments
+                    .Where(x =>
+                        x.LoanId == loan.Id &&
+                        !x.IsInterest &&
+                        x.IsFromPersonalLoan);
+
+                var totalPrincipal = loan.PrincipalAmount;
+
+                if (totalPrincipal == 0)
+                    continue;
+
+                var ratioInterest =
+                    loan.PrincipalFromInterest / totalPrincipal;
+
+                var totalPaid = payments.Sum(x => x.Amount);
+
+                recoveredFromPersonalInterest +=
+                    totalPaid * ratioInterest;
+            }
+
+            // DISPONIBLE REAL
+            var availablePersonalInterest =
+                totalPersonalInterest
+                - personalLoans.Sum(x => x.PrincipalFromInterest)
+                + recoveredFromPersonalInterest;
+
+            // SEGURIDAD
+            if (availablePersonalInterest < 0)
+                availablePersonalInterest = 0;
+
+            return availablePersonalInterest;
         }
 
         //----------- Settlement -----------

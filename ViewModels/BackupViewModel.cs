@@ -55,7 +55,7 @@ namespace Natillera.ViewModels
                 Winners = await _database.GetAllRaffleWinner(),
                 Setting = await _database.GetSettingAsync(),
                 Contribution = await _database.GetAllContributionsAsync(),
-                Loan = await _database.GetLoansAsync(),
+                Loan = await _database.GetAllLoansAsync(),
                 LoanPayment = await _database.GetAllPaymentsAsync(),
                 Settlement = await _database.GetSettlementAsync(),
                 SettlementDetail = await _database.GetSettlementDetailAsync()
