@@ -45,37 +45,49 @@ namespace Natillera.ViewModels
         {
             LoanId = loanId;
 
-            var loan = (await _database.GetAllLoansAsync()).First(x => x.Id == loanId);
-            var payments = await _database.GetPaymentsAsync(loanId);
-            IsPersonalLoan = loan.IsPersonal;
+            var loan = (await _database.GetAllLoansAsync())
+                .First(x => x.Id == loanId);
 
-            var monthlyInterest = loan.PrincipalAmount * (loan.InterestRate / 100);
+            var payments = await _database.GetPaymentsAsync(loanId);
+
+            IsPersonalLoan = loan.IsPersonal;
 
             Months.Clear();
 
-            // FECHA INICIO REAL DEL PRÉSTAMO
             var start = loan.StartDate.Date;
             var now = DateTime.Now.Date;
 
-            // DIFERENCIA BASE DE MESES
             int totalMonths =
                 ((now.Year - start.Year) * 12) +
                 (now.Month - start.Month);
 
-            // SI YA PASÓ EL DÍA DE CORTE
-            // se habilita el siguiente mes
             if (now.Day >= start.Day)
-            {
                 totalMonths++;
-            }
 
-            // MÍNIMO 1 MES
             if (totalMonths < 1)
                 totalMonths = 1;
+
+            // BASE: capital inicial
+            decimal initialPrincipal = loan.PrincipalAmount;
+
+            var orderedPayments = payments
+                .Where(x => !x.IsInterest)
+                .OrderBy(x => x.Date)
+                .ToList();
 
             for (int i = 0; i < totalMonths; i++)
             {
                 var date = start.AddMonths(i + 1);
+
+                // aplicar pagos hasta ese mes
+                var paymentsUntilMonth = orderedPayments
+                    .Where(x => x.Date <= date)
+                    .Sum(x => x.Amount);
+
+                var remainingPrincipal = loan.PrincipalAmount - paymentsUntilMonth;
+                if (remainingPrincipal < 0) remainingPrincipal = 0;
+
+                var monthlyInterest = remainingPrincipal * (loan.InterestRate / 100m);
 
                 var paid = payments.Any(x =>
                     x.IsInterest &&
@@ -86,18 +98,19 @@ namespace Natillera.ViewModels
                 {
                     Month = date.Month,
                     Year = date.Year,
-                    Name = date.ToString("MMM yyyy"), // mejor UX
+                    Name = date.ToString("MMM yyyy"),
                     InterestAmount = monthlyInterest,
                     IsPaid = paid
                 });
             }
 
-            // capital pendiente
+            // capital pendiente actual
             var principalPaid = payments
                 .Where(x => !x.IsInterest)
                 .Sum(x => x.Amount);
 
             PendingPrincipal = loan.PrincipalAmount - principalPaid;
+            if (PendingPrincipal < 0) PendingPrincipal = 0;
         }
 
         private async Task Confirm()

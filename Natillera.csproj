@@ -17,8 +17,8 @@
 		<ApplicationId>com.companyname.natillera</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>3.47</ApplicationDisplayVersion>
-		<ApplicationVersion>27</ApplicationVersion>
+		<ApplicationDisplayVersion>3.48</ApplicationDisplayVersion>
+		<ApplicationVersion>28</ApplicationVersion>
 
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>

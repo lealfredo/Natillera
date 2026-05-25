@@ -482,27 +482,30 @@ namespace Natillera.ViewModels
                 {
                     var payments = await _database.GetPaymentsAsync(loan.Id);
 
-                    var monthlyInterest = loan.PrincipalAmount * (loan.InterestRate / 100);
+                    // CAPITAL PAGADO
+                    var principalPaid = payments
+                        .Where(x => !x.IsInterest)
+                        .Sum(x => x.Amount);
 
-                    // FECHA INICIO REAL DEL PRÉSTAMO
+                    var pendingPrincipal = loan.PrincipalAmount - principalPaid;
+                    if (pendingPrincipal < 0) pendingPrincipal = 0;
+
+                    // FECHA
                     var start = loan.StartDate.Date;
                     var now = DateTime.Now.Date;
 
-                    // DIFERENCIA BASE DE MESES
                     int totalMonths =
                         ((now.Year - start.Year) * 12) +
                         (now.Month - start.Month);
 
-                    // SI YA PASÓ EL DÍA DE CORTE
-                    // se habilita el siguiente mes
                     if (now.Day >= start.Day)
-                    {
                         totalMonths++;
-                    }
 
-                    // MÍNIMO 1 MES
                     if (totalMonths < 1)
                         totalMonths = 1;
+
+                    // 🔥 INTERÉS AHORA SOBRE SALDO PENDIENTE
+                    var monthlyInterest = pendingPrincipal * (loan.InterestRate / 100m);
 
                     var totalInterestGenerated = monthlyInterest * totalMonths;
 
@@ -512,13 +515,6 @@ namespace Natillera.ViewModels
 
                     var pendingInterest = totalInterestGenerated - interestPaid;
                     if (pendingInterest < 0) pendingInterest = 0;
-
-                    var principalPaid = payments
-                        .Where(x => !x.IsInterest)
-                        .Sum(x => x.Amount);
-
-                    var pendingPrincipal = loan.PrincipalAmount - principalPaid;
-                    if (pendingPrincipal < 0) pendingPrincipal = 0;
 
                     var totalPaid = interestPaid + principalPaid;
                     var totalBalance = pendingInterest + pendingPrincipal;
