@@ -6,64 +6,77 @@
              x:DataType="viewModels:CreateRaffleViewModel"
              xmlns:sys="clr-namespace:System;assembly=netstandard"
              Title="{Binding Title}">
-    
+
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="15">
+        <VerticalStackLayout Style="{StaticResource PageRoot}">
 
-            <Label
-                Text="Datos de la rifa"
-                FontAttributes="Bold"
-                FontSize="18" />
+            <Label Text="Nueva rifa"
+                   Style="{StaticResource SectionTitle}" />
+            <Label Text="Completa los datos del sorteo"
+                   Style="{StaticResource SectionSubtitle}" />
 
-            <Entry
-                Placeholder="Nombre de la lotería"
-                Text="{Binding RaffleWeek.LotteryName}" />
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
 
-            <Entry
-                Placeholder="Código de la semana"
-                Text="{Binding WeekCode}"
-                IsEnabled="False" />
+                    <Label Text="Datos generales" Style="{StaticResource FieldLabel}" FontSize="16" />
 
-            <Label Text="🎁 ¿Qué se está rifando?"
-                   FontAttributes="Bold" />
+                    <Label Text="Nombre de la lotería" Style="{StaticResource Caption}" />
+                    <Entry Style="{StaticResource FormEntry}"
+                           Placeholder="Nombre de la lotería"
+                           Text="{Binding RaffleWeek.LotteryName}" />
 
-            <Entry Placeholder="Ej: $500.000 en efectivo"
-                   Text="{Binding RaffleWeek.PrizeDescription}" />
+                    <Label Text="Código de la semana" Style="{StaticResource Caption}" />
+                    <Entry Style="{StaticResource FormEntry}"
+                           Placeholder="Código de la semana"
+                           Text="{Binding WeekCode}"
+                           IsEnabled="False" />
 
-            <Label Text="📅 Fecha del sorteo"
-                   FontAttributes="Bold" />
+                    <Label Text="Qué se está rifando" Style="{StaticResource Caption}" />
+                    <Entry Style="{StaticResource FormEntry}"
+                           Placeholder="Ej: $500.000 en efectivo"
+                           Text="{Binding RaffleWeek.PrizeDescription}" />
 
-            <DatePicker
-                Date="{Binding DrawDate}"
-                MinimumDate="{x:Static sys:DateTime.Today}" />
+                    <Label Text="Fecha del sorteo" Style="{StaticResource Caption}" />
+                    <DatePicker
+                        Date="{Binding DrawDate}"
+                        MinimumDate="{x:Static sys:DateTime.Today}" />
 
-            <Label Text="Precio de la boleta"
-                   FontAttributes="Bold" />
-            
-            <Entry Placeholder="Precio de la boleta"
-               Keyboard="Numeric"
-               Text="{Binding RaffleWeek.BetPrize}" />
+                    <Label Text="Precio de la boleta" Style="{StaticResource Caption}" />
+                    <Entry Style="{StaticResource FormEntry}"
+                           Placeholder="Precio de la boleta"
+                           Keyboard="Numeric"
+                           Text="{Binding RaffleWeek.BetPrize}" />
+                </VerticalStackLayout>
+            </Border>
 
-            <Label Text="💰 Premios por acierto"
-                   FontAttributes="Bold"
-                   Margin="0,10,0,0"/>
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
 
-            <Entry Placeholder="Premio 2 primeras cifras"
-                   Keyboard="Numeric"
-                   Text="{Binding RaffleWeek.FirstTwoPrize}" />
+                    <Label Text="Premios por acierto" Style="{StaticResource FieldLabel}" FontSize="16" />
 
-            <Entry Placeholder="Premio 2 cifras del medio"
-                   Keyboard="Numeric"
-                   Text="{Binding RaffleWeek.MiddleTwoPrize}" />
+                    <Label Text="2 primeras cifras" Style="{StaticResource Caption}" />
+                    <Entry Style="{StaticResource FormEntry}"
+                           Placeholder="Premio 2 primeras cifras"
+                           Keyboard="Numeric"
+                           Text="{Binding RaffleWeek.FirstTwoPrize}" />
 
-            <Entry Placeholder="Premio 2 últimas cifras"
-                   Keyboard="Numeric"
-                   Text="{Binding RaffleWeek.LastTwoPrize}" />
+                    <Label Text="2 cifras del medio" Style="{StaticResource Caption}" />
+                    <Entry Style="{StaticResource FormEntry}"
+                           Placeholder="Premio 2 cifras del medio"
+                           Keyboard="Numeric"
+                           Text="{Binding RaffleWeek.MiddleTwoPrize}" />
+
+                    <Label Text="2 últimas cifras" Style="{StaticResource Caption}" />
+                    <Entry Style="{StaticResource FormEntry}"
+                           Placeholder="Premio 2 últimas cifras"
+                           Keyboard="Numeric"
+                           Text="{Binding RaffleWeek.LastTwoPrize}" />
+                </VerticalStackLayout>
+            </Border>
 
             <Button Text="Guardar"
-                    Command="{Binding CreateRaffleCommand}"
-                    BackgroundColor="#455A64"
-                    TextColor="White"/>
+                    Style="{StaticResource PrimaryButton}"
+                    Command="{Binding CreateRaffleCommand}" />
 
         </VerticalStackLayout>
     </ScrollView>

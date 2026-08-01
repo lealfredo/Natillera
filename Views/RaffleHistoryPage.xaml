@@ -5,49 +5,53 @@
              Title="{Binding Title}">
 
     <ScrollView>
-        <StackLayout Spacing="10">
+        <VerticalStackLayout Style="{StaticResource PageRoot}">
+
+            <Label Text="Historial"
+                   Style="{StaticResource SectionTitle}" />
+            <Label Text="Rifas cerradas y números ganadores"
+                   Style="{StaticResource SectionSubtitle}" />
+
             <CollectionView
-        x:Name="RafflesView"
-        ItemsSource="{Binding Raffles}"
-        SelectionMode="None">
+                x:Name="RafflesView"
+                ItemsSource="{Binding Raffles}"
+                SelectionMode="None">
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border Padding="12" Margin="6">
-                            <VerticalStackLayout Spacing="10">
+                        <Border Style="{StaticResource ListRow}">
+                            <VerticalStackLayout Spacing="8">
 
                                 <Label
-                            Text="{Binding DrawDate, StringFormat='Sorteo: {0:dd/MM/yyyy}'}"
-                            FontSize="13" />
+                                    Text="{Binding DrawDate, StringFormat='Sorteo: {0:dd/MM/yyyy}'}"
+                                    Style="{StaticResource BodyLabel}"
+                                    FontAttributes="Bold" />
 
                                 <Label
-                            Text="{Binding LotteryName}"
-                            FontSize="13"
-                            TextColor="Gray" />
+                                    Text="{Binding LotteryName}"
+                                    Style="{StaticResource Caption}" />
 
                                 <Label
-                            Text="{Binding WinningNumber, StringFormat='Ganador: {0}'}"
-                            TextColor="Green"
-                            FontAttributes="Bold" />
+                                    Text="{Binding WinningNumber, StringFormat='Ganador: {0}'}"
+                                    Style="{StaticResource SuccessText}"
+                                    FontSize="16" />
 
                                 <Button
-                            Text="Ver detalles"
-                            BackgroundColor="#455A64"
-                            TextColor="White"
-                            Command="{Binding BindingContext.OpenRaffleCommand,
-                            Source={x:Reference RafflesView}}"
-                            CommandParameter="{Binding .}" />
+                                    Text="Ver detalles"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Command="{Binding BindingContext.OpenRaffleCommand, Source={x:Reference RafflesView}}"
+                                    CommandParameter="{Binding .}" />
                             </VerticalStackLayout>
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-            <VerticalStackLayout
-                           IsVisible="{Binding NoExist}">
+
+            <VerticalStackLayout IsVisible="{Binding NoExist}">
                 <Label Text="No hay historial"
-                           HorizontalOptions="Center"
-                           TextColor="Gray"/>
+                       Style="{StaticResource EmptyStateLabel}" />
             </VerticalStackLayout>
-        </StackLayout>
+
+        </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

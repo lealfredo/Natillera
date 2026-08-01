@@ -4,6 +4,9 @@ namespace Natillera.Views;
 
 public partial class RafflePage : ContentPage
 {
+    private static readonly Color TakenColor = Color.FromArgb("#C62828");
+    private static readonly Color AvailableColor = Color.FromArgb("#2E7D32");
+
     private readonly RaffleViewModel _viewModel;
 
     public RafflePage(RaffleViewModel viewModel)
@@ -26,6 +29,21 @@ public partial class RafflePage : ContentPage
 
             GenerateGrid();
         }
+    }
+
+    private static Color GetStatusColor(bool isTaken)
+    {
+        var resources = Application.Current?.Resources;
+        if (resources != null)
+        {
+            if (isTaken && resources.TryGetValue("Danger", out var danger) && danger is Color dangerColor)
+                return dangerColor;
+
+            if (!isTaken && resources.TryGetValue("Success", out var success) && success is Color successColor)
+                return successColor;
+        }
+
+        return isTaken ? TakenColor : AvailableColor;
     }
 
     private void GenerateGrid()
@@ -67,8 +85,9 @@ public partial class RafflePage : ContentPage
                 HeightRequest = itemSize,
                 FontSize = 12,
                 Margin = 2,
+                CornerRadius = 8,
                 TextColor = Colors.White,
-                BackgroundColor = item.IsTaken ? Colors.Red : Colors.Green,
+                BackgroundColor = GetStatusColor(item.IsTaken),
                 Command = new Command(() =>
                 {
                     (BindingContext as RaffleViewModel)?.SelectNumberCommand.Execute(item);
@@ -129,9 +148,9 @@ public partial class RafflePage : ContentPage
 
                 var border = new Border
                 {
-                    Stroke = Colors.White, // borde
+                    Stroke = Colors.White,
                     StrokeThickness = 0.5,
-                    BackgroundColor = item.IsTaken ? Colors.Red : Colors.Green,
+                    BackgroundColor = GetStatusColor(item.IsTaken),
                     Padding = 2
                 };
 

@@ -5,68 +5,63 @@
              x:Class="Natillera.Views.RafflePage"
              Title="{Binding Title}">
 
-
     <ContentPage.Content>
         <ScrollView>
-            <VerticalStackLayout x:Name="MainLayout" Padding="20" Spacing="15">
+            <VerticalStackLayout x:Name="MainLayout" Style="{StaticResource PageRoot}">
 
                 <Label
-                Text="Rifa Semanal"
-                FontSize="22"
-                FontAttributes="Bold"
-                HorizontalOptions="Center" />
+                    Text="Rifa semanal"
+                    Style="{StaticResource SectionTitle}"
+                    HorizontalOptions="Center" />
 
-                <Border Stroke="Gray" Padding="15"
-                    IsVisible="{Binding IsOpen}">
-                    <VerticalStackLayout Spacing="8">
+                <Border Style="{StaticResource Card}"
+                        IsVisible="{Binding IsOpen}">
+                    <VerticalStackLayout Spacing="10">
 
-                        <!-- Semana -->
-                        <Label Text="Semana:" FontAttributes="Bold" />
-                        <Label Text="{Binding CurrentRaffle.WeekCode}" />
+                        <Label Text="Semana" Style="{StaticResource FieldLabel}" />
+                        <Label Text="{Binding CurrentRaffle.WeekCode}" Style="{StaticResource BodyLabel}" />
 
-                        <!-- Fecha sorteo -->
-                        <Label Text="Fecha del sorteo:" FontAttributes="Bold" />
-                        <Label Text="{Binding CurrentRaffle.DrawDate, StringFormat='{0:dd/MM/yyyy}'}" />
+                        <Label Text="Fecha del sorteo" Style="{StaticResource FieldLabel}" />
+                        <Label Text="{Binding CurrentRaffle.DrawDate, StringFormat='{0:dd/MM/yyyy}'}"
+                               Style="{StaticResource BodyLabel}" />
 
-                        <!-- Qué se rifa -->
-                        <Label Text="Premio:" FontAttributes="Bold" />
-                        <Label Text="{Binding CurrentRaffle.PrizeDescription}" />
+                        <Label Text="Premio" Style="{StaticResource FieldLabel}" />
+                        <Label Text="{Binding CurrentRaffle.PrizeDescription}" Style="{StaticResource BodyLabel}" />
 
-                        <Label Text="Precio de la boleta:" FontAttributes="Bold" />
-                        <Label Text="{Binding CurrentRaffle.BetPrize, StringFormat='$ {0:N0}'}" />
+                        <Label Text="Precio de la boleta" Style="{StaticResource FieldLabel}" />
+                        <Label Text="{Binding CurrentRaffle.BetPrize, StringFormat='$ {0:N0}'}"
+                               Style="{StaticResource MetricValue}"
+                               FontSize="20"
+                               TextColor="{StaticResource Primary}" />
 
-                        <!-- Premios por acierto -->
-                        <Label Text="Premios por acierto:" FontAttributes="Bold" Margin="0,10,0,0"/>
+                        <Label Text="Premios por acierto"
+                               Style="{StaticResource FieldLabel}"
+                               Margin="0,8,0,0" />
 
-                        <HorizontalStackLayout Spacing="10">
-                            <Label Text="2 primeras:" FontAttributes="Bold" />
-                            <Label Text="{Binding CurrentRaffle.FirstTwoPrize, StringFormat='$ {0:N0}'}" />
-                        </HorizontalStackLayout>
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="6">
+                            <Label Grid.Row="0" Grid.Column="0" Text="2 primeras" Style="{StaticResource Caption}" />
+                            <Label Grid.Row="0" Grid.Column="1"
+                                   Text="{Binding CurrentRaffle.FirstTwoPrize, StringFormat='$ {0:N0}'}"
+                                   Style="{StaticResource BodyLabel}"
+                                   FontAttributes="Bold" />
 
-                        <HorizontalStackLayout Spacing="10">
-                            <Label Text="2 del medio:" FontAttributes="Bold" />
-                            <Label Text="{Binding CurrentRaffle.MiddleTwoPrize, StringFormat='$ {0:N0}'}" />
-                        </HorizontalStackLayout>
+                            <Label Grid.Row="1" Grid.Column="0" Text="2 del medio" Style="{StaticResource Caption}" />
+                            <Label Grid.Row="1" Grid.Column="1"
+                                   Text="{Binding CurrentRaffle.MiddleTwoPrize, StringFormat='$ {0:N0}'}"
+                                   Style="{StaticResource BodyLabel}"
+                                   FontAttributes="Bold" />
 
-                        <HorizontalStackLayout Spacing="10">
-                            <Label Text="2 últimas:" FontAttributes="Bold" />
-                            <Label Text="{Binding CurrentRaffle.LastTwoPrize, StringFormat='$ {0:N0}'}" />
-                        </HorizontalStackLayout>
-
-                        <!-- Número ganador -->
-                        <Label Text="Número ganador:" 
-               FontAttributes="Bold"
-               Margin="0,10,0,0"/>
-
-                        <!--<Label Text="{Binding CurrentRaffle.WinningNumber}"
-               FontSize="20"
-               TextColor="Green" />-->
-
+                            <Label Grid.Row="2" Grid.Column="0" Text="2 últimas" Style="{StaticResource Caption}" />
+                            <Label Grid.Row="2" Grid.Column="1"
+                                   Text="{Binding CurrentRaffle.LastTwoPrize, StringFormat='$ {0:N0}'}"
+                                   Style="{StaticResource BodyLabel}"
+                                   FontAttributes="Bold" />
+                        </Grid>
 
                         <Button
                             Text="Enviar por WhatsApp"
-                            BackgroundColor="#1976D2"
-                            TextColor="White"
+                            Style="{StaticResource PrimaryButton}"
+                            Margin="0,8,0,0"
                             Command="{Binding BuildRafflePromotionMessageCommand}" />
 
                     </VerticalStackLayout>
@@ -74,68 +69,29 @@
 
                 <Button
                     Text="{Binding ButtonText}"
-                    BackgroundColor="#455A64"
-                    TextColor="White"
+                    Style="{StaticResource SecondaryButton}"
                     Command="{Binding GoToCreateRaffleCommand}"
-                    CommandParameter="{Binding CurrentRaffle.Id}" />      
-
-                <!--<Border Stroke="Gray" Padding="10" BackgroundColor="#f0f0f0"
-                    IsVisible="{Binding IsClosed}">
-                    <Label 
-                    Text="La rifa está cerrada. No se pueden registrar más apuestas."
-                    TextColor="Red"
-                    FontAttributes="Bold"
-                    HorizontalOptions="Center" />
-                </Border>-->
+                    CommandParameter="{Binding CurrentRaffle.Id}" />
 
                 <Button
-                    Text="Exportar numeros"
-                    BackgroundColor="#1976D2"
-                    TextColor="White"
+                    Text="Exportar números"
+                    Style="{StaticResource PrimaryButton}"
                     IsVisible="{Binding IsOpen}"
-                    Command="{Binding ExportNumbersCommand}" 
-                />
+                    Command="{Binding ExportNumbersCommand}" />
 
-                <VerticalStackLayout
-                    x:Name="ExportLayout"
-                    IsVisible="{Binding IsOpen}"
-                    BackgroundColor="White"
-                    Padding="10">
-
-                    <!--<CollectionView
-                    ItemsSource="{Binding Numbers}"
-                    IsVisible="{Binding IsOpen}"
-                    SelectionMode="None">
-
-                        <CollectionView.ItemsLayout>
-                            <GridItemsLayout
-            Orientation="Horizontal"
-            Span="10"/>
-                        </CollectionView.ItemsLayout>
-
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Button
-                                Text="{Binding Number}"
-                                Command="{Binding BindingContext.SelectNumberCommand,
-                                          Source={RelativeSource AncestorType={x:Type views:RafflePage}}}"
-                                CommandParameter="{Binding .}"
-                                BackgroundColor="{Binding IsTaken, Converter={StaticResource TakenColorConverter}}"
-                                TextColor="White"
-                                Margin="5"
-                                FontSize="18"/>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-
-                    </CollectionView>-->
-                    <ScrollView
-                        Orientation="Horizontal"
-                        >
-                        <Grid
-                            x:Name="NumbersGrid">      
-                        </Grid>
-                    </ScrollView>
-                </VerticalStackLayout>
+                <Border Style="{StaticResource CardMuted}"
+                        IsVisible="{Binding IsOpen}"
+                        Padding="10">
+                    <VerticalStackLayout
+                        x:Name="ExportLayout"
+                        Spacing="8">
+                        <Label Text="Números"
+                               Style="{StaticResource FieldLabel}" />
+                        <ScrollView Orientation="Horizontal">
+                            <Grid x:Name="NumbersGrid" />
+                        </ScrollView>
+                    </VerticalStackLayout>
+                </Border>
 
             </VerticalStackLayout>
         </ScrollView>
