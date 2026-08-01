@@ -4,18 +4,27 @@
              x:Class="Natillera.Views.SettlementPage"
              Title="Liquidación">
 
-    <VerticalStackLayout Padding="20" Spacing="20">
+    <ScrollView>
+        <VerticalStackLayout Style="{StaticResource PageRoot}">
 
-        <Label Text="Cierre de natillera"
-               FontSize="20"
-               FontAttributes="Bold" />
+            <Label Text="Cierre de natillera"
+                   Style="{StaticResource SectionTitle}" />
+            <Label Text="Calcula y cierra el año actual"
+                   Style="{StaticResource SectionSubtitle}" />
 
-        <Button Text="Cerrar año"
-                BackgroundColor="Green"
-                TextColor="White"
-                HeightRequest="50"
-                Command="{Binding CloseYearCommand}" />
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Esta acción liquida aportes, intereses y utilidades del período."
+                           Style="{StaticResource BodyLabel}" />
+                    <Label Text="Revisa los resultados en la pestaña Resultados después de cerrar."
+                           Style="{StaticResource Caption}" />
 
-    </VerticalStackLayout>
+                    <Button Text="Cerrar año"
+                            Style="{StaticResource PrimaryButton}"
+                            Command="{Binding CloseYearCommand}" />
+                </VerticalStackLayout>
+            </Border>
 
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

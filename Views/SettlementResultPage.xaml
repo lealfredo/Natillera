@@ -3,58 +3,56 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Natillera.Views.SettlementResultPage"
              x:Name="Page"
-            Title="Resultados">
+             Title="Resultados">
 
-    <VerticalStackLayout Padding="15" Spacing="10">
+    <ScrollView>
+        <VerticalStackLayout Style="{StaticResource PageRoot}">
 
-        <!-- BOTÓN -->
-        <Button Text="Compartir resultados"
-                Command="{Binding ShareCommand}" />
+            <Label Text="Resultados"
+                   Style="{StaticResource SectionTitle}" />
+            <Label Text="Utilidad por participante"
+                   Style="{StaticResource SectionSubtitle}" />
 
-        <!-- CONTENIDO EXPORTABLE -->
-        <VerticalStackLayout x:Name="ExportLayout"
-                             BackgroundColor="White"
-                             Padding="15"
-                             Spacing="10">
+            <Button Text="Compartir resultados"
+                    Style="{StaticResource PrimaryButton}"
+                    Command="{Binding ShareCommand}" />
 
-            <Label Text="Resultados de la Natillera"
-                   FontSize="20"
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center"/>
+            <VerticalStackLayout x:Name="ExportLayout"
+                                 BackgroundColor="{StaticResource Surface}"
+                                 Padding="4"
+                                 Spacing="10">
 
-            <CollectionView ItemsSource="{Binding Results}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
+                <Label Text="Resultados de la Natillera"
+                       Style="{StaticResource SectionTitle}"
+                       FontSize="18"
+                       HorizontalOptions="Center" />
 
-                        <Frame CornerRadius="10"
-                               Padding="10"
-                               Margin="5"
-                               BorderColor="#DDD">
+                <CollectionView ItemsSource="{Binding Results}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource ListRow}">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="{Binding Name}"
+                                               Style="{StaticResource BodyLabel}"
+                                               FontAttributes="Bold" />
+                                        <Label Text="{Binding ContributedFormatted}"
+                                               Style="{StaticResource Caption}" />
+                                    </VerticalStackLayout>
 
-                            <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="1"
+                                           Text="{Binding ProfitFormatted}"
+                                           Style="{StaticResource SuccessText}"
+                                           VerticalOptions="Center"
+                                           FontSize="15" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
 
-                                <VerticalStackLayout>
-                                    <Label Text="{Binding Name}"
-                                           FontAttributes="Bold"/>
-                                    <Label Text="{Binding ContributedFormatted}"
-                                           FontSize="12"/>
-                                </VerticalStackLayout>
-
-                                <Label Grid.Column="1"
-                                       Text="{Binding ProfitFormatted}"
-                                       FontAttributes="Bold"
-                                       VerticalOptions="Center"
-                                       TextColor="Green"/>
-
-                            </Grid>
-
-                        </Frame>
-
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+            </VerticalStackLayout>
 
         </VerticalStackLayout>
-
-    </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

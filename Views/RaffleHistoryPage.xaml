@@ -5,57 +5,52 @@
              Title="{Binding Title}">
 
     <ScrollView>
-        <StackLayout Spacing="10">
-            <CollectionView
-        x:Name="RafflesView"
-        ItemsSource="{Binding Raffles}"
-        SelectionMode="None">
+        <VerticalStackLayout Style="{StaticResource PageRoot}">
 
+            <Label Text="Historial"
+                   Style="{StaticResource SectionTitle}" />
+            <Label Text="Rifas cerradas y números ganadores"
+                   Style="{StaticResource SectionSubtitle}" />
+
+            <CollectionView
+                x:Name="RafflesView"
+                ItemsSource="{Binding Raffles}"
+                SelectionMode="None">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border Padding="12" Margin="6">
-                            <VerticalStackLayout Spacing="10">
+                        <Border Style="{StaticResource ListRow}">
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="{Binding DrawDate, StringFormat='Sorteo: {0:dd/MM/yyyy}'}"
+                                       Style="{StaticResource BodyLabel}"
+                                       FontAttributes="Bold" />
+                                <Label Text="{Binding LotteryName}"
+                                       Style="{StaticResource Caption}" />
+                                <Label Text="{Binding WinningNumber, StringFormat='Ganador: {0}'}"
+                                       Style="{StaticResource SuccessText}"
+                                       FontSize="16" />
 
-                                <Label
-                            Text="{Binding DrawDate, StringFormat='Sorteo: {0:dd/MM/yyyy}'}"
-                            FontSize="13" />
-
-                                <Label
-                            Text="{Binding LotteryName}"
-                            FontSize="13"
-                            TextColor="Gray" />
-
-                                <Label
-                            Text="{Binding WinningNumber, StringFormat='Ganador: {0}'}"
-                            TextColor="Green"
-                            FontAttributes="Bold" />
-
-                                <Button
-                            Text="Ver detalles"
-                            BackgroundColor="#455A64"
-                            TextColor="White"
-                            Command="{Binding BindingContext.OpenRaffleCommand,
-                            Source={x:Reference RafflesView}}"
-                            CommandParameter="{Binding .}" />
-
-                                <Button
-                            Text="Editar"
-                            BackgroundColor="Green"
-                            TextColor="White"
-                            Command="{Binding BindingContext.EditRaffleCommand,
-                            Source={x:Reference RafflesView}}"
-                            CommandParameter="{Binding .}" />
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                    <Button Text="Ver detalles"
+                                            Style="{StaticResource SecondaryButton}"
+                                            Command="{Binding BindingContext.OpenRaffleCommand, Source={x:Reference RafflesView}}"
+                                            CommandParameter="{Binding .}" />
+                                    <Button Grid.Column="1"
+                                            Text="Editar"
+                                            Style="{StaticResource PrimaryButton}"
+                                            Command="{Binding BindingContext.EditRaffleCommand, Source={x:Reference RafflesView}}"
+                                            CommandParameter="{Binding .}" />
+                                </Grid>
                             </VerticalStackLayout>
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-            <VerticalStackLayout
-                           IsVisible="{Binding NoExist}">
+
+            <VerticalStackLayout IsVisible="{Binding NoExist}">
                 <Label Text="No hay historial"
-                           HorizontalOptions="Center"
-                           TextColor="Gray"/>
+                       Style="{StaticResource EmptyStateLabel}" />
             </VerticalStackLayout>
-        </StackLayout>
+
+        </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
