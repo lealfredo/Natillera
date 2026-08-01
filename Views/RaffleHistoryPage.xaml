@@ -37,6 +37,14 @@
                             Command="{Binding BindingContext.OpenRaffleCommand,
                             Source={x:Reference RafflesView}}"
                             CommandParameter="{Binding .}" />
+
+                                <Button
+                            Text="Editar"
+                            BackgroundColor="Green"
+                            TextColor="White"
+                            Command="{Binding BindingContext.EditRaffleCommand,
+                            Source={x:Reference RafflesView}}"
+                            CommandParameter="{Binding .}" />
                             </VerticalStackLayout>
                         </Border>
                     </DataTemplate>

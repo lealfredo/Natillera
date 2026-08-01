@@ -30,5 +30,7 @@ namespace Natillera.Entities
         public bool IsClosed { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        public bool IsPersonal { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Natillera.Entities;
 using Natillera.Models;
+using Rifa.Entities;
 using SQLite;
 using SQLitePCL;
 
@@ -18,6 +19,11 @@ namespace Natillera.Data
             _database.CreateTableAsync<Bet>().Wait();
             _database.CreateTableAsync<RaffleWinner>().Wait();
             _database.CreateTableAsync<Setting>().Wait();
+            _database.CreateTableAsync<Contribution>().Wait();
+            _database.CreateTableAsync<Loan>().Wait();
+            _database.CreateTableAsync<LoanPayment>().Wait();
+            _database.CreateTableAsync<Settlement>().Wait();
+            _database.CreateTableAsync<SettlementDetail>().Wait();
         }
 
         // ---------------- RIFA ----------------
@@ -70,10 +76,15 @@ namespace Natillera.Data
 
         public async Task<List<Participant>> GetParticipantsAsync()
         {
-            return await _database
+            var participants = await _database
                 .Table<Participant>()
                 .OrderBy(p => p.Name)
                 .ToListAsync();
+
+            foreach (var participant in participants)
+                participant.Name = participant.Name.Trim();
+
+            return participants.OrderBy(p => p.Name).ToList();
         }
 
         public async Task<int> SaveParticipantAsync(Participant participant)
@@ -84,11 +95,27 @@ namespace Natillera.Data
             return await _database.InsertAsync(participant);
         }
 
+        public async Task<List<Participant>> GetParticipantsPaged(int page, int pageSize)
+        {
+            return await _database.Table<Participant>()
+                .OrderBy(x => x.Name)
+                .Skip(page * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
+
         public Task<Participant> GetParticipantByIdAsync(int id)
         {
             return _database.Table<Participant>()
                 .Where(p => p.Id == id)
                 .FirstAsync();
+        }
+
+        public Task<int> DeleteParticipantAsync(int participantId)
+        {
+            return _database.Table<Participant>()
+                .Where(b => b.Id == participantId)
+                .DeleteAsync();
         }
 
         // ---------------- APUESTAS ----------------
@@ -130,10 +157,10 @@ namespace Natillera.Data
                 .ToListAsync();
         }
 
-        public Task<int> DeleteBetAsync(int participantId, int raffleWeekId, string number)
+        public Task<int> DeleteBetAsync(int raffleWeekId, string number)
         {
             return _database.Table<Bet>()
-                .Where(b => b.RaffleWeekId == raffleWeekId && b.ParticipantId == participantId && b.Number == number)
+                .Where(b => b.RaffleWeekId == raffleWeekId && b.Number == number)
                 .DeleteAsync();
         }
 
@@ -152,6 +179,20 @@ namespace Natillera.Data
             return bets
                 .Select(b => b.Number)
                 .ToList();
+        }
+
+        public async Task<int> MarkNumberAsPaidAsync(int raffleWeekId, string number)
+        {
+            var bets = await _database.Table<Bet>()
+                .Where(x => x.RaffleWeekId == raffleWeekId && x.Number == number)
+                .ToListAsync();
+
+            foreach (var bet in bets)
+            {
+                bet.IsTaken = true;
+            }
+
+            return await _database.UpdateAllAsync(bets);
         }
 
         public async Task<List<BetNumber>> GetBetNumbersAsync(int raflleId)
@@ -173,13 +214,14 @@ namespace Natillera.Data
 
                 numbers.Add(new BetNumber
                 {
+                    IsPay = bet == null ? false : bet.IsTaken,
                     Number = number,
                     IsTaken = bet != null,
                     ParticipantName = bet == null
-                        ? null
+                        ? null : bet.ParticipantId == null ? bet.Bettor
                         : participants.First(p => p.Id == bet.ParticipantId).Name,
                     ParticipantId = bet == null
-                        ? 0
+                        ? 0 : bet.ParticipantId == null ? 0
                         : participants.First(p => p.Id == bet.ParticipantId).Id,
                     RaflleWeekId = bet == null
                         ? 0
@@ -211,6 +253,14 @@ namespace Natillera.Data
               .Where(w => w.RaffleDrawId == drawId)
               .ToListAsync();
 
+        public Task<List<RaffleWeek>> GetAllRafflesNatilleraAsync()
+        {
+            return _database.Table<RaffleWeek>()
+                      .Where(r => !r.IsPersonal)
+                      .OrderByDescending(r => r.DrawDate)
+                      .ToListAsync();
+        }
+
         public Task<List<RaffleWeek>> GetClosedRafflesAsync()
         {
             return _database.Table<RaffleWeek>()
@@ -225,6 +275,11 @@ namespace Natillera.Data
                       .Where(r => !r.IsClosed)
                       .OrderBy(r => r.DrawDate)
                       .ToListAsync();
+        }
+
+        public async Task<List<RaffleWeek>> GetAllNoPersonalRaffleWeek()
+        {
+            return await _database.Table<RaffleWeek>().Where(r => !r.IsPersonal).ToListAsync();
         }
 
         public async Task<List<RaffleWeek>> GetAllRaffleWeek()
@@ -242,9 +297,19 @@ namespace Natillera.Data
             return await _database.Table<Bet>().ToListAsync();
         }
 
+        public async Task<List<Bet>> GetAllCollectedBet()
+        {
+            return await _database.Table<Bet>().Where(x => x.IsTaken).ToListAsync();
+        }
+
         public async Task<List<RaffleWinner>> GetAllRaffleWinner()
         {
             return await _database.Table<RaffleWinner>().ToListAsync();
+        }
+
+        public async Task<List<RaffleWinner>> GetAllRaffleWinnerByParticipantAsync(int participantId)
+        {
+            return await _database.Table<RaffleWinner>().Where(p => p.ParticipantId == participantId).ToListAsync();
         }
 
         public async Task SaveRaffleWeekRangeAsync(List<RaffleWeek> raffleWeeks)
@@ -298,6 +363,67 @@ namespace Natillera.Data
             });
         }
 
+        public async Task SaveContributionRangeAsync(List<Contribution> contributions)
+        {
+            await _database.RunInTransactionAsync(conn =>
+            {
+                foreach (var contribution in contributions)
+                {
+                    conn.InsertOrReplace(contribution);
+                }
+            });
+        }
+
+        public async Task SaveLoanRangeAsync(List<Loan> loans)
+        {
+            await _database.RunInTransactionAsync(conn =>
+            {
+                foreach (var loan in loans)
+                {
+                    conn.InsertOrReplace(loan);
+                }
+            });
+        }
+
+        public async Task SaveLoanPaymentRangeAsync(List<LoanPayment> loanPayments)
+        {
+            await _database.RunInTransactionAsync(conn =>
+            {
+                foreach (var loanPayment in loanPayments)
+                {
+                    conn.InsertOrReplace(loanPayment);
+                }
+            });
+        }
+
+        public Task<int> DeleteLoanAsync(int id)
+        {
+            return _database.Table<Loan>()
+                .Where(b => b.Id == id)
+                .DeleteAsync();
+        }
+
+        public async Task SaveSettlementRangeAsync(List<Settlement> settlements)
+        {
+            await _database.RunInTransactionAsync(conn =>
+            {
+                foreach (var settlement in settlements)
+                {
+                    conn.InsertOrReplace(settlement);
+                }
+            });
+        }
+
+        public async Task SaveSettlementDetailRangeAsync(List<SettlementDetail> settlementDetails)
+        {
+            await _database.RunInTransactionAsync(conn =>
+            {
+                foreach (var settlementDetail in settlementDetails)
+                {
+                    conn.InsertOrReplace(settlementDetail);
+                }
+            });
+        }
 
         public async Task ClearAllAsync()
         {
@@ -306,16 +432,255 @@ namespace Natillera.Data
             await _database.ExecuteAsync("DELETE FROM Participant");
             await _database.ExecuteAsync("DELETE FROM RaffleWeek");
             await _database.ExecuteAsync("DELETE FROM Setting");
+            await _database.ExecuteAsync("DELETE FROM Contribution");
+            await _database.ExecuteAsync("DELETE FROM Loan");
+            await _database.ExecuteAsync("DELETE FROM LoanPayment");
+            await _database.ExecuteAsync("DELETE FROM Settlement");
+            await _database.ExecuteAsync("DELETE FROM SettlementDetail");
         }
 
-        public async Task<int> SaveSettingAsync(Setting setting)
-        {
-            return await _database.InsertOrReplaceAsync(setting);
-        }
+        public async Task<int> SaveSettingAsync(Setting setting) => 
+            await _database.InsertOrReplaceAsync(setting);
 
         public async Task<Setting> GetSettingAsync()
         {
             return await _database.Table<Setting>().FirstOrDefaultAsync();
         }
+
+        // CONTRIBUTION
+        public Task<List<Contribution>> GetAllContributionsAsync()
+        => _database.Table<Contribution>()
+              .OrderByDescending(x => x.Date)
+              .ToListAsync();
+
+        public Task<List<Contribution>> GetContributionsByParticipant(int participantId)
+        => _database.Table<Contribution>()
+                .Where(p => p.PersonId == participantId)
+              .OrderByDescending(x => x.Date)
+              .ToListAsync();
+
+        public Task<int> AddContributionAsync(Contribution contribution)
+            => _database.InsertAsync(contribution);
+
+        public Task<int> DeleteContributionAsync(Contribution contribution)
+            => _database.DeleteAsync(contribution);
+
+        public async Task<bool> ExistsContribution(int participantId, int year, int month)
+             => await _database.Table<Contribution>().CountAsync(c => c.PersonId == participantId && c.Year == year && c.Month == month) > 0;
+
+        //--------------LOAN-----------
+        public Task<List<Loan>> GetLoansAsync()
+        => _database.Table<Loan>()
+            .Where(l => !l.IsPersonal)
+                .OrderByDescending(x => x.StartDate)
+                .ToListAsync();
+
+        public Task<List<Loan>> GetPersonalLoansAsync()
+        => _database.Table<Loan>()
+            .Where(l => l.IsPersonal)
+                .OrderByDescending(x => x.StartDate)
+                .ToListAsync();
+
+        public Task<List<Loan>> GetAllLoansAsync()
+        => _database.Table<Loan>()
+                .OrderByDescending(x => x.StartDate)
+                .ToListAsync();
+        public Task<List<Loan>> GetAllLoansByParticipantAsync(int participantId)
+       => _database.Table<Loan>()
+                .Where(x => x.PersonId == participantId)
+               .OrderByDescending(x => x.StartDate)
+               .ToListAsync();
+
+        public Task<List<Loan>> GetAllLoansByNOParticipantAsync()
+       => _database.Table<Loan>()
+                .Where(x => x.PersonId == null)
+               .OrderByDescending(x => x.StartDate)
+               .ToListAsync();
+
+        public Task<List<Loan>> GetLoansByDateRange(DateTime from, DateTime to)
+        => _database.Table<Loan>()
+                .Where(x => x.StartDate >= from && x.StartDate <= to)
+                .OrderByDescending(x => x.StartDate)
+                .ToListAsync();
+
+        public Task<List<LoanPayment>> GetPaymentsAsync(int loanId)
+            => _database.Table<LoanPayment>().Where(x => x.LoanId == loanId).ToListAsync();
+
+        public Task<List<LoanPayment>> GetAllPaymentsAsync()
+            => _database.Table<LoanPayment>().ToListAsync();
+
+        public Task<int> AddLoanAsync(Loan loan)
+            => _database.InsertAsync(loan);
+
+        public Task<int> AddPaymentAsync(LoanPayment payment)
+            => _database.InsertAsync(payment);
+
+        public Task<int> UpdateLoanAsync(Loan loan)
+            => _database.UpdateAsync(loan);
+
+        public async Task<(decimal availableFromInterest, decimal availableFromContributions, decimal availableFromRaffles)> GetAvailableMoney()
+        {
+            // 1. DATOS BASE
+            var contributions = await GetAllContributionsAsync();
+            var loans = await GetLoansAsync();
+            var natilleraLoans = loans.Where(x => !x.IsPersonal).ToList();
+            var allPayments = await GetAllPaymentsAsync(); // optimizado
+
+            var bets = await GetAllCollectedBet();
+            var raffles = await GetAllRafflesNatilleraAsync();
+            var winners = await GetAllRaffleWinner();
+
+            // 2. TOTALES BASE
+            var totalContributions = contributions.Sum(x => x.Amount);
+
+            var totalInterest = allPayments
+                .Where(x => x.IsInterest && !x.IsFromPersonalLoan)
+                .Sum(x => x.Amount);
+
+            // RIFAS - RECAUDADO
+            var totalCollected = bets
+                .Where(x => x.IsTaken)
+                .GroupBy(x => new { x.RaffleWeekId, x.Number })
+                .Sum(g =>
+                {
+                    var raffle = raffles.FirstOrDefault(r => r.Id == g.Key.RaffleWeekId);
+                    return raffle?.BetPrize ?? 0;
+                });
+
+            // RIFAS - PAGADO
+            var totalPaid = winners.Sum(w =>
+            {
+                var raffle = raffles.FirstOrDefault(r => r.Id == w.RaffleDrawId);
+                if (raffle == null) return 0;
+
+                return w.BetType switch
+                {
+                    BetType.Start => raffle.FirstTwoPrize,
+                    BetType.Middle => raffle.MiddleTwoPrize,
+                    BetType.End => raffle.LastTwoPrize,
+                    _ => 0
+                };
+            });
+
+            var raffleBalance = totalCollected - totalPaid;
+            if (raffleBalance < 0) raffleBalance = 0;
+
+            // 3. RECUPERACIÓN PROPORCIONAL
+            decimal recoveredFromInterest = 0;
+            decimal recoveredFromContributions = 0;
+            decimal recoveredFromRaffles = 0;
+
+            foreach (var loan in natilleraLoans)
+            {
+                var payments = allPayments
+                    .Where(x => x.LoanId == loan.Id && !x.IsInterest && !x.IsFromPersonalLoan);
+
+                var totalPrincipal = loan.PrincipalAmount;
+                if (totalPrincipal == 0) continue;
+
+                var ratioInterest = loan.PrincipalFromInterest / totalPrincipal;
+                var ratioContributions = loan.PrincipalFromContributions / totalPrincipal;
+                var ratioRaffles = loan.PrincipalFromRaffles / totalPrincipal;
+
+                var totalPaidLoan = payments.Sum(x => x.Amount);
+
+                recoveredFromInterest += totalPaidLoan * ratioInterest;
+                recoveredFromContributions += totalPaidLoan * ratioContributions;
+                recoveredFromRaffles += totalPaidLoan * ratioRaffles;
+            }
+
+            // 4. DISPONIBLE REAL POR FUENTE
+
+            var availableFromInterest =
+                totalInterest
+                - natilleraLoans.Sum(x => x.PrincipalFromInterest)
+                + recoveredFromInterest;
+
+            var availableFromContributions =
+                totalContributions
+                - natilleraLoans.Sum(x => x.PrincipalFromContributions)
+                + recoveredFromContributions;
+
+            var availableFromRaffles =
+                raffleBalance
+                - natilleraLoans.Sum(x => x.PrincipalFromRaffles)
+                + recoveredFromRaffles;
+
+            // 5. SEGURIDAD
+            if (availableFromInterest < 0) availableFromInterest = 0;
+            if (availableFromContributions < 0) availableFromContributions = 0;
+            if (availableFromRaffles < 0) availableFromRaffles = 0;
+
+            return (availableFromInterest, availableFromContributions, availableFromRaffles);
+        }
+
+        public async Task<decimal> GetAvailablePersonalInterest()
+        {
+            var loans = await GetPersonalLoansAsync();
+
+            // SOLO préstamos personales
+            var personalLoans = loans
+                .Where(x => x.IsPersonal)
+                .ToList();
+
+            var allPayments = await GetAllPaymentsAsync();
+
+            // INTERESES GENERADOS POR PRÉSTAMOS PERSONALES
+            var totalPersonalInterest = allPayments
+                .Where(x => x.IsInterest && x.IsFromPersonalLoan)
+                .Sum(x => x.Amount);
+
+            // RECUPERACIÓN DE CAPITAL PRESTADO DESDE INTERESES PERSONALES
+            decimal recoveredFromPersonalInterest = 0;
+
+            foreach (var loan in personalLoans)
+            {
+                var payments = allPayments
+                    .Where(x =>
+                        x.LoanId == loan.Id &&
+                        !x.IsInterest &&
+                        x.IsFromPersonalLoan);
+
+                var totalPrincipal = loan.PrincipalAmount;
+
+                if (totalPrincipal == 0)
+                    continue;
+
+                var ratioInterest =
+                    loan.PrincipalFromInterest / totalPrincipal;
+
+                var totalPaid = payments.Sum(x => x.Amount);
+
+                recoveredFromPersonalInterest +=
+                    totalPaid * ratioInterest;
+            }
+
+            // DISPONIBLE REAL
+            var availablePersonalInterest =
+                totalPersonalInterest
+                - personalLoans.Sum(x => x.PrincipalFromInterest)
+                + recoveredFromPersonalInterest;
+
+            // SEGURIDAD
+            if (availablePersonalInterest < 0)
+                availablePersonalInterest = 0;
+
+            return availablePersonalInterest;
+        }
+
+        //----------- Settlement -----------
+        public async Task<List<Settlement>> GetSettlementAsync() 
+            => await _database.Table<Settlement>().ToListAsync();
+
+        public Task<int> AddSettlementAsync(Settlement s)
+            => _database.InsertAsync(s);
+
+        public async Task<List<SettlementDetail>> GetSettlementDetailAsync()
+            => await _database.Table<SettlementDetail>().ToListAsync();
+
+        public Task<int> AddDetailAsync(SettlementDetail d)
+            => _database.InsertAsync(d);
+
+        public SQLiteAsyncConnection GetConnection() => _database;
     }
 }

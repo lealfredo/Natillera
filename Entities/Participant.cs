@@ -1,4 +1,5 @@
 ﻿using SQLite;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Natillera.Entities
 {
@@ -13,5 +14,7 @@ namespace Natillera.Entities
         public string Phone { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        public decimal MonthlyContribution { get; set; }
     }
 }

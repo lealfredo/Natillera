@@ -54,15 +54,16 @@ namespace Natillera.ViewModels
                 Bets = await _database.GetAllBet(),
                 Winners = await _database.GetAllRaffleWinner(),
                 Setting = await _database.GetSettingAsync(),
+                Contribution = await _database.GetAllContributionsAsync(),
+                Loan = await _database.GetAllLoansAsync(),
+                LoanPayment = await _database.GetAllPaymentsAsync(),
+                Settlement = await _database.GetSettlementAsync(),
+                SettlementDetail = await _database.GetSettlementDetailAsync()
             };
 
-            var json = JsonSerializer.Serialize(
-                backup,
-                new JsonSerializerOptions { WriteIndented = true });
+            var json = JsonSerializer.Serialize(backup, new JsonSerializerOptions { WriteIndented = true });
 
-            var filePath = Path.Combine(
-                FileSystem.CacheDirectory,
-                $"natillera_backup_{DateTime.Now:yyyyMMddHHmmss}.json");
+            var filePath = Path.Combine(FileSystem.CacheDirectory, $"natillera_backup_{DateTime.Now:yyyyMMddHHmmss}.json");
 
             File.WriteAllText(filePath, json);
 
@@ -117,6 +118,11 @@ namespace Natillera.ViewModels
                 await _database.SaveBetRangeAsync(backup.Bets);
                 await _database.SaveRaffleWinnerRangeAsync(backup.Winners);
                 await _database.SaveSettingAsync(backup.Setting);
+                await _database.SaveContributionRangeAsync(backup.Contribution);
+                await _database.SaveLoanRangeAsync(backup.Loan);
+                await _database.SaveLoanPaymentRangeAsync(backup.LoanPayment);
+                await _database.SaveSettlementRangeAsync(backup.Settlement);
+                await _database.SaveSettlementDetailRangeAsync(backup.SettlementDetail);
 
                 await Shell.Current.DisplayAlert(
                     "Exito",

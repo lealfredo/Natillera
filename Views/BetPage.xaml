@@ -4,6 +4,7 @@
              x:Class="Natillera.Views.BetPage"
              xmlns:viewModels="clr-namespace:Natillera.ViewModels"
              x:DataType="viewModels:BetViewModel"
+             xmlns:models="clr-namespace:Natillera.Entities"
              Title="{Binding Title}">
 
     <ScrollView>
@@ -19,23 +20,74 @@
                     FontAttributes="Bold"/>
             </Border>
 
+            <!-- Buscador -->
+            <SearchBar Placeholder="Buscar participante..."
+               Text="{Binding SearchText}"
+               CancelButtonColor="#1976D2"
+               BackgroundColor="#ECEFF1"
+               TextColor="#212121"
+               PlaceholderColor="#757575"
+               HeightRequest="40"
+               Margin="0,0,0,5"
+               />
+
+            <!-- Lista filtrada estilo dropdown -->
+            <Frame CornerRadius="12"
+           Padding="0"
+           HasShadow="True"
+           BackgroundColor="White"
+           BorderColor="#B0BEC5">
+
+                <CollectionView ItemsSource="{Binding FilteredParticipants}"
+                SelectionMode="Single"
+                SelectionChanged="CollectionView_SelectionChanged">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Participant">
+
+                            <Grid Padding="10"
+                                       ColumnDefinitions="*">
+
+                                <Label Text="{Binding Name}" Style="{StaticResource ListLabel}" />
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Frame>
+
+            <!-- Mostramos participante seleccionado -->
+            <Label Text="{Binding SelectedParticipant.Name, StringFormat='Seleccionado: {0}'}"
+           FontSize="14"
+           FontAttributes="Italic"
+           TextColor="#1976D2"
+           IsVisible="{Binding SelectedParticipant, Converter={StaticResource NullToBoolConverter}}" />
+
+            <!--<Picker Title="Participante (opcional)"
+                ItemsSource="{Binding Participants}"
+                ItemDisplayBinding="{Binding Name}"
+                SelectedItem="{Binding SelectedParticipant}" />-->
+
+            <Entry Placeholder="Nombre (si es externo)"
+                Text="{Binding Bettor}" />
+
             <!-- Teléfono -->
-            <Entry
+            <!--<Entry
                 Placeholder="Teléfono"
                 Keyboard="Telephone"
                 Text="{Binding ParticipantPhone}"
-                Unfocused="OnPhoneUnfocused"/>
+                Unfocused="OnPhoneUnfocused"/>-->
 
             <!-- Nombre -->
-            <Entry
+            <!--<Entry
                 Placeholder="Nombre del participante"
                 Text="{Binding ParticipantName}"
-                IsEnabled="{Binding IsNewParticipant}" />
+                IsEnabled="{Binding IsNewParticipant}" />-->
 
             <Button
                 Text="Guardar apuesta"
                 Command="{Binding SaveBetCommand}" />
 
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                   IsVisible="{Binding IsBusy}" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

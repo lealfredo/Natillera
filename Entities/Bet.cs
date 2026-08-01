@@ -11,7 +11,8 @@ namespace Natillera.Entities
         public int RaffleWeekId { get; set; }
 
         [Indexed]
-        public int ParticipantId { get; set; }
+        public int? ParticipantId { get; set; }
+        public string Bettor { get; set; }
 
         // Start | Middle | End
         [Indexed(Name = "IX_Raffle_Number_Type", Order = 2, Unique = true)]
@@ -22,6 +23,7 @@ namespace Natillera.Entities
 
         // Se marca cuando se cierra la rifa
         public bool IsWinner { get; set; }
+        public bool IsTaken { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }

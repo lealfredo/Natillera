@@ -7,6 +7,11 @@
         <ResourceDictionary>
             <local:InverseBoolConverter x:Key="InverseBoolConverter"/>
             <local:TakenColorConverter x:Key="TakenColorConverter"/>
+            <local:BoolToTextConverter x:Key="BoolToTextConverter"/>
+            <local:SelectedItemBackgroundConverter x:Key="SelectedItemBackgroundConverter"/>
+            <local:GreaterThanZeroConverter x:Key="GreaterThanZeroConverter"/>
+            <local:BoolToTextButtonConverter x:Key="BoolToTextButtonConverter"/>
+            <local:NullToBoolConverter x:Key="NullToBoolConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />

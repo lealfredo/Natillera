@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Natillera.Views.ContributionsPage"
+             x:Name="Page"
+            Title="Aportes">
+
+    <ScrollView>
+
+
+        <VerticalStackLayout Spacing="15" Padding="10">
+
+            <!-- Buscador -->
+            <SearchBar Placeholder="Buscar participante..."
+               Text="{Binding SearchText}"
+               CancelButtonColor="#1976D2"
+               BackgroundColor="#ECEFF1"
+               TextColor="#212121"
+               PlaceholderColor="#757575"
+               HeightRequest="40"
+               Margin="0,0,0,5"
+               />
+
+            <!-- Lista filtrada estilo dropdown -->
+            <Frame CornerRadius="12"
+           Padding="0"
+           HasShadow="True"
+           BackgroundColor="White"
+           BorderColor="#B0BEC5">
+
+                <CollectionView ItemsSource="{Binding FilteredParticipants}"
+                SelectionMode="Single"
+                SelectionChanged="CollectionView_SelectionChanged">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <SwipeView>
+                                <SwipeView.RightItems>
+                                    <!-- Swipe actions -->
+                                </SwipeView.RightItems>
+
+                                <Grid Padding="10">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding BindingContext.SelectParticipantCommand, Source={x:Reference Page}}"
+                                  CommandParameter="{Binding .}" />
+                                    </Grid.GestureRecognizers>
+
+                                    <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="16"/>
+                                </Grid>
+                            </SwipeView>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Frame>
+
+            <!-- Mostramos participante seleccionado -->
+            <Label Text="{Binding SelectedParticipant.Name, StringFormat='Seleccionado: {0}'}"
+           FontSize="14"
+           FontAttributes="Italic"
+           TextColor="#1976D2"
+           IsVisible="{Binding SelectedParticipant, Converter={StaticResource NullToBoolConverter}}" />
+
+            <!-- Picker --><!--
+        <Picker Title="Seleccionar participante"
+                ItemsSource="{Binding Participants}"
+                ItemDisplayBinding="{Binding Name}"
+                SelectedItem="{Binding SelectedParticipant}" />-->
+
+        <!-- Monto -->
+        <Entry Placeholder="Monto"
+               Keyboard="Numeric"
+               Text="{Binding Amount}" 
+               IsVisible="{Binding IsParticipantSelected}"/>
+
+            <CollectionView ItemsSource="{Binding Months}"
+                            IsVisible="{Binding IsParticipantSelected}"
+                            ItemSizingStrategy="MeasureAllItems">
+
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="3"/>
+                </CollectionView.ItemsLayout>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+
+                        <Frame Padding="10"
+                               Margin="5"
+                               CornerRadius="10"
+                               HasShadow="False"
+                               BorderColor="#E0E0E0">
+
+                            <!-- TAP SOLO SI ESTA HABILITADO -->
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer 
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ToggleMonthCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Frame.GestureRecognizers>
+
+                            <VerticalStackLayout Spacing="5">
+
+                                <!-- MES -->
+                                <Label Text="{Binding Name}"
+                                       HorizontalOptions="Center"
+                                       FontAttributes="Bold"
+                                       FontSize="14">
+
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsSelected}"
+                                                     Value="True">
+                                            <Setter Property="TextColor" Value="White"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+
+                                <!-- PAGADO / CUOTA -->
+                                <Label Text="{Binding PaidAmount, StringFormat='$ {0:N0}'}"
+                                       HorizontalOptions="Center"
+                                       FontSize="12"
+                                       TextColor="Gray">
+
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsSelected}"
+                                                     Value="True">
+                                            <Setter Property="TextColor" Value="White"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+
+                                </Label>
+
+                                <!-- PROGRESO -->
+                                <ProgressBar Progress="{Binding Progress}"
+                                 HeightRequest="6"/>
+
+                            </VerticalStackLayout>
+
+                            <!-- COLORES POR ESTADO -->
+                            <Frame.Triggers>
+
+                                <!-- PENDIENTE -->
+                                <DataTrigger TargetType="Frame"
+                                 Binding="{Binding State}"
+                                 Value="Pending">
+                                    <Setter Property="BackgroundColor" Value="White"/>
+                                </DataTrigger>
+
+                                <!-- SELECCIONADO -->
+                                <DataTrigger TargetType="Frame"
+                                         Binding="{Binding IsSelected}"
+                                         Value="True">
+                                    <Setter Property="BackgroundColor" Value="#4CAF50"/>
+                                    <Setter Property="BorderColor" Value="#4CAF50"/>
+                                </DataTrigger>
+
+                                <!-- PARCIAL -->
+                                <DataTrigger TargetType="Frame"
+                                 Binding="{Binding State}"
+                                 Value="Partial">
+                                    <Setter Property="BackgroundColor" Value="#FFF3CD"/>
+                                    <Setter Property="BorderColor" Value="#FFC107"/>
+                                </DataTrigger>
+
+                                <!-- PAGADO -->
+                                <DataTrigger TargetType="Frame"
+                                 Binding="{Binding State}"
+                                 Value="Paid">
+                                    <Setter Property="BackgroundColor" Value="#C8E6C9"/>
+                                    <Setter Property="BorderColor" Value="#4CAF50"/>
+                                </DataTrigger>
+
+                                <!-- DESHABILITADO -->
+                                <DataTrigger TargetType="Frame"
+                                     Binding="{Binding IsEnabled}"
+                                     Value="False"> 
+                                    <Setter Property="Opacity" Value="0.5"/>
+                                </DataTrigger>
+
+                            </Frame.Triggers>
+
+                        </Frame>
+
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+
+            <!-- Botón -->
+        <Button Text="Registrar aporte"
+                Command="{Binding AddCommand}" />
+
+        <!-- Lista -->
+        <CollectionView ItemsSource="{Binding Contributions}">
+            <CollectionView.ItemTemplate>
+                    <DataTemplate>
+
+                        <SwipeView>
+
+                            <!-- ELIMINAR -->
+                            <SwipeView.RightItems>
+                                <SwipeItems Mode="Reveal">
+                                    <SwipeItem Text="Eliminar"
+                           BackgroundColor="#E53935"
+                           Command="{Binding BindingContext.DeleteCommand, Source={x:Reference Page}}"
+                           CommandParameter="{Binding .}" />
+                                </SwipeItems>
+                            </SwipeView.RightItems>
+
+                            <!-- CONTENIDO -->
+                            <Frame Margin="8"
+               Padding="12"
+               CornerRadius="12"
+               HasShadow="True"
+               BackgroundColor="White"
+               BorderColor="#E0E0E0">
+
+                                <Grid ColumnDefinitions="*,Auto"
+                  RowDefinitions="Auto,Auto,Auto">
+
+                                    <!-- MES (DESTACADO) -->
+                                    <Label Text="{Binding MonthName}"
+                       FontSize="14"
+                       FontAttributes="Bold"
+                       TextColor="#4CAF50"
+                       Grid.ColumnSpan="2"/>
+
+                                    <!-- NOMBRE -->
+                                    <Label Text="{Binding Name}"
+                       Grid.Row="1"
+                       FontAttributes="Bold"
+                       FontSize="13"/>
+
+                                    <!-- MONTO -->
+                                    <Label Text="{Binding Amount, StringFormat='$ {0:N0}'}"
+                       Grid.Row="1"
+                       Grid.Column="1"
+                       HorizontalOptions="End"
+                       FontAttributes="Bold"
+                       FontSize="14"
+                       TextColor="#2E7D32"/>
+
+                                    <!-- FECHA -->
+                                    <Label Text="{Binding DateFormatted}"
+                       Grid.Row="2"
+                       FontSize="11"
+                       TextColor="Gray"/>
+
+                                </Grid>
+
+                            </Frame>
+
+                        </SwipeView>
+
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

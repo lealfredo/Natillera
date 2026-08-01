@@ -36,6 +36,22 @@
                         Placeholder="Ej: Deicy"
                         Text="{Binding Setting.ContactName}" />
 
+                    <Label
+                        Text="Máximo de retorno en porcentaje"
+                        FontAttributes="Bold" />
+
+                    <Entry
+                        Placeholder="Ej: 0.1 = 10%"
+                        Text="{Binding Setting.MaxReturnPercentage}" />
+
+                    <Label
+                        Text="Aporte mínimo"
+                        FontAttributes="Bold" />
+
+                    <Entry
+                        Placeholder="Ej: $50.000"
+                        Text="{Binding Setting.MinimumContribution}" />
+
                     <Button
                         Text="Guardar configuración"
                         Command="{Binding SaveSettingCommand}"

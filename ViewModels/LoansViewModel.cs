@@ -1,0 +1,714 @@
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Natillera.Data;
+using Natillera.Entities;
+using Natillera.Models;
+using Natillera.Views;
+using Rifa.Entities;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Text;
+using System.Windows.Input;
+
+namespace Natillera.ViewModels
+{
+    public partial class LoansViewModel : BaseViewModel
+    {
+        private readonly INatilleraDatabase _database;
+        public ObservableCollection<LoanItem> Loans { get; set; } = new();
+        public ObservableCollection<ParticipantFilter> Participants { get; set; } = new();
+
+        private bool _hasLoaded;
+        public bool HasLoaded
+        {
+            get => _hasLoaded;
+            set
+            {
+                _hasLoaded = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DateTime FromDate { get; set; } = DateTime.Now.AddMonths(-1);
+        public DateTime ToDate { get; set; } = DateTime.Now;
+
+        private DateTime _startDate;
+        public DateTime StartDate
+        {
+            get => _startDate;
+            set
+            {
+                _startDate = value;
+                OnPropertyChanged();
+            }
+        }
+        private Participant _selectedParticipant;
+        public Participant SelectedParticipant
+        {
+            get => _selectedParticipant;
+            set
+            {
+                _selectedParticipant = value;
+                OnPropertyChanged();
+                if (SetProperty(ref _selectedParticipant, value))
+                {
+                    if (value != null)
+                        LoadCommand.Execute(null);
+                }
+            }
+        }
+        private bool _isPersonal;
+        public bool IsPersonal
+        {
+            get => _isPersonal;
+            set
+            {
+                _isPersonal = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _borrowerName;
+        public string BorrowerName
+        {
+            get => _borrowerName;
+            set
+            {
+                _borrowerName = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal _totalLoaned;
+        public decimal TotalLoaned
+        {
+            get => _totalLoaned;
+            set
+            {
+                _totalLoaned = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal _totalNatilleraLoaned;
+        public decimal TotalNatilleraLoaned
+        {
+            get => _totalNatilleraLoaned;
+            set
+            {
+                _totalNatilleraLoaned = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal _totalNatilleraPaid;
+        public decimal TotalNatilleraPaid
+        {
+            get => _totalNatilleraPaid;
+            set
+            {
+                _totalNatilleraPaid = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal _totalNatilleraBalance;
+        public decimal TotalNatilleraBalance
+        {
+            get => _totalNatilleraBalance;
+            set
+            {
+                _totalNatilleraBalance = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal _totalPersonalLoaned;
+        public decimal TotalPersonalLoaned
+        {
+            get => _totalPersonalLoaned;
+            set
+            {
+                _totalPersonalLoaned = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal _totalPersonalPaid;
+        public decimal TotalPersonalPaid
+        {
+            get => _totalPersonalPaid;
+            set
+            {
+                _totalPersonalPaid = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal _totalPersonalBalance;
+        public decimal TotalPersonalBalance
+        {
+            get => _totalPersonalBalance;
+            set
+            {
+                _totalPersonalBalance = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal _totalPaid;
+        public decimal TotalPaid
+        {
+            get => _totalPaid;
+            set
+            {
+                _totalPaid = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal _totalBalance;
+        public decimal TotalBalance
+        {
+            get => _totalBalance;
+            set
+            {
+                _totalBalance = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _totalLoans;
+        public string TotalLoans
+        {
+            get => _totalLoans;
+            set
+            {
+                _totalLoans = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _amount;
+        public string Amount
+        {
+            get => _amount;
+            set
+            {
+                _amount = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _interestRate;
+        public string InterestRate
+        {
+            get => _interestRate;
+            set
+            {
+                _interestRate = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+        [ObservableProperty]
+        private int _totalLoansCount;
+        [ObservableProperty]
+        private int _totalPersonalLoansCount;
+        [ObservableProperty]
+        private int _totalNatilleraLoansCount;
+
+        private ObservableCollection<ParticipantFilter> _filteredParticipants;
+        public ObservableCollection<ParticipantFilter> FilteredParticipants
+        {
+            get => _filteredParticipants;
+            set => SetProperty(ref _filteredParticipants, value);
+        }
+
+        private ParticipantFilter _selectedFilter;
+        public ParticipantFilter SelectedFilter
+        {
+            get => _selectedFilter;
+            set
+            {
+                if (SetProperty(ref _selectedFilter, value))
+                {
+                    // importante para UI
+                    SearchText = value?.Name;
+                }
+            }
+        }
+
+        private string _searchText;
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                SetProperty(ref _searchText, value);
+                FilterParticipants();
+            }
+        }
+
+        public void FilterParticipants()
+        {
+            if (string.IsNullOrWhiteSpace(SearchText))
+            {
+                FilteredParticipants = new ObservableCollection<ParticipantFilter>(Participants);
+            }
+            else
+            {
+                var filtered = Participants
+                    .Where(p => !string.IsNullOrWhiteSpace(p.Name) &&
+                                p.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                FilteredParticipants = new ObservableCollection<ParticipantFilter>(filtered);
+            }
+        }
+
+        public async Task LoadParticipants()
+        {
+            var list = await _database.GetParticipantsAsync();
+
+            Participants.Clear();
+
+            // OPCIÓN: TODOS
+            Participants.Add(new ParticipantFilter
+            {
+                Name = "Todos",
+                IsAll = true
+            });
+
+            // OPCIÓN: EXTERNOS
+            Participants.Add(new ParticipantFilter
+            {
+                Name = "Externos",
+                Id = null
+            });
+
+            // PARTICIPANTES REALES
+            foreach (var p in list)
+            {
+                Participants.Add(new ParticipantFilter
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Participant = p
+                });
+            }
+
+            FilterParticipants(); // CLAVE
+        }
+
+        private List<LoanItem> _allLoans = new();
+
+        private bool _showPaid;
+        public bool ShowPaid
+        {
+            get => _showPaid;
+            set
+            {
+                _showPaid = value;
+                OnPropertyChanged();
+                ApplyFilter();
+            }
+        }
+
+        private bool _isLoading;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                _isLoading = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ICommand LoadCommand { get; }
+        public ICommand AddLoanCommand { get; }
+        public ICommand DeleteLoanCommand => new Command<LoanItem>(async (l) => await DeleteLoan(l));
+        public ICommand OpenPaymentCommand { get; }
+
+        public LoansViewModel(INatilleraDatabase database)
+        {
+            _database = database;
+            StartDate = DateTime.Now;
+
+            LoadCommand = new Command(async () => await Load());
+            AddLoanCommand = new Command(async () => await AddLoan());
+            //AddPaymentCommand = new Command<LoanItem>(async (l) => await AddPayment(l));
+            OpenPaymentCommand = new Command<LoanItem>(async (l) => await OpenPayment(l));
+        }
+
+        private void ApplyFilter()
+        {
+            var filtered = ShowPaid
+                ? _allLoans
+                    .OrderBy(x => x.IsPaid)
+                    .ThenBy(x => x.Name)        // ordenar por participante
+                    .ThenBy(l => l.StartDate)
+                    .ToList()
+                : _allLoans
+                    .Where(x => !x.IsPaid)
+                    .OrderBy(x => x.Name)       // ordenar por participante
+                    .ThenBy(l => l.StartDate)
+                    .ToList();
+
+            Loans.Clear();
+
+            foreach (var l in filtered)
+                Loans.Add(l);
+        }
+
+        private async Task DeleteLoan(LoanItem item)
+        {
+            if (item == null) return;
+
+            bool confirm = await Shell.Current.DisplayAlert(
+                "Eliminar",
+                "¿Seguro que deseas eliminar este préstamo?",
+                "Sí",
+                "No");
+
+            if (!confirm) return;
+
+            var payments = await _database.GetPaymentsAsync(item.Id);
+
+            if (payments.Any())
+            {
+                await Shell.Current.DisplayAlert(
+                    "Error",
+                    "No puedes eliminar un préstamo con pagos registrados",
+                    "OK");
+                return;
+            }
+
+            await _database.DeleteLoanAsync(item.Id);
+
+            await Load();
+        }
+
+        private async Task OpenPayment(LoanItem item)
+        {
+            if (item == null) return;
+
+            var vm = new LoanPaymentViewModel(_database);
+            await vm.Load(item.Id);
+
+            if (vm.PendingPrincipal <= 0 && !vm.Months.Any(x => !x.IsPaid))
+            {
+                await Shell.Current.DisplayAlert(
+                    "Información",
+                    "No hay pagos pendientes para este préstamo",
+                    "OK");
+
+                return;
+            }
+
+            var page = new LoanPaymentPage(vm);
+
+            await Shell.Current.Navigation.PushModalAsync(page);
+        }
+
+        public async Task Init()
+        {
+            await LoadParticipants();
+        }
+
+        private async Task Load()
+        {
+            try
+            {
+                IsLoading = true;
+
+                Loans.Clear();
+                _allLoans.Clear();
+
+                if (SelectedFilter == null)
+                {
+                    HasLoaded = false;
+                    return;
+                }
+
+                var participantId = GetParticipantId();
+                var isExternal = SelectedFilter?.Id == null && !SelectedFilter.IsAll;
+
+                if (Participants == null || Participants.Count == 0)
+                    return;
+
+                var safeParticipants = Participants
+                        .Where(x => x != null && x.Id > 0)
+                        .ToList();
+
+                var participantsDict = safeParticipants
+                    .GroupBy(x => x.Id)
+                    .ToDictionary(g => g.Key, g => g.First().Name);
+
+                List<Loan> loans = new List<Loan>();
+
+                if (SelectedFilter.IsAll)
+                {
+                    loans = await _database.GetAllLoansAsync();
+                }
+                else if (isExternal)
+                {
+                    loans = await _database.GetAllLoansByNOParticipantAsync();
+                }
+                else
+                {
+                    loans = await _database.GetAllLoansByParticipantAsync(SelectedParticipant.Id);
+                }
+
+                TotalLoansCount = loans.Count;
+                TotalNatilleraLoansCount = loans.Count(x => !x.IsPersonal);
+                TotalPersonalLoansCount = loans.Count(x => x.IsPersonal);
+
+                decimal totalLoaned = 0;
+                decimal totalPaidSum = 0;
+                decimal totalBalanceSum = 0;
+
+                decimal totalNatilleraLoaned = 0;
+                decimal totalNatilleraPaidSum = 0;
+                decimal totalNatilleraBalanceSum = 0;
+
+                decimal totalPersonalLoaned = 0;
+                decimal totalPersonalPaidSum = 0;
+                decimal totalPersonalBalanceSum = 0;
+
+                foreach (var loan in loans)
+                {
+                    var payments = await _database.GetPaymentsAsync(loan.Id);
+
+                    // CAPITAL PAGADO
+                    var principalPaid = payments
+                        .Where(x => !x.IsInterest)
+                        .Sum(x => x.Amount);
+
+                    var pendingPrincipal = loan.PrincipalAmount - principalPaid;
+                    if (pendingPrincipal < 0) pendingPrincipal = 0;
+
+                    // FECHA
+                    var start = loan.StartDate.Date;
+                    var now = DateTime.Now.Date;
+
+                    int totalMonths =
+                        ((now.Year - start.Year) * 12) +
+                        (now.Month - start.Month);
+
+                    if (now.Day >= start.Day)
+                        totalMonths++;
+
+                    if (totalMonths < 1)
+                        totalMonths = 1;
+
+                    // 🔥 INTERÉS AHORA SOBRE SALDO PENDIENTE
+                    var monthlyInterest = pendingPrincipal * (loan.InterestRate / 100m);
+
+                    var totalInterestGenerated = monthlyInterest * totalMonths;
+
+                    var interestPaid = payments
+                        .Where(x => x.IsInterest)
+                        .Sum(x => x.Amount);
+
+                    var pendingInterest = totalInterestGenerated - interestPaid;
+                    if (pendingInterest < 0) pendingInterest = 0;
+
+                    var totalPaid = interestPaid + principalPaid;
+                    var totalBalance = pendingInterest + pendingPrincipal;
+
+                    participantsDict.TryGetValue((int?)loan?.PersonId ?? 0, out var participantName);
+
+                    string name = loan.IsPersonal
+                        ? $"👤 {participantName ?? loan.BorrowerName}"
+                        : participantName ?? loan.BorrowerName;
+
+                    // GLOBAL
+                    totalLoaned += loan.PrincipalAmount;
+                    totalPaidSum += totalPaid;
+                    totalBalanceSum += totalBalance;
+
+                    // SEPARACIÓN
+                    if (loan.IsPersonal)
+                    {
+                        totalPersonalLoaned += loan.PrincipalAmount;
+                        totalPersonalPaidSum += totalPaid;
+                        totalPersonalBalanceSum += totalBalance;
+                    }
+                    else
+                    {
+                        totalNatilleraLoaned += loan.PrincipalAmount;
+                        totalNatilleraPaidSum += totalPaid;
+                        totalNatilleraBalanceSum += totalBalance;
+                    }
+
+                    _allLoans.Add(new LoanItem
+                    {
+                        Id = loan.Id,
+                        Name = name,
+
+                        Amount = loan.PrincipalAmount,
+                        InterestRate = loan.InterestRate,
+
+                        MonthlyInterest = monthlyInterest,
+
+                        TotalInterestGenerated = totalInterestGenerated,
+                        InterestPaid = interestPaid,
+                        PendingInterest = pendingInterest,
+
+                        PrincipalPaid = principalPaid,
+                        PendingPrincipal = pendingPrincipal,
+
+                        TotalPaid = totalPaid,
+                        Balance = totalBalance,
+
+                        IsPaid = pendingPrincipal <= 0,
+                        StartDate = loan.StartDate,
+                        IsPersonal = loan.IsPersonal,
+                    });
+                }
+
+                // TOTALES GENERALES
+                TotalLoaned = totalLoaned;
+                TotalPaid = totalPaidSum;
+                TotalBalance = totalBalanceSum;
+
+                // TOTALES NATILLERA
+                TotalNatilleraLoaned = totalNatilleraLoaned;
+                TotalNatilleraPaid = totalNatilleraPaidSum;
+                TotalNatilleraBalance = totalNatilleraBalanceSum;
+
+                // TOTALES PERSONALES
+                TotalPersonalLoaned = totalPersonalLoaned;
+                TotalPersonalPaid = totalPersonalPaidSum;
+                TotalPersonalBalance = totalPersonalBalanceSum;
+
+                HasLoaded = true;
+
+                ApplyFilter();
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        private int? GetParticipantId()
+        {
+            if (SelectedFilter == null) return null;
+            if (SelectedFilter.IsAll) return null;
+            return SelectedFilter.Id;
+        }
+
+        private async Task AddLoan()
+        {
+            if (SelectedFilter == null && string.IsNullOrWhiteSpace(BorrowerName))
+            {
+                await Shell.Current.DisplayAlert("Error", "Seleccione participante o ingrese nombre", "OK");
+                return;
+            }
+
+            if (!decimal.TryParse(Amount, out var amount) || amount <= 0)
+            {
+                await Shell.Current.DisplayAlert("Error", "Monto inválido", "OK");
+                return;
+            }
+
+            if (!decimal.TryParse(InterestRate, out var rate) || rate <= 0)
+            {
+                await Shell.Current.DisplayAlert("Error", "Interés inválido", "OK");
+                return;
+            }
+
+            decimal fromInterest = 0;
+            decimal fromContributions = 0;
+            decimal totalAvailable = 0;
+            decimal fromRaffles = 0;
+
+            if (!IsPersonal)
+            {
+                var (availableInterest, availableContributions, availableFromRaffles) = await _database.GetAvailableMoney();
+
+                // TOTAL DISPONIBLE REAL
+                totalAvailable =
+                    availableInterest +
+                    availableContributions +
+                    availableFromRaffles;
+
+                if (amount > totalAvailable)
+                {
+                    await Shell.Current.DisplayAlert("Error", "No hay suficiente dinero disponible", "OK");
+                    return;
+                }
+
+                // DISTRIBUCIÓN CORRECTA (3 fuentes)
+                var remaining = amount;
+
+                fromInterest = Math.Min(remaining, availableInterest);
+                remaining -= fromInterest;
+
+                fromContributions = Math.Min(remaining, availableContributions);
+                remaining -= fromContributions;
+
+                fromRaffles = remaining; // lo que quede sale de rifas
+            }
+            else
+            {
+                // INTERESES PERSONALES DISPONIBLES
+                var availablePersonalInterest =
+                    await _database.GetAvailablePersonalInterest();
+
+                // EL RESTO LO PONE LA PERSONA
+                fromInterest = Math.Min(amount, availablePersonalInterest);
+
+                // LO QUE FALTA LO PONE EL DUEÑO
+                fromContributions = amount - fromInterest;
+
+                // PERSONALES NO USAN RIFAS
+                fromRaffles = 0;
+
+                totalAvailable =
+                    availablePersonalInterest + fromContributions;
+            }
+
+            //var (availableInterest, availableContributions) =
+            //    await _database.GetAvailableMoney();
+
+            //var totalAvailable = availableInterest + availableContributions;
+
+            //if (amount > totalAvailable)
+            //{
+            //    await Shell.Current.DisplayAlert("Error", "No hay suficiente dinero disponible", "OK");
+            //    return;
+            //}
+
+            //var fromInterest = Math.Min(amount, availableInterest);
+            //var fromContributions = amount - fromInterest;
+
+            var loan = new Loan
+            {
+                PersonId = SelectedFilter?.Id,
+                BorrowerName = SelectedFilter?.Id != null ? SelectedFilter?.Name : BorrowerName,
+                PrincipalAmount = amount,
+                PrincipalFromInterest = fromInterest,
+                PrincipalFromContributions = fromContributions,
+                InterestRate = rate,
+                StartDate = StartDate,
+                IsPersonal = IsPersonal,
+                PrincipalFromRaffles = fromRaffles
+            };
+
+            await _database.AddLoanAsync(loan);
+
+            // LIMPIAR FORMULARIO
+            Amount = string.Empty;
+            InterestRate = string.Empty;
+            BorrowerName = string.Empty;
+            StartDate = DateTime.Now;
+
+            await Load();
+        }
+    }
+}

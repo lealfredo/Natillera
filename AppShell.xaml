@@ -19,6 +19,7 @@
         </Style>
     </Shell.Resources>
 
+
     <Shell.FlyoutHeader>
         <Grid Padding="30"
           BackgroundColor="#1976D2"
@@ -46,11 +47,58 @@
     </Shell.FlyoutHeader>
 
     <!-- ========================= -->
-    <!-- SECCIÓN PRINCIPAL (TABS) -->
+    <!-- SECCIÓN DASHBOARD -->
     <!-- ========================= -->
     <FlyoutItem
         Title="Inicio"
         Icon="home">
+
+        <ShellContent
+            Title="Dashboard"
+            Icon="home"
+            ContentTemplate="{DataTemplate views:DashboardPage}" />
+    </FlyoutItem>
+
+    <!-- ========================= -->
+    <!-- SECCIÓN NATILLERA (TABS) -->
+    <!-- ========================= -->
+    <FlyoutItem Title="Personas" Icon="winner.png">
+        <ShellContent ContentTemplate="{DataTemplate views:ParticipantsPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Aportes" Icon="winner.png">
+        <ShellContent ContentTemplate="{DataTemplate views:ContributionsPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Prestamos" Icon="winner.png">
+        <ShellContent ContentTemplate="{DataTemplate views:LoansPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem
+        Title="Liquidación"
+        Icon="history">
+
+        <Tab
+        Title="Liquidación"
+        Icon="history">
+            <ShellContent
+                Title="Liquidación"
+                Icon="settings"
+                ContentTemplate="{DataTemplate views:SettlementPage}" />
+
+            <ShellContent
+                Title="Resultados"
+                Icon="settings"
+                ContentTemplate="{DataTemplate views:SettlementResultPage}" />
+        </Tab>
+    </FlyoutItem>
+
+    <!-- ========================= -->
+    <!-- SECCIÓN RIFAS (TABS) -->
+    <!-- ========================= -->
+    <FlyoutItem
+        Title="Rifa"
+        Icon="ticket">
 
         <Tab
             Title="Rifas"

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Natillera.Views.ParticipantStatementPage"
+             Title="Estado de cuenta">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="15" Spacing="15">
+
+            <!-- NOMBRE -->
+            <Label Text="{Binding Name}"
+                   FontSize="20"
+                   FontAttributes="Bold"/>
+
+            <!-- RESUMEN -->
+            <Frame BackgroundColor="#ECEFF1" Padding="15" CornerRadius="12">
+                <VerticalStackLayout>
+
+                    <Label Text="Resumen" FontAttributes="Bold"/>
+
+                    <Label Text="{Binding TotalContributions, StringFormat='Aportes: $ {0:N0}'}"/>
+                    <Label Text="{Binding TotalLoaned, StringFormat='Préstamos: $ {0:N0}'}"/>
+                    <Label Text="{Binding TotalInterestPaid, StringFormat='Intereses pagados: $ {0:N0}'}"/>
+                    <Label Text="{Binding TotalRaffleSpent, StringFormat='Boletas compradas: $ {0:N0}'}"/>
+                    <Label Text="{Binding TotalRaffleWon, StringFormat='Ganado en rifas: $ {0:N0}'}"/>
+
+                    <Label Text="{Binding Balance, StringFormat='Balance: $ {0:N0}'}"
+                           FontAttributes="Bold"
+                           TextColor="Green"/>
+
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- APORTES -->
+            <Label Text="Aportes" FontAttributes="Bold"/>
+
+            <CollectionView ItemsSource="{Binding Contributions}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Padding="10" Margin="5" CornerRadius="10">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="{Binding MonthName}" />
+                                <Label Text="{Binding Amount, StringFormat='$ {0:N0}'}"
+                                       Grid.Column="1"/>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- PRÉSTAMOS -->
+            <Label Text="Préstamos" FontAttributes="Bold"/>
+
+            <CollectionView ItemsSource="{Binding NatilleraLoans}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Padding="10" Margin="5" CornerRadius="10">
+                            <VerticalStackLayout>
+
+                                <Label Text="{Binding Date, StringFormat='{0:dd/MM/yyyy}'}"
+                                       FontSize="12"/>
+
+                                <Label Text="{Binding Amount, StringFormat='Monto: $ {0:N0}'}"/>
+
+                                <Label Text="{Binding Pending, StringFormat='Pendiente: $ {0:N0}'}"
+                                       TextColor="Red"/>
+
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Label Text="👤 Préstamos" FontAttributes="Bold"/>
+
+            <CollectionView ItemsSource="{Binding PersonalLoans}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Padding="10" Margin="5" CornerRadius="10">
+                            <VerticalStackLayout>
+
+                                <Label Text="{Binding Date, StringFormat='{0:dd/MM/yyyy}'}"
+                           FontSize="12"/>
+
+                                <Label Text="{Binding Amount, StringFormat='Monto: $ {0:N0}'}"/>
+
+                                <Label Text="{Binding Pending, StringFormat='Pendiente: $ {0:N0}'}"
+                           TextColor="Red"/>
+
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- RIFAS -->
+            <Label Text="Rifas" FontAttributes="Bold"/>
+
+            <CollectionView ItemsSource="{Binding Raffles}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Padding="10" Margin="5" CornerRadius="10">
+                            <Grid ColumnDefinitions="*,Auto"
+              RowDefinitions="Auto,Auto">
+
+                                <!-- DESCRIPCIÓN -->
+                                <Label Text="{Binding Description}"
+                   FontAttributes="Bold"
+                   Grid.ColumnSpan="2"/>
+
+                                <!-- JUGADO -->
+                                <Label Text="{Binding Amount, StringFormat='Jugado: $ {0:N0}'}"
+                   Grid.Row="1"
+                   FontSize="12"
+                   TextColor="Gray"/>
+
+                                <!-- GANADO -->
+                                <Label Text="{Binding Won, StringFormat='Ganado: $ {0:N0}'}"
+                   Grid.Row="1"
+                   Grid.Column="1"
+                   HorizontalOptions="End"
+                   FontSize="12"
+                   TextColor="Green"
+                   IsVisible="{Binding Won, Converter={StaticResource GreaterThanZeroConverter}}"/>
+
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                   IsVisible="{Binding IsBusy}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

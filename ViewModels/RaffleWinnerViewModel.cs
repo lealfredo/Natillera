@@ -102,13 +102,17 @@ namespace Natillera.ViewModels
 
             foreach (var winner in winners)
             {
-                var participant = await _database
-                    .GetParticipantByIdAsync(winner.ParticipantId);
+                var participant = new Participant();
+                participant = null;
+
+                if (winner.ParticipantId != null)
+                    participant = await _database
+                        .GetParticipantByIdAsync((int)winner.ParticipantId);
 
                 Winners.Add(new WinnerItem
                 {
-                    ParticipantName = participant.Name,
-                    Phone = participant.Phone,
+                    ParticipantName = participant?.Name ?? winner.Bettor,
+                    Phone = participant?.Phone ?? "-",
                     Number = winner.BetNumber,
                     BetType = winner.BetType == BetType.Start ? "Primeros 2" :
                                 winner.BetType == BetType.Middle ? "Dos del medio" :
@@ -141,7 +145,7 @@ namespace Natillera.ViewModels
                 WinningNumber.Length != 4)
                 return;
 
-            var lastDraw = await _database.GetCurrentRaffleAsync();
+            var lastDraw = await _database.GetRaffleByIdAsync(RaffleId);
 
             if (lastDraw == null) return;
 

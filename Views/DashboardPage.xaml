@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Natillera.Views.DashboardPage"
+             Title="Dashboard">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="15" Spacing="15">
+
+            <!-- APORTES -->
+            <Frame CornerRadius="12" Padding="15" BackgroundColor="#E3F2FD">
+                <VerticalStackLayout>
+                    <Label Text="Aportes" FontAttributes="Bold"/>
+                    <Label Text="{Binding TotalContributions, StringFormat='$ {0:N0}'}"
+                       FontSize="22"
+                       FontAttributes="Bold"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- INTERESES -->
+            <Frame CornerRadius="12" Padding="15" BackgroundColor="#F3E5F5">
+                <VerticalStackLayout>
+                    <Label Text="Intereses ganados" FontAttributes="Bold"/>
+                    <Label Text="{Binding TotalInterest, StringFormat='$ {0:N0}'}"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       TextColor="#7B1FA2"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- PRÉSTAMOS -->
+            <Frame CornerRadius="12" Padding="15" BackgroundColor="#FFF3E0">
+                <VerticalStackLayout Spacing="4">
+
+                    <Label Text="Préstamos" FontAttributes="Bold"/>
+
+                    <Label Text="{Binding TotalLoaned, StringFormat='Prestado: $ {0:N0}'}"/>
+
+                    <!-- NUEVO DETALLE -->
+                    <Label Text="{Binding LoanFromContributions, StringFormat='De aportes: $ {0:N0}'}"
+               FontSize="12"
+               TextColor="#6D4C41"/>
+
+                    <Label Text="{Binding LoanFromInterest, StringFormat='De intereses: $ {0:N0}'}"
+               FontSize="12"
+               TextColor="#8E24AA"/>
+
+                    <Label Text="{Binding LoanFromRaffles, StringFormat='De rifas: $ {0:N0}'}"
+               FontSize="12"
+               TextColor="Blue"/>
+                        
+                    <Label Text="{Binding TotalRecovered, StringFormat='Recuperado: $ {0:N0}'}"
+               TextColor="Green"/>
+
+                    <Label Text="{Binding TotalOutstandingLoans, StringFormat='Pendiente: $ {0:N0}'}"
+               TextColor="Red"
+               FontAttributes="Bold"/>
+
+                </VerticalStackLayout>
+            </Frame>
+
+
+            <!-- INTERESES PERSONALES-->
+            <Frame CornerRadius="12" Padding="15" BackgroundColor="#F3E5F5">
+                <VerticalStackLayout>
+                    <Label Text="Intereses ganados" FontAttributes="Bold"/>
+                    <Label Text="{Binding TotalInterestPersonal, StringFormat='$ {0:N0}'}"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       TextColor="#7B1FA2"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- PRÉSTAMOS PERSONALES-->
+            <Frame CornerRadius="12" Padding="15" BackgroundColor="#FFF3E0">
+                <VerticalStackLayout Spacing="4">
+
+                    <Label Text="Préstamos personales" FontAttributes="Bold"/>
+
+                    <Label Text="{Binding TotalLoanedPersonal, StringFormat='Prestado: $ {0:N0}'}"/>
+
+                    <Label Text="{Binding LoanFromInterestPersonal, StringFormat='De intereses: $ {0:N0}'}"
+                           FontSize="12"
+                           TextColor="#8E24AA"/>
+
+                    <Label Text="{Binding TotalRecoveredPersonal, StringFormat='Recuperado: $ {0:N0}'}"
+                            TextColor="Green"/>
+
+                    <Label Text="{Binding TotalOutstandingLoansPersonal, StringFormat='Pendiente: $ {0:N0}'}"
+                           TextColor="Red"
+                           FontAttributes="Bold"/>
+
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- RIFAS -->
+            <Frame CornerRadius="12" Padding="15" BackgroundColor="#FFFDE7">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Rifas" FontAttributes="Bold"/>
+
+                    <Label Text="{Binding TotalRaffles, StringFormat='Total: {0}'}"/>
+
+                    <Label Text="{Binding TotalRaffleCollected, StringFormat='Recaudado: $ {0:N0}'}"/>
+
+                    <Label Text="{Binding TotalRafflePrizes, StringFormat='Premios: $ {0:N0}'}"/>
+
+                    <Label Text="{Binding RaffleProfit, StringFormat='Ganancia: $ {0:N0}'}"
+                       FontAttributes="Bold"
+                       TextColor="Green"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame CornerRadius="12" Padding="15" BackgroundColor="#E3F2FD">
+                <VerticalStackLayout Spacing="4">
+
+                    <Label Text="Disponible" FontAttributes="Bold"/>
+
+                    <Label Text="{Binding AvailableFromContributions, StringFormat='Aportes: $ {0:N0}'}"/>
+                    <Label Text="{Binding AvailableFromInterest, StringFormat='Intereses: $ {0:N0}'}"/>
+                    <Label Text="{Binding AvailableFromRaffles, StringFormat='Rifas: $ {0:N0}'}"/>
+
+                    <Label Text="{Binding AvailableMoney, StringFormat='Total: $ {0:N0}'}"
+                       FontAttributes="Bold"
+                       TextColor="Green"/>
+
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- DISPONIBLE (DESTACADO) -->
+            <Frame CornerRadius="12"
+               Padding="20"
+               BackgroundColor="#263238">
+
+                <VerticalStackLayout>
+                    <Label Text="Disponible"
+                       TextColor="White"
+                       FontSize="18"
+                       FontAttributes="Bold"/>
+
+                    <Label Text="{Binding AvailableMoney, StringFormat='$ {0:N0}'}"
+                       TextColor="White"
+                       FontSize="28"
+                       FontAttributes="Bold"/>
+                </VerticalStackLayout>
+
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
