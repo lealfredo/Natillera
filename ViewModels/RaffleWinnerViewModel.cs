@@ -145,7 +145,7 @@ namespace Natillera.ViewModels
                 WinningNumber.Length != 4)
                 return;
 
-            var lastDraw = await _database.GetCurrentRaffleAsync();
+            var lastDraw = await _database.GetRaffleByIdAsync(RaffleId);
 
             if (lastDraw == null) return;
 

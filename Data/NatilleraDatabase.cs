@@ -157,10 +157,10 @@ namespace Natillera.Data
                 .ToListAsync();
         }
 
-        public Task<int> DeleteBetAsync(int participantId, int raffleWeekId, string number)
+        public Task<int> DeleteBetAsync(int raffleWeekId, string number)
         {
             return _database.Table<Bet>()
-                .Where(b => b.RaffleWeekId == raffleWeekId && b.ParticipantId == participantId && b.Number == number)
+                .Where(b => b.RaffleWeekId == raffleWeekId && b.Number == number)
                 .DeleteAsync();
         }
 

@@ -132,7 +132,6 @@ namespace Natillera.ViewModels
         private async Task DeleteBetGroup(BetNumber bet)
         {
             await _database.DeleteBetAsync(
-                bet.ParticipantId,
                 bet.RaflleWeekId,
                 bet.Number);
 
