@@ -7,33 +7,51 @@
              Title="{Binding Title}">
 
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="15">
+        <VerticalStackLayout Style="{StaticResource PageRoot}">
 
-            <!-- Número seleccionado (NO editable) -->
-            <Border Padding="10" BackgroundColor="#333" >
-                <Label
-                    Text="{Binding SelectedNumber}"
-                    FontSize="24"
-                    HorizontalOptions="Center"
-                    TextColor="White"
-                    FontAttributes="Bold"/>
+            <Label Text="Registrar apuesta"
+                   Style="{StaticResource SectionTitle}" />
+            <Label Text="Asigna el número a un participante"
+                   Style="{StaticResource SectionSubtitle}" />
+
+            <Border Style="{StaticResource HeroNumber}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Número"
+                           TextColor="{StaticResource Secondary}"
+                           FontSize="12"
+                           HorizontalOptions="Center" />
+                    <Label
+                        Text="{Binding SelectedNumber}"
+                        FontSize="32"
+                        HorizontalOptions="Center"
+                        TextColor="{StaticResource White}"
+                        FontAttributes="Bold" />
+                </VerticalStackLayout>
             </Border>
 
-            <!-- Teléfono -->
-            <Entry
-                Placeholder="Teléfono"
-                Keyboard="Telephone"
-                Text="{Binding ParticipantPhone}"
-                Unfocused="OnPhoneUnfocused"/>
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
 
-            <!-- Nombre -->
-            <Entry
-                Placeholder="Nombre del participante"
-                Text="{Binding ParticipantName}"
-                IsEnabled="{Binding IsNewParticipant}" />
+                    <Label Text="Teléfono" Style="{StaticResource Caption}" />
+                    <Entry
+                        Style="{StaticResource FormEntry}"
+                        Placeholder="Teléfono"
+                        Keyboard="Telephone"
+                        Text="{Binding ParticipantPhone}"
+                        Unfocused="OnPhoneUnfocused" />
+
+                    <Label Text="Nombre" Style="{StaticResource Caption}" />
+                    <Entry
+                        Style="{StaticResource FormEntry}"
+                        Placeholder="Nombre del participante"
+                        Text="{Binding ParticipantName}"
+                        IsEnabled="{Binding IsNewParticipant}" />
+                </VerticalStackLayout>
+            </Border>
 
             <Button
                 Text="Guardar apuesta"
+                Style="{StaticResource PrimaryButton}"
                 Command="{Binding SaveBetCommand}" />
 
         </VerticalStackLayout>

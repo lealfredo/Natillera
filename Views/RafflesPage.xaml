@@ -4,58 +4,52 @@
              x:Class="Natillera.Views.RafflesPage"
              Title="{Binding Title}">
 
-
     <ContentPage.Content>
         <ScrollView>
-            <VerticalStackLayout Padding="20" Spacing="15">
+            <VerticalStackLayout Style="{StaticResource PageRoot}">
+
+                <Label Text="Rifas abiertas"
+                       Style="{StaticResource SectionTitle}" />
+                <Label Text="Toca una rifa para ver opciones"
+                       Style="{StaticResource SectionSubtitle}" />
 
                 <Button
                     Text="{Binding ButtonText}"
-                    BackgroundColor="#1976D2"
-                    TextColor="White"
-                    Command="{Binding GoToCreateRaffleCommand}"/>
-                <StackLayout Spacing="10">
-                    <CollectionView 
-    x:Name="RafflesView"
-    ItemsSource="{Binding Raffles}"
-    SelectionMode="None">
+                    Style="{StaticResource PrimaryButton}"
+                    Command="{Binding GoToCreateRaffleCommand}" />
 
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
+                <CollectionView
+                    x:Name="RafflesView"
+                    ItemsSource="{Binding Raffles}"
+                    SelectionMode="None">
 
-                                <Border Padding="12" Margin="6">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource ListRow}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding BindingContext.ShowOptionsCommand, Source={x:Reference RafflesView}}"
+                                        CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
 
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer
-                        Command="{Binding BindingContext.ShowOptionsCommand, Source={x:Reference RafflesView}}"
-                        CommandParameter="{Binding .}" />
-                                    </Border.GestureRecognizers>
+                                <VerticalStackLayout Spacing="6">
+                                    <Label
+                                        Text="{Binding DrawDate, StringFormat='Sorteo: {0:dd/MM/yyyy}'}"
+                                        Style="{StaticResource BodyLabel}"
+                                        FontAttributes="Bold" />
+                                    <Label
+                                        Text="{Binding LotteryName}"
+                                        Style="{StaticResource Caption}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
 
-                                    <VerticalStackLayout Spacing="10">
-
-                                        <Label
-                        Text="{Binding DrawDate, StringFormat='Sorteo: {0:dd/MM/yyyy}'}"
-                        FontSize="13" />
-
-                                        <Label
-                        Text="{Binding LotteryName}"
-                        FontSize="13"
-                        TextColor="Gray" />
-
-                                    </VerticalStackLayout>
-                                </Border>
-
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                    
-                    <VerticalStackLayout
-                           IsVisible="{Binding NoExist}">
-                        <Label Text="No hay rifas abiertas"
-                           HorizontalOptions="Center"
-                           TextColor="Gray"/>
-                    </VerticalStackLayout>
-                </StackLayout>
+                <VerticalStackLayout IsVisible="{Binding NoExist}">
+                    <Label Text="No hay rifas abiertas"
+                           Style="{StaticResource EmptyStateLabel}" />
+                </VerticalStackLayout>
 
             </VerticalStackLayout>
         </ScrollView>
