@@ -5,84 +5,61 @@
              Title="Configuración y respaldo">
 
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="25">
+        <VerticalStackLayout Style="{StaticResource PageRoot}">
 
-            <!-- CONFIGURACIÓN -->
-            <Border
-                Padding="20"
-                Stroke="#E0E0E0">
+            <Label Text="Ajustes"
+                   Style="{StaticResource SectionTitle}" />
+            <Label Text="WhatsApp, reglas y respaldo"
+                   Style="{StaticResource SectionSubtitle}" />
 
-                <VerticalStackLayout Spacing="15">
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
 
-                    <Label
-                        Text="Configuración de WhatsApp"
-                        FontSize="18"
-                        FontAttributes="Bold" />
+                    <Label Text="Configuración"
+                           Style="{StaticResource FieldLabel}"
+                           FontSize="16" />
 
-                    <Label
-                        Text="Número de WhatsApp"
-                        FontAttributes="Bold" />
+                    <Label Text="Número de WhatsApp" Style="{StaticResource Caption}" />
+                    <Entry Style="{StaticResource FormEntry}"
+                           Placeholder="Ej: 3001234567"
+                           Keyboard="Telephone"
+                           Text="{Binding Setting.WhatsAppNumber}" />
 
-                    <Entry
-                        Placeholder="Ej: 3001234567"
-                        Keyboard="Telephone"
-                        Text="{Binding Setting.WhatsAppNumber}" />
+                    <Label Text="Nombre de contacto" Style="{StaticResource Caption}" />
+                    <Entry Style="{StaticResource FormEntry}"
+                           Placeholder="Ej: Deicy"
+                           Text="{Binding Setting.ContactName}" />
 
-                    <Label
-                        Text="Nombre de contacto"
-                        FontAttributes="Bold" />
+                    <Label Text="Máximo de retorno (%)" Style="{StaticResource Caption}" />
+                    <Entry Style="{StaticResource FormEntry}"
+                           Placeholder="Ej: 0.1 = 10%"
+                           Text="{Binding Setting.MaxReturnPercentage}" />
 
-                    <Entry
-                        Placeholder="Ej: Deicy"
-                        Text="{Binding Setting.ContactName}" />
+                    <Label Text="Aporte mínimo" Style="{StaticResource Caption}" />
+                    <Entry Style="{StaticResource FormEntry}"
+                           Placeholder="Ej: 50000"
+                           Text="{Binding Setting.MinimumContribution}" />
 
-                    <Label
-                        Text="Máximo de retorno en porcentaje"
-                        FontAttributes="Bold" />
-
-                    <Entry
-                        Placeholder="Ej: 0.1 = 10%"
-                        Text="{Binding Setting.MaxReturnPercentage}" />
-
-                    <Label
-                        Text="Aporte mínimo"
-                        FontAttributes="Bold" />
-
-                    <Entry
-                        Placeholder="Ej: $50.000"
-                        Text="{Binding Setting.MinimumContribution}" />
-
-                    <Button
-                        Text="Guardar configuración"
-                        Command="{Binding SaveSettingCommand}"
-                        BackgroundColor="#1976D2"
-                        TextColor="White"/>
+                    <Button Text="Guardar configuración"
+                            Style="{StaticResource PrimaryButton}"
+                            Command="{Binding SaveSettingCommand}" />
                 </VerticalStackLayout>
             </Border>
 
-            <!-- BACKUP -->
-            <Border
-                Padding="20"
-                Stroke="#E0E0E0">
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Respaldo de información"
+                           Style="{StaticResource FieldLabel}"
+                           FontSize="16" />
+                    <Label Text="Exporta o importa todos los datos de la app"
+                           Style="{StaticResource Caption}" />
 
-                <VerticalStackLayout Spacing="15">
-
-                    <Label
-                        Text="Respaldo de información"
-                        FontSize="18"
-                        FontAttributes="Bold" />
-
-                    <Button
-                        Text="Exportar datos"
-                        Command="{Binding ExportCommand}"
-                        BackgroundColor="#1976D2"
-                        TextColor="White" />
-
-                    <Button
-                        Text="Importar datos"
-                        Command="{Binding ImportCommand}"
-                        BackgroundColor="#455A64"
-                        TextColor="White" />
+                    <Button Text="Exportar datos"
+                            Style="{StaticResource PrimaryButton}"
+                            Command="{Binding ExportCommand}" />
+                    <Button Text="Importar datos"
+                            Style="{StaticResource SecondaryButton}"
+                            Command="{Binding ImportCommand}" />
                 </VerticalStackLayout>
             </Border>
 

@@ -3,39 +3,50 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Natillera.Views.ContributionReceiptPage"
              Title="Recibo">
-    <VerticalStackLayout>
-        <Frame Padding="15" CornerRadius="12" BackgroundColor="White">
-            <VerticalStackLayout Spacing="10">
 
-                <Label Text="RECIBO DE APORTE"
-               FontSize="18"
-               FontAttributes="Bold"
-               HorizontalOptions="Center"/>
+    <ScrollView>
+        <VerticalStackLayout Style="{StaticResource PageRoot}">
 
-                <Label Text="{Binding ParticipantName}" FontAttributes="Bold"/>
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
 
-                <Label Text="{Binding Date, StringFormat='Fecha: {0:dd/MM/yyyy}'}"/>
+                    <Label Text="Recibo de aporte"
+                           Style="{StaticResource SectionTitle}"
+                           HorizontalOptions="Center" />
 
-                <!-- DETALLE -->
-                <CollectionView ItemsSource="{Binding Details}">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <Grid ColumnDefinitions="*,Auto">
-                                <Label Text="{Binding MonthName}" />
-                                <Label Text="{Binding Amount, StringFormat='$ {0:N0}'}"
-                               Grid.Column="1"/>
-                            </Grid>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                    <Label Text="{Binding ParticipantName}"
+                           Style="{StaticResource BodyLabel}"
+                           FontAttributes="Bold"
+                           FontSize="16" />
 
-                <!-- TOTAL -->
-                <Label Text="{Binding Total, StringFormat='TOTAL: $ {0:N0}'}"
-               FontAttributes="Bold"
-               HorizontalOptions="End"
-               TextColor="Green"/>
+                    <Label Text="{Binding Date, StringFormat='Fecha: {0:dd/MM/yyyy}'}"
+                           Style="{StaticResource Caption}" />
 
-            </VerticalStackLayout>
-        </Frame>
-    </VerticalStackLayout>
+                    <BoxView HeightRequest="1" BackgroundColor="{StaticResource BorderSubtle}" />
+
+                    <CollectionView ItemsSource="{Binding Details}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="*,Auto" Padding="0,6">
+                                    <Label Text="{Binding MonthName}" Style="{StaticResource BodyLabel}" />
+                                    <Label Text="{Binding Amount, StringFormat='$ {0:N0}'}"
+                                           Grid.Column="1"
+                                           Style="{StaticResource BodyLabel}"
+                                           FontAttributes="Bold" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <BoxView HeightRequest="1" BackgroundColor="{StaticResource BorderSubtle}" />
+
+                    <Label Text="{Binding Total, StringFormat='TOTAL: $ {0:N0}'}"
+                           Style="{StaticResource SuccessText}"
+                           FontSize="18"
+                           HorizontalOptions="End" />
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

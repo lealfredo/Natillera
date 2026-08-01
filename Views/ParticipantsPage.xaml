@@ -4,143 +4,130 @@
              x:Class="Natillera.Views.ParticipantsPage"
              x:Name="Page"
              Title="Participantes">
+
     <ScrollView>
+        <VerticalStackLayout Style="{StaticResource PageRoot}">
 
-    <VerticalStackLayout Padding="15" Spacing="10">
+            <Label Text="Personas"
+                   Style="{StaticResource SectionTitle}" />
+            <Label Text="Agrega o edita participantes"
+                   Style="{StaticResource SectionSubtitle}" />
 
-        <Entry Placeholder="Teléfono"
-               Keyboard="Telephone"
-               Text="{Binding Phone}" />
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="12">
 
-        <!-- Formulario -->
-        <Entry Placeholder="Nombre"
-               Text="{Binding Name}" />
+                    <Label Text="Datos" Style="{StaticResource FieldLabel}" FontSize="16" />
 
-        <!-- Monto -->
-        <Entry Placeholder="Aporte mensual"
-               Keyboard="Numeric"
-               Text="{Binding MonthlyContribution}" />
+                    <Label Text="Teléfono" Style="{StaticResource Caption}" />
+                    <Entry Style="{StaticResource FormEntry}"
+                           Placeholder="Teléfono"
+                           Keyboard="Telephone"
+                           Text="{Binding Phone}" />
 
-        <Button 
-            Text="{Binding IsEditing, Converter={StaticResource BoolToTextButtonConverter}}"
-            Command="{Binding AddCommand}" />
-            <Button 
-            Text="Cancelar edición"
-            BackgroundColor="Gray"
-            TextColor="White"
-            IsVisible="{Binding IsEditing}"
-            Command="{Binding CancelEditCommand}" />
+                    <Label Text="Nombre" Style="{StaticResource Caption}" />
+                    <Entry Style="{StaticResource FormEntry}"
+                           Placeholder="Nombre"
+                           Text="{Binding Name}" />
 
-            <!-- Lista -->
-        <CollectionView ItemsSource="{Binding Participants}"
-                        RemainingItemsThreshold="5"
-                        RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
-            <CollectionView.ItemTemplate>
+                    <Label Text="Aporte mensual" Style="{StaticResource Caption}" />
+                    <Entry Style="{StaticResource FormEntry}"
+                           Placeholder="Aporte mensual"
+                           Keyboard="Numeric"
+                           Text="{Binding MonthlyContribution}" />
+
+                    <Button
+                        Text="{Binding IsEditing, Converter={StaticResource BoolToTextButtonConverter}}"
+                        Style="{StaticResource PrimaryButton}"
+                        Command="{Binding AddCommand}" />
+
+                    <Button
+                        Text="Cancelar edición"
+                        Style="{StaticResource SecondaryButton}"
+                        IsVisible="{Binding IsEditing}"
+                        Command="{Binding CancelEditCommand}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Label Text="Lista"
+                   Style="{StaticResource FieldLabel}"
+                   FontSize="16" />
+
+            <CollectionView ItemsSource="{Binding Participants}"
+                            RemainingItemsThreshold="5"
+                            RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
+                <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <SwipeView>
-
-                            <!-- ACCIONES -->
                             <SwipeView.RightItems>
                                 <SwipeItems Mode="Reveal">
-                                    <SwipeItem BackgroundColor="#1976D2"
+                                    <SwipeItem Text="Estado"
+                                               BackgroundColor="{StaticResource Info}"
                                                Command="{Binding BindingContext.ViewStatementCommand, Source={x:Reference Page}}"
-                                               CommandParameter="{Binding .}">
-                                        <SwipeItem.IconImageSource>
-                                            <FontImageSource Glyph="📊" Color="White"/>
-                                        </SwipeItem.IconImageSource>
-                                    </SwipeItem>
-
-                                    <SwipeItem BackgroundColor="#E53935"
+                                               CommandParameter="{Binding .}" />
+                                    <SwipeItem Text="Eliminar"
+                                               BackgroundColor="{StaticResource Danger}"
                                                Command="{Binding BindingContext.DeleteCommand, Source={x:Reference Page}}"
-                                               CommandParameter="{Binding .}">
-                                        <SwipeItem.IconImageSource>
-                                            <FontImageSource Glyph="🗑️" Color="White"/>
-                                        </SwipeItem.IconImageSource>
-                                    </SwipeItem>
+                                               CommandParameter="{Binding .}" />
                                 </SwipeItems>
                             </SwipeView.RightItems>
 
-                            <!-- CARD -->
-                            <Frame Padding="12"
-               Margin="6"
-               CornerRadius="14"
-               HasShadow="True"
-               BackgroundColor="White"
-               BorderColor="#E0E0E0">
+                            <Border Style="{StaticResource ListRow}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding BindingContext.SelectParticipantCommand, Source={x:Reference Page}}"
+                                        CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
 
-                                <Grid ColumnDefinitions="Auto,*,Auto"
-                  VerticalOptions="Center">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border"
+                                                 Binding="{Binding IsSelected}"
+                                                 Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
+                                        <Setter Property="Stroke" Value="{StaticResource Primary}" />
+                                    </DataTrigger>
+                                </Border.Triggers>
 
-                                    <!-- ICONO -->
-                                    <Frame WidthRequest="40"
-                                           HeightRequest="40"
-                                           CornerRadius="20"
-                                           BackgroundColor="{Binding StatusColor}"
-                                           BorderColor="{Binding StatusColor}"
-                                           Padding="0"
-                                           VerticalOptions="Center">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
 
+                                    <Border WidthRequest="40"
+                                            HeightRequest="40"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 20"
+                                            BackgroundColor="{Binding StatusColor}"
+                                            Padding="0"
+                                            VerticalOptions="Center">
                                         <Label Text="{Binding Initials}"
                                                TextColor="White"
                                                HorizontalOptions="Center"
                                                VerticalOptions="Center"
-                                               FontAttributes="Bold"/>
-                                    </Frame>
+                                               FontAttributes="Bold" />
+                                    </Border>
 
-                                    <!-- INFO -->
-                                    <VerticalStackLayout Grid.Column="1"
-                                     Margin="10,0"
-                                     Spacing="2">
-
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
                                         <Label Text="{Binding Name}"
-                           FontAttributes="Bold"
-                           FontSize="15"/>
-
+                                               Style="{StaticResource BodyLabel}"
+                                               FontAttributes="Bold"
+                                               FontSize="15" />
                                         <Label Text="{Binding Phone}"
-                           FontSize="12"
-                           TextColor="Gray"/>
-
+                                               Style="{StaticResource Caption}" />
                                         <Label Text="{Binding MonthlyContribution, StringFormat='Aporte: $ {0:N0}'}"
-                           FontSize="12"
-                           TextColor="#4CAF50"/>
-
+                                               Style="{StaticResource SuccessText}"
+                                               FontSize="12" />
                                     </VerticalStackLayout>
 
-                                    <!-- INDICADOR -->
                                     <BoxView Grid.Column="2"
-                         WidthRequest="6"
-                         CornerRadius="3"
-                         Color="#4CAF50"
-                         VerticalOptions="Fill"
-                         IsVisible="{Binding IsSelected}"/>
-
+                                             WidthRequest="6"
+                                             CornerRadius="3"
+                                             Color="{StaticResource Primary}"
+                                             VerticalOptions="Fill"
+                                             IsVisible="{Binding IsSelected}" />
                                 </Grid>
-
-                                <!-- TAP -->
-                                <Frame.GestureRecognizers>
-                                    <TapGestureRecognizer
-                    Command="{Binding BindingContext.SelectParticipantCommand, Source={x:Reference Page}}"
-                    CommandParameter="{Binding .}" />
-                                </Frame.GestureRecognizers>
-
-                                <!-- SELECCIÓN -->
-                                <Frame.Triggers>
-                                    <DataTrigger TargetType="Frame"
-                             Binding="{Binding IsSelected}"
-                             Value="True">
-                                        <Setter Property="BackgroundColor" Value="#E3F2FD"/>
-                                        <Setter Property="BorderColor" Value="#1976D2"/>
-                                    </DataTrigger>
-                                </Frame.Triggers>
-
-                            </Frame>
-
+                            </Border>
                         </SwipeView>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
-        </CollectionView>
+            </CollectionView>
 
         </VerticalStackLayout>
-
     </ScrollView>
 </ContentPage>
